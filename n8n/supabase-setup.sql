@@ -1,5 +1,5 @@
 -- ============================================================
--- Kita Bergfalke — Supabase Setup für n8n-Integration
+-- Kita Connect — Supabase Setup für n8n-Integration
 -- Ausführen in: Supabase Dashboard > SQL Editor
 -- ============================================================
 

@@ -60,7 +60,7 @@
       "position": [660, 300],
       "credentials": {
         "postgres": {
-          "name": "Supabase Postgres (Kita Bergfalke)"
+          "name": "Supabase Postgres (Kita Connect)"
         }
       },
       "notes": "Schreibt Notification NUR für den Elternteil des Kindes (RLS greift automatisch beim Lesen)"
@@ -101,6 +101,6 @@
     "executionOrder": "v1"
   },
   "staticData": null,
-  "tags": ["kita-bergfalke", "entwicklung", "rls"],
+  "tags": ["kita-connect", "entwicklung", "rls"],
   "pinData": {}
 }

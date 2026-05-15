@@ -41,11 +41,11 @@
     },
     {
       "parameters": {
-        "fromEmail": "willkommen@bergfalke.de",
+        "fromEmail": "willkommen@kita-connect.app",
         "toEmail": "={{ $('Webhook: Parent Registered').item.json.email }}",
-        "subject": "Willkommen bei der Kita Bergfalke! 🐦",
+        "subject": "Willkommen bei der Kita Connect! 🐦",
         "emailType": "html",
-        "message": "<!DOCTYPE html><html><body style=\"font-family:sans-serif;max-width:600px;margin:auto;padding:20px;\">\n<div style=\"background:linear-gradient(135deg,#2EA89A,#1D7A6F);padding:32px;border-radius:8px 8px 0 0;text-align:center;\">\n  <h1 style=\"color:white;margin:0;font-size:28px;\">Willkommen!</h1>\n  <p style=\"color:#E1F5EE;margin:8px 0 0;\">Kita Bergfalke · Berlin</p>\n</div>\n<div style=\"background:#f9f9f9;padding:32px;border-radius:0 0 8px 8px;border:1px solid #e0e0e0;\">\n  <p style=\"font-size:18px;\">Hallo {{ $('Webhook: Parent Registered').item.json.full_name }},</p>\n  <p style=\"line-height:1.7;\">wir freuen uns, Sie in der Kita-Bergfalke-Familie begrüßen zu dürfen! Ihr Eltern-Portal ist jetzt aktiv und Sie können sofort loslegen.</p>\n\n  <div style=\"background:white;border-radius:8px;padding:20px;margin:24px 0;border:1px solid #e0e0e0;\">\n    <h3 style=\"color:#2EA89A;margin-top:0;\">Was Sie im Portal finden:</h3>\n    <ul style=\"line-height:2;color:#444;\">\n      <li>💬 Direkte Nachrichten mit den Erzieherinnen</li>\n      <li>📋 Entwicklungsdokumentation Ihres Kindes</li>\n      <li>🎯 Meilenstein-Tracking</li>\n      <li>🎫 Support-Tickets erstellen</li>\n      <li>🤖 KI-Chatbot für häufige Fragen</li>\n    </ul>\n  </div>\n\n  <div style=\"text-align:center;margin:24px 0;\">\n    <a href=\"https://kita-bergfalke.vercel.app/portal\" style=\"background:#2EA89A;color:white;padding:14px 32px;text-decoration:none;border-radius:8px;display:inline-block;font-size:16px;font-weight:bold;\">Zum Eltern-Portal</a>\n  </div>\n\n  <div style=\"background:#E1F5EE;border-radius:6px;padding:16px;margin-top:16px;\">\n    <p style=\"margin:0;color:#1D7A6F;font-size:14px;\"><strong>Öffnungszeiten:</strong> Mo–Fr 7:30–17:00 Uhr<br/>Bei Fragen: kita@bergfalke.de oder über den Chat im Portal.</p>\n  </div>\n\n  <p style=\"color:#888;font-size:12px;margin-top:24px;text-align:center;\">Kita Bergfalke · Berlin · DSGVO-konform · EU-Hosting</p>\n</div>\n</body></html>",
+        "message": "<!DOCTYPE html><html><body style=\"font-family:sans-serif;max-width:600px;margin:auto;padding:20px;\">\n<div style=\"background:linear-gradient(135deg,#2EA89A,#1D7A6F);padding:32px;border-radius:8px 8px 0 0;text-align:center;\">\n  <h1 style=\"color:white;margin:0;font-size:28px;\">Willkommen!</h1>\n  <p style=\"color:#E1F5EE;margin:8px 0 0;\">Kita Connect · Berlin</p>\n</div>\n<div style=\"background:#f9f9f9;padding:32px;border-radius:0 0 8px 8px;border:1px solid #e0e0e0;\">\n  <p style=\"font-size:18px;\">Hallo {{ $('Webhook: Parent Registered').item.json.full_name }},</p>\n  <p style=\"line-height:1.7;\">wir freuen uns, Sie in der Kita-Connect-Familie begrüßen zu dürfen! Ihr Eltern-Portal ist jetzt aktiv und Sie können sofort loslegen.</p>\n\n  <div style=\"background:white;border-radius:8px;padding:20px;margin:24px 0;border:1px solid #e0e0e0;\">\n    <h3 style=\"color:#2EA89A;margin-top:0;\">Was Sie im Portal finden:</h3>\n    <ul style=\"line-height:2;color:#444;\">\n      <li>💬 Direkte Nachrichten mit den Erzieherinnen</li>\n      <li>📋 Entwicklungsdokumentation Ihres Kindes</li>\n      <li>🎯 Meilenstein-Tracking</li>\n      <li>🎫 Support-Tickets erstellen</li>\n      <li>🤖 KI-Chatbot für häufige Fragen</li>\n    </ul>\n  </div>\n\n  <div style=\"text-align:center;margin:24px 0;\">\n    <a href=\"https://{{ $env.PORTAL_URL }}/portal\" style=\"background:#2EA89A;color:white;padding:14px 32px;text-decoration:none;border-radius:8px;display:inline-block;font-size:16px;font-weight:bold;\">Zum Eltern-Portal</a>\n  </div>\n\n  <div style=\"background:#E1F5EE;border-radius:6px;padding:16px;margin-top:16px;\">\n    <p style=\"margin:0;color:#1D7A6F;font-size:14px;\"><strong>Öffnungszeiten:</strong> Mo–Fr 7:30–17:00 Uhr<br/>Bei Fragen: noreply@kita-connect.app oder über den Chat im Portal.</p>\n  </div>\n\n  <p style=\"color:#888;font-size:12px;margin-top:24px;text-align:center;\">Kita Connect · Berlin · DSGVO-konform · EU-Hosting</p>\n</div>\n</body></html>",
         "options": {}
       },
       "id": "send-welcome",
@@ -55,7 +55,7 @@
       "position": [660, 300],
       "credentials": {
         "smtp": {
-          "name": "Resend SMTP (Kita Bergfalke)"
+          "name": "Resend SMTP (Kita Connect)"
         }
       }
     },
@@ -73,10 +73,10 @@
       "position": [880, 300],
       "credentials": {
         "postgres": {
-          "name": "Supabase Postgres (Kita Bergfalke)"
+          "name": "Supabase Postgres (Kita Connect)"
         }
       },
-      "notes": "Erste In-App Notification: 'Willkommen bei Kita Bergfalke!'"
+      "notes": "Erste In-App Notification: 'Willkommen bei Kita Connect!'"
     }
   ],
   "connections": {
@@ -103,6 +103,6 @@
     "executionOrder": "v1"
   },
   "staticData": null,
-  "tags": ["kita-bergfalke", "onboarding"],
+  "tags": ["kita-connect", "onboarding"],
   "pinData": {}
 }
