@@ -1,0 +1,106 @@
+{
+  "name": "04 — Entwicklungsdoku → In-App Notification (RLS-sicher)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "observation-created",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-observation",
+      "name": "Webhook: Observation Created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [200, 300],
+      "webhookId": "observation-created"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "ok",
+        "options": {}
+      },
+      "id": "respond-ok",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [420, 160]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.parent_id }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "isNotEmpty" }
+            }
+          ]
+        }
+      },
+      "id": "check-parent",
+      "name": "Parent-ID vorhanden?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "notifications",
+        "additionalFields": {},
+        "columns": "user_id, child_id, type, title, body"
+      },
+      "id": "insert-notification",
+      "name": "Supabase: In-App Notification schreiben",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [660, 300],
+      "credentials": {
+        "postgres": {
+          "name": "Supabase Postgres (Kita Bergfalke)"
+        }
+      },
+      "notes": "Schreibt Notification NUR für den Elternteil des Kindes (RLS greift automatisch beim Lesen)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Payload für die notifications-Tabelle aufbauen\nconst data = $input.all()[0].json;\n\nconst categoryLabels = {\n  'sprache':       'Sprachentwicklung',\n  'motorik':       'Motorik',\n  'sozial':        'Sozialverhalten',\n  'kreativitaet':  'Kreativität',\n  'mathematik':    'Mathematik/Naturwissenschaft',\n  'selbstaendigkeit': 'Selbständigkeit'\n};\n\nconst categoryLabel = categoryLabels[data.category] || data.category;\n\nreturn [{\n  json: {\n    user_id:  data.parent_id,\n    child_id: data.child_id,\n    type:     'observation_added',\n    title:    `Neue Beobachtung: ${categoryLabel}`,\n    body:     `Eine neue Entwicklungsbeobachtung zu ${data.child_name} wurde von einem Erzieher hinzugefügt.`\n  }\n}];"
+      },
+      "id": "build-payload",
+      "name": "Notification-Payload aufbauen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 460]
+    }
+  ],
+  "connections": {
+    "Webhook: Observation Created": {
+      "main": [
+        [
+          { "node": "Respond 200", "type": "main", "index": 0 },
+          { "node": "Parent-ID vorhanden?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Parent-ID vorhanden?": {
+      "main": [
+        [{ "node": "Notification-Payload aufbauen", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Notification-Payload aufbauen": {
+      "main": [
+        [{ "node": "Supabase: In-App Notification schreiben", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["kita-bergfalke", "entwicklung", "rls"],
+  "pinData": {}
+}
