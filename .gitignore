@@ -36,3 +36,7 @@ npm-debug.log*
 
 # n8n local data (Docker Volume wird nicht committet)
 n8n/n8n_data/
+
+# Interne Arbeitsdokumente
+*-handover.md
+handover.md
