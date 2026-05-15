@@ -1,0 +1,108 @@
+{
+  "name": "03 — Neue Registrierung → Willkommens-Mail",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "parent-registered",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-register",
+      "name": "Webhook: Parent Registered",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [200, 300],
+      "webhookId": "parent-registered"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "ok",
+        "options": {}
+      },
+      "id": "respond-ok",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [420, 160]
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "seconds"
+      },
+      "id": "wait",
+      "name": "2 Sekunden warten",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [420, 300],
+      "notes": "Kurz warten damit Supabase Auth vollständig abgeschlossen ist"
+    },
+    {
+      "parameters": {
+        "fromEmail": "willkommen@bergfalke.de",
+        "toEmail": "={{ $('Webhook: Parent Registered').item.json.email }}",
+        "subject": "Willkommen bei der Kita Bergfalke! 🐦",
+        "emailType": "html",
+        "message": "<!DOCTYPE html><html><body style=\"font-family:sans-serif;max-width:600px;margin:auto;padding:20px;\">\n<div style=\"background:linear-gradient(135deg,#2EA89A,#1D7A6F);padding:32px;border-radius:8px 8px 0 0;text-align:center;\">\n  <h1 style=\"color:white;margin:0;font-size:28px;\">Willkommen!</h1>\n  <p style=\"color:#E1F5EE;margin:8px 0 0;\">Kita Bergfalke · Berlin</p>\n</div>\n<div style=\"background:#f9f9f9;padding:32px;border-radius:0 0 8px 8px;border:1px solid #e0e0e0;\">\n  <p style=\"font-size:18px;\">Hallo {{ $('Webhook: Parent Registered').item.json.full_name }},</p>\n  <p style=\"line-height:1.7;\">wir freuen uns, Sie in der Kita-Bergfalke-Familie begrüßen zu dürfen! Ihr Eltern-Portal ist jetzt aktiv und Sie können sofort loslegen.</p>\n\n  <div style=\"background:white;border-radius:8px;padding:20px;margin:24px 0;border:1px solid #e0e0e0;\">\n    <h3 style=\"color:#2EA89A;margin-top:0;\">Was Sie im Portal finden:</h3>\n    <ul style=\"line-height:2;color:#444;\">\n      <li>💬 Direkte Nachrichten mit den Erzieherinnen</li>\n      <li>📋 Entwicklungsdokumentation Ihres Kindes</li>\n      <li>🎯 Meilenstein-Tracking</li>\n      <li>🎫 Support-Tickets erstellen</li>\n      <li>🤖 KI-Chatbot für häufige Fragen</li>\n    </ul>\n  </div>\n\n  <div style=\"text-align:center;margin:24px 0;\">\n    <a href=\"https://kita-bergfalke.vercel.app/portal\" style=\"background:#2EA89A;color:white;padding:14px 32px;text-decoration:none;border-radius:8px;display:inline-block;font-size:16px;font-weight:bold;\">Zum Eltern-Portal</a>\n  </div>\n\n  <div style=\"background:#E1F5EE;border-radius:6px;padding:16px;margin-top:16px;\">\n    <p style=\"margin:0;color:#1D7A6F;font-size:14px;\"><strong>Öffnungszeiten:</strong> Mo–Fr 7:30–17:00 Uhr<br/>Bei Fragen: kita@bergfalke.de oder über den Chat im Portal.</p>\n  </div>\n\n  <p style=\"color:#888;font-size:12px;margin-top:24px;text-align:center;\">Kita Bergfalke · Berlin · DSGVO-konform · EU-Hosting</p>\n</div>\n</body></html>",
+        "options": {}
+      },
+      "id": "send-welcome",
+      "name": "Resend: Willkommens-Mail senden",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [660, 300],
+      "credentials": {
+        "smtp": {
+          "name": "Resend SMTP (Kita Bergfalke)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "notifications",
+        "columns": "user_id, type, title, body",
+        "additionalFields": {}
+      },
+      "id": "welcome-notification",
+      "name": "Supabase: Willkommens-Notification",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.3,
+      "position": [880, 300],
+      "credentials": {
+        "postgres": {
+          "name": "Supabase Postgres (Kita Bergfalke)"
+        }
+      },
+      "notes": "Erste In-App Notification: 'Willkommen bei Kita Bergfalke!'"
+    }
+  ],
+  "connections": {
+    "Webhook: Parent Registered": {
+      "main": [
+        [
+          { "node": "Respond 200", "type": "main", "index": 0 },
+          { "node": "2 Sekunden warten", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "2 Sekunden warten": {
+      "main": [
+        [{ "node": "Resend: Willkommens-Mail senden", "type": "main", "index": 0 }]
+      ]
+    },
+    "Resend: Willkommens-Mail senden": {
+      "main": [
+        [{ "node": "Supabase: Willkommens-Notification", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["kita-bergfalke", "onboarding"],
+  "pinData": {}
+}

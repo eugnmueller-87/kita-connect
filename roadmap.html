@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Kita Bergfalke — Produkt-Roadmap</title>
+<style>
+  :root {
+    --teal:       #2EA89A;
+    --teal-light: #E1F5EE;
+    --teal-dark:  #1D7A6F;
+    --olive:      #8B7D5E;
+    --olive-light:#F5F2EC;
+    --border:     #e0e0e0;
+    --text:       #2c2c2c;
+    --done:       #4CAF50;
+    --done-light: #E8F5E9;
+    --wip:        #FF9800;
+    --wip-light:  #FFF3E0;
+    --todo:       #9E9E9E;
+    --todo-light: #F5F5F5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--text); background: #fafafa; }
+
+  header { background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; padding: 36px 48px; display: flex; justify-content: space-between; align-items: flex-end; }
+  header h1 { font-size: 26px; font-weight: 700; }
+  header p { opacity: 0.85; margin-top: 6px; font-size: 14px; }
+  .header-meta { text-align: right; font-size: 13px; opacity: 0.8; }
+
+  .legend { display: flex; gap: 20px; padding: 16px 48px; background: white; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .dot-done  { background: var(--done); }
+  .dot-wip   { background: var(--wip); }
+  .dot-todo  { background: var(--todo); }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+
+  /* Phase Headers */
+  .phase { margin-bottom: 48px; }
+  .phase-label { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .phase-tag { background: var(--teal); color: white; padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+  .phase-tag.wip { background: var(--wip); }
+  .phase-tag.todo { background: var(--todo); }
+  .phase-title { font-size: 20px; font-weight: 700; color: var(--teal-dark); }
+  .phase-line { flex: 1; height: 1px; background: var(--border); }
+
+  /* Cards Grid */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+
+  .card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 20px; position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .card.done::before  { background: var(--done); }
+  .card.wip::before   { background: var(--wip); }
+  .card.todo::before  { background: var(--todo); }
+
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .card-title { font-size: 15px; font-weight: 600; line-height: 1.3; }
+  .status-badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 10px; flex-shrink: 0; margin-left: 8px; }
+  .status-badge.done  { background: var(--done-light); color: var(--done); }
+  .status-badge.wip   { background: var(--wip-light); color: var(--wip); }
+  .status-badge.todo  { background: var(--todo-light); color: var(--todo); }
+
+  .card-desc { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 12px; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: var(--teal-light); color: var(--teal-dark); font-weight: 500; }
+  .tag.olive { background: var(--olive-light); color: var(--olive); }
+  .tag.gray  { background: #f0f0f0; color: #777; }
+
+  /* Timeline Column Layout for Phase 0 */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .timeline-item { display: flex; gap: 20px; }
+  .timeline-left { display: flex; flex-direction: column; align-items: center; width: 40px; flex-shrink: 0; }
+  .timeline-circle { width: 36px; height: 36px; border-radius: 50%; background: var(--done); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+  .timeline-circle.wip  { background: var(--wip); }
+  .timeline-circle.todo { background: var(--todo); }
+  .timeline-connector { width: 2px; flex: 1; background: var(--border); margin: 4px 0; min-height: 16px; }
+  .timeline-content { flex: 1; padding-bottom: 20px; }
+
+  /* Summary Bar */
+  .summary { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 40px; display: flex; gap: 32px; flex-wrap: wrap; }
+  .summary-stat { text-align: center; }
+  .summary-num { font-size: 32px; font-weight: 700; color: var(--teal); }
+  .summary-label { font-size: 12px; color: #999; margin-top: 2px; }
+
+  .progress-bar { background: #eee; border-radius: 4px; height: 8px; margin-top: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--done), var(--teal)); }
+
+  footer { text-align: center; padding: 32px; color: #aaa; font-size: 12px; border-top: 1px solid var(--border); margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Kita Bergfalke — Produkt-Roadmap</h1>
+    <p>Berlin · Ziel: vollständige Kita-Management-App · ~0 €/Monat laufende Kosten</p>
+  </div>
+  <div class="header-meta">
+    Stand: Mai 2025<br/>
+    Next.js · Supabase · n8n · Vercel
+  </div>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><div class="dot dot-done"></div> Fertig (als Prototyp oder implementiert)</div>
+  <div class="legend-item"><div class="dot dot-wip"></div> In Arbeit / Konfiguration ausstehend</div>
+  <div class="legend-item"><div class="dot dot-todo"></div> Noch nicht gestartet</div>
+</div>
+
+<div class="container">
+
+  <!-- SUMMARY -->
+  <div class="summary">
+    <div class="summary-stat">
+      <div class="summary-num">7</div>
+      <div class="summary-label">Screens als Prototyp</div>
+    </div>
+    <div class="summary-stat">
+      <div class="summary-num">4</div>
+      <div class="summary-label">n8n Workflows ✅</div>
+    </div>
+    <div class="summary-stat">
+      <div class="summary-num">4</div>
+      <div class="summary-label">Kommunikationskanäle</div>
+    </div>
+    <div class="summary-stat">
+      <div class="summary-num">0 €</div>
+      <div class="summary-label">Ziel laufende Kosten</div>
+    </div>
+    <div style="flex:1; min-width:200px; display:flex; flex-direction:column; justify-content:center;">
+      <div style="font-size:13px; color:#666; margin-bottom:6px;">Gesamtfortschritt</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:25%"></div></div>
+      <div style="font-size:12px; color:#999; margin-top:4px;">Phase 1 von 4 abgeschlossen</div>
+    </div>
+  </div>
+
+  <!-- PHASE 0: BEREITS FERTIG -->
+  <div class="phase">
+    <div class="phase-label">
+      <div class="phase-tag">Phase 0</div>
+      <div class="phase-title">Bereits fertig — Prototypen & Konzept</div>
+      <div class="phase-line"></div>
+    </div>
+    <div class="cards">
+
+      <div class="card done">
+        <div class="card-header">
+          <div class="card-title">App-Architektur</div>
+          <div class="status-badge done">Fertig</div>
+        </div>
+        <div class="card-desc">Vollständige Systemarchitektur aller Services und Datenflüsse dokumentiert und visualisiert.</div>
+        <div class="tags"><span class="tag gray">Konzept</span></div>
+      </div>
+
+      <div class="card done">
+        <div class="card-header">
+          <div class="card-title">KI-Chatbot</div>
+          <div class="status-badge done">Prototyp</div>
+        </div>
+        <div class="card-desc">Two-Tier Cache (FAQ → Claude Haiku). Kennt Öffnungszeiten, Regeln, FAQ. Spart API-Kosten massiv.</div>
+        <div class="tags"><span class="tag">Claude Haiku</span><span class="tag olive">FAQ-Cache</span></div>
+      </div>
+
+      <div class="card done">
+        <div class="card-header">
+          <div class="card-title">Eltern-Profil & Kindmeilensteine</div>
+          <div class="status-badge done">Prototyp</div>
+        </div>
+        <div class="card-desc">Private Meilenstein-Tracking-Funktion, nur für Eltern sichtbar. RLS-geschützt.</div>
+        <div class="tags"><span class="tag">Supabase RLS</span><span class="tag olive">Datenschutz</span></div>
+      </div>
+
+      <div class="card done">
+        <div class="card-header">
+          <div class="card-title">Erzieher-Direktnachrichten</div>
+          <div class="status-badge done">Prototyp</div>
+        </div>
+        <div class="card-desc">Multi-Select Quick-Template Chips, Emoji-Support, Chat-Bubbles UI (Mobile-first).</div>
+        <div class="tags"><span class="tag">Mobile-first</span><span class="tag gray">Templates</span></div>
+      </div>
+
+      <div class="card done">
+        <div class="card-header">
+          <div class="card-title">Ticketing-System</div>
+          <div class="status-badge done">Prototyp</div>
+        </div>
+        <div class="card-desc">Eltern-Anfragen als Tickets. Status: Offen / In Bearbeitung / Erledigt. Erzieher bearbeiten und schließen.</div>
+        <div class="tags"><span class="tag">Erzieher-seitig</span></div>
+      </div>
+
+      <div class="card done">
+        <div class="card-header">
+          <div class="card-title">Entwicklungsdokumentation</div>
+          <div class="status-badge done">Prototyp</div>
+        </div>
+        <div class="card-desc">Schnellerfassung, Sismik/Seldak/Perik-Bögen, Lerngeschichten via Claude Haiku, Portfolio-Timeline.</div>
+        <div class="tags"><span class="tag">Claude Haiku</span><span class="tag olive">Standardbögen</span><span class="tag gray">Portfolio</span></div>
+      </div>
+
+      <div class="card done">
+        <div class="card-header">
+          <div class="card-title">Pitch-Präsentation</div>
+          <div class="status-badge done">Fertig</div>
+        </div>
+        <div class="card-desc">Vollständige offline-fähige HTML-Präsentation mit eingebettetem Logo.</div>
+        <div class="tags"><span class="tag gray">Offline HTML</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PHASE 1: INFRASTRUKTUR -->
+  <div class="phase">
+    <div class="phase-label">
+      <div class="phase-tag wip">Phase 1</div>
+      <div class="phase-title">Infrastruktur & Automatisierung — Jetzt</div>
+      <div class="phase-line"></div>
+    </div>
+    <div class="cards">
+
+      <div class="card done">
+        <div class="card-header">
+          <div class="card-title">n8n Workflows</div>
+          <div class="status-badge done">Importiert ✅</div>
+        </div>
+        <div class="card-desc">4 Workflows importiert: Ticket, Broadcast, Registrierung, Entwicklungsdoku. Läuft auf eugen-m.n8n.irn.hk.</div>
+        <div class="tags"><span class="tag">n8n</span><span class="tag olive">DSGVO</span></div>
+      </div>
+
+      <div class="card wip">
+        <div class="card-header">
+          <div class="card-title">n8n Credentials eintragen</div>
+          <div class="status-badge wip">Ausstehend</div>
+        </div>
+        <div class="card-desc">Supabase Postgres, Resend SMTP, Telegram Bot API — in n8n hinterlegen und Workflows aktivieren.</div>
+        <div class="tags"><span class="tag">Supabase</span><span class="tag">Resend</span><span class="tag">Telegram</span></div>
+      </div>
+
+      <div class="card wip">
+        <div class="card-header">
+          <div class="card-title">Supabase Projekt anlegen</div>
+          <div class="status-badge wip">Ausstehend</div>
+        </div>
+        <div class="card-desc">Projekt auf supabase.com, SQL ausführen (notifications, broadcasts, Trigger, RLS-Policies), Realtime aktivieren.</div>
+        <div class="tags"><span class="tag">Supabase</span><span class="tag olive">RLS</span><span class="tag gray">EU-Region</span></div>
+      </div>
+
+      <div class="card wip">
+        <div class="card-header">
+          <div class="card-title">Telegram Broadcast-Kanal</div>
+          <div class="status-badge wip">Ausstehend</div>
+        </div>
+        <div class="card-desc">Kanal erstellen, Bot via @BotFather anlegen, als Admin hinzufügen, Channel-ID in n8n eintragen.</div>
+        <div class="tags"><span class="tag">Telegram</span><span class="tag gray">Broadcast</span></div>
+      </div>
+
+      <div class="card wip">
+        <div class="card-header">
+          <div class="card-title">Resend Account & Domain</div>
+          <div class="status-badge wip">Ausstehend</div>
+        </div>
+        <div class="card-desc">Account auf resend.com, Absender-Domain verifizieren (kita@bergfalke.de), API Key für n8n.</div>
+        <div class="tags"><span class="tag">Resend</span><span class="tag gray">3.000/Monat kostenlos</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">SMS-Kanal (Anbieter offen)</div>
+          <div class="status-badge todo">Später</div>
+        </div>
+        <div class="card-desc">Für Eltern ohne Smartphone. Twilio oder Sinch. Slot in n8n Broadcast-Workflow bereits vorbereitet.</div>
+        <div class="tags"><span class="tag gray">Twilio / Sinch</span><span class="tag olive">Fallback</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PHASE 2: NEXT.JS APP -->
+  <div class="phase">
+    <div class="phase-label">
+      <div class="phase-tag todo">Phase 2</div>
+      <div class="phase-title">Next.js App — Screens implementieren</div>
+      <div class="phase-line"></div>
+    </div>
+    <div class="cards">
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">App-Gerüst aufsetzen</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">npx create-next-app@latest mit TypeScript, Tailwind, App Router. Supabase SDK installieren. Vercel-Deployment.</div>
+        <div class="tags"><span class="tag">Next.js</span><span class="tag">Tailwind</span><span class="tag gray">Vercel</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Auth — Magic Link Login</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Supabase Magic Link. Kein Passwort-Management. Login-Seite, E-Mail-Bestätigung, Session-Handling (SSR).</div>
+        <div class="tags"><span class="tag">Supabase Auth</span><span class="tag olive">Magic Link</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Eltern-Dashboard</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Übersicht: Kinder, ungelesene Nachrichten, Notifications-Bell, Schnellzugriff auf alle Bereiche.</div>
+        <div class="tags"><span class="tag">Mobile-first</span><span class="tag gray">RLS</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Nachrichten (Chat)</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Chat-Bubbles UI, Quick-Template Chips, Emoji. Supabase Realtime für Live-Updates.</div>
+        <div class="tags"><span class="tag">Realtime</span><span class="tag gray">Templates</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Ticketing (Eltern-seitig)</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Eltern erstellen Tickets, sehen Status-Updates. n8n-Workflow feuert bei neuem Ticket automatisch.</div>
+        <div class="tags"><span class="tag">n8n</span><span class="tag gray">Status-Tracking</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Entwicklungsdoku (Erzieher)</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Schnellerfassung, Sismik/Seldak/Perik-Bögen, Lerngeschichten (Claude Haiku), Portfolio-Timeline.</div>
+        <div class="tags"><span class="tag">Claude Haiku</span><span class="tag olive">Standardbögen</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">KI-Chatbot einbinden</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Chat-Widget in App. FAQ-Cache aus Supabase prüfen, bei Cache-Miss Claude Haiku anfragen, Antwort cachen.</div>
+        <div class="tags"><span class="tag">Claude Haiku</span><span class="tag olive">FAQ-Cache</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Web Push Notifications</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Service Worker, VAPID Keys generieren, /api/push/send Route. n8n ruft diese Route auf.</div>
+        <div class="tags"><span class="tag gray">Web Push API</span><span class="tag">n8n</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PHASE 3: ERZIEHER & LEITUNG -->
+  <div class="phase">
+    <div class="phase-label">
+      <div class="phase-tag todo">Phase 3</div>
+      <div class="phase-title">Erzieher-Portal & Admin-Bereich</div>
+      <div class="phase-line"></div>
+    </div>
+    <div class="cards">
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Erzieher-Dashboard</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Alle Kinder der Gruppe, offene Tickets, ungelesene Nachrichten, Entwicklungsdoku-Schnellzugriff.</div>
+        <div class="tags"><span class="tag gray">Erzieher-Rolle</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Ticket-Management (Erzieher)</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Tickets annehmen, bearbeiten, schließen. Status-Updates triggern automatisch Eltern-Benachrichtigung via n8n.</div>
+        <div class="tags"><span class="tag">n8n</span><span class="tag gray">Workflow</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Broadcast-Tool (Leitung)</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Formular für Kita-weite Ankündigungen. Kanal-Auswahl (Telegram / E-Mail / SMS). n8n verschickt automatisch.</div>
+        <div class="tags"><span class="tag">Telegram</span><span class="tag">E-Mail</span><span class="tag olive">SMS-Slot</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Kind-Verwaltung (Admin)</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Kinder anlegen, Gruppen zuweisen, Eltern-Accounts verknüpfen. Registrierungslink generieren.</div>
+        <div class="tags"><span class="tag gray">Admin-Rolle</span><span class="tag olive">DSGVO</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PHASE 4: POLISH & LAUNCH -->
+  <div class="phase">
+    <div class="phase-label">
+      <div class="phase-tag todo">Phase 4</div>
+      <div class="phase-title">i18n, Polish & Launch</div>
+      <div class="phase-line"></div>
+    </div>
+    <div class="cards">
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">i18n — 3 Sprachen</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Deutsch, Englisch, Russisch. next-intl oder next-i18next. Sprachumschalter in der App.</div>
+        <div class="tags"><span class="tag gray">DE / EN / RU</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">DSGVO-Dokumente</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Datenschutzerklärung, Impressum, Cookie-Hinweis (minimal, da keine Tracker). Einwilligungen für Fotos etc.</div>
+        <div class="tags"><span class="tag olive">DSGVO</span><span class="tag gray">Berlin</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">n8n Cloud Migration</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Workflows exportieren, in n8n Cloud importieren, Webhook-URLs in Supabase anpassen. ~20 €/Monat.</div>
+        <div class="tags"><span class="tag">n8n Cloud</span><span class="tag olive">DSGVO</span><span class="tag gray">DE-Firma</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Vercel Production Deploy</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Domain kita-bergfalke.de einrichten, Vercel Frankfurt Region, Env Vars setzen, Monitoring aktivieren.</div>
+        <div class="tags"><span class="tag gray">Vercel</span><span class="tag olive">Frankfurt</span></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Kita Bergfalke · Berlin · Stand: Mai 2025 · Tech: Next.js · Supabase · n8n · Vercel · Resend · Claude Haiku
+</footer>
+
+</body>
+</html>

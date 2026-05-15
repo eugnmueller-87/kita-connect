@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Kita Bergfalke — n8n Setup Anleitung</title>
+<style>
+  :root {
+    --teal:       #2EA89A;
+    --teal-light: #E1F5EE;
+    --teal-dark:  #1D7A6F;
+    --olive:      #8B7D5E;
+    --olive-light:#F5F2EC;
+    --gray:       #f5f5f5;
+    --border:     #e0e0e0;
+    --text:       #2c2c2c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--text); background: #fafafa; }
+
+  header { background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; padding: 32px 40px; }
+  header h1 { font-size: 24px; font-weight: 700; }
+  header p { opacity: 0.85; margin-top: 6px; font-size: 14px; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+
+  .phase { margin-bottom: 40px; }
+  .phase-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .phase-badge { background: var(--teal); color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+  .phase-title { font-size: 20px; font-weight: 700; color: var(--teal-dark); }
+
+  .card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; }
+  .card h3 { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: var(--text); }
+  .card p { font-size: 14px; line-height: 1.6; color: #555; margin-bottom: 8px; }
+
+  code { background: #1e1e1e; color: #d4d4d4; padding: 2px 6px; border-radius: 4px; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 13px; }
+  pre { background: #1e1e1e; color: #d4d4d4; padding: 16px 20px; border-radius: 8px; overflow-x: auto; margin: 12px 0; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 13px; line-height: 1.6; }
+  pre .comment { color: #6a9955; }
+  pre .keyword { color: #569cd6; }
+  pre .string { color: #ce9178; }
+
+  .step { display: flex; gap: 12px; margin-bottom: 12px; }
+  .step-num { background: var(--teal-light); color: var(--teal-dark); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+  .step-text { font-size: 14px; line-height: 1.6; color: #444; flex: 1; }
+
+  .credential-box { background: var(--olive-light); border: 1px solid #d4c9b0; border-radius: 8px; padding: 16px; margin: 12px 0; }
+  .credential-box h4 { color: var(--olive); font-size: 13px; font-weight: 600; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .credential-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px; font-size: 13px; }
+  .credential-key { color: var(--olive); font-weight: 600; min-width: 160px; }
+  .credential-val { color: #555; font-family: monospace; }
+
+  .warning { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 14px 16px; margin: 12px 0; font-size: 13px; color: #795548; }
+  .warning strong { color: #f57f17; }
+
+  .success { background: var(--teal-light); border: 1px solid #a5d6cf; border-radius: 8px; padding: 14px 16px; margin: 12px 0; font-size: 13px; color: var(--teal-dark); }
+
+  .workflow-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .workflow-table th { background: var(--teal); color: white; padding: 10px 14px; text-align: left; }
+  .workflow-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .workflow-table tr:last-child td { border-bottom: none; }
+  .workflow-table tr:nth-child(even) td { background: var(--gray); }
+
+  .tag { display: inline-block; background: var(--teal-light); color: var(--teal-dark); padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; margin: 2px; }
+
+  .env-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+  .env-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .env-table td:first-child { font-family: monospace; color: var(--teal-dark); font-weight: 600; width: 240px; }
+  .env-table td:last-child { color: #666; }
+
+  footer { text-align: center; padding: 32px; color: #aaa; font-size: 12px; border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kita Bergfalke — n8n Setup Anleitung</h1>
+  <p>Lokale Entwicklungsumgebung mit Docker · Stand: Mai 2025 · Alle Systeme: Supabase + Resend + Telegram + Web Push</p>
+</header>
+
+<div class="container">
+
+  <!-- ÜBERSICHT -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge">0</div>
+      <div class="phase-title">Übersicht — Was wird aufgebaut?</div>
+    </div>
+    <div class="card">
+      <table class="workflow-table">
+        <thead>
+          <tr><th>#</th><th>Workflow</th><th>Trigger</th><th>Kanäle</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>01</td>
+            <td>Ticket erstellt</td>
+            <td>Supabase DB Insert → tickets</td>
+            <td><span class="tag">In-App</span><span class="tag">Web Push</span><span class="tag">E-Mail</span></td>
+          </tr>
+          <tr>
+            <td>02</td>
+            <td>Broadcast (Feiertag/Schließung)</td>
+            <td>Supabase DB Insert → broadcasts</td>
+            <td><span class="tag">Telegram</span><span class="tag">E-Mail</span><span class="tag">SMS-Slot</span></td>
+          </tr>
+          <tr>
+            <td>03</td>
+            <td>Neue Registrierung</td>
+            <td>Supabase DB Insert → profiles</td>
+            <td><span class="tag">Willkommens-Mail</span><span class="tag">In-App</span></td>
+          </tr>
+          <tr>
+            <td>04</td>
+            <td>Entwicklungsdoku aktualisiert</td>
+            <td>Supabase DB Insert → observations</td>
+            <td><span class="tag">In-App</span> (RLS-geschützt)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PHASE 1: DOCKER -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge">1</div>
+      <div class="phase-title">n8n lokal starten (Docker)</div>
+    </div>
+
+    <div class="card">
+      <h3>Voraussetzung: Docker Desktop installiert</h3>
+      <p>Docker Desktop für Windows herunterladen und installieren (kostenlos).<br/>Nach Installation: Terminal öffnen und prüfen:</p>
+      <pre>docker --version
+docker compose version</pre>
+    </div>
+
+    <div class="card">
+      <h3>n8n starten</h3>
+      <div class="step"><div class="step-num">1</div><div class="step-text">In den Projektordner navigieren: <code>e:\Kita connect\n8n\</code></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">Terminal öffnen und ausführen:</div></div>
+      <pre>docker compose up -d</pre>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Browser öffnen: <code>http://localhost:5678</code></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">Login: Benutzer <code>admin</code> / Passwort <code>kita-bergfalke-local</code></div></div>
+      <div class="success">✓ n8n ist einsatzbereit. Daten werden persistent in einem Docker Volume gespeichert.</div>
+    </div>
+
+    <div class="card">
+      <h3>Nützliche Docker-Befehle</h3>
+      <pre><span class="comment"># n8n stoppen</span>
+docker compose down
+
+<span class="comment"># Logs anzeigen</span>
+docker compose logs -f n8n
+
+<span class="comment"># n8n neustarten</span>
+docker compose restart n8n</pre>
+    </div>
+  </div>
+
+  <!-- PHASE 2: CREDENTIALS -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge">2</div>
+      <div class="phase-title">Credentials in n8n einrichten</div>
+    </div>
+
+    <div class="card">
+      <h3>In n8n: Settings → Credentials → New</h3>
+      <p>Folgende Credentials anlegen — jeweils mit dem angegebenen Namen (so referenzieren die Workflows sie):</p>
+
+      <div class="credential-box">
+        <h4>1. Supabase Postgres</h4>
+        <div class="credential-row"><span class="credential-key">Name in n8n:</span><span class="credential-val">Supabase Postgres (Kita Bergfalke)</span></div>
+        <div class="credential-row"><span class="credential-key">Typ:</span><span class="credential-val">Postgres</span></div>
+        <div class="credential-row"><span class="credential-key">Host:</span><span class="credential-val">db.DEIN-PROJECT-ID.supabase.co</span></div>
+        <div class="credential-row"><span class="credential-key">Port:</span><span class="credential-val">5432</span></div>
+        <div class="credential-row"><span class="credential-key">Database:</span><span class="credential-val">postgres</span></div>
+        <div class="credential-row"><span class="credential-key">User:</span><span class="credential-val">postgres</span></div>
+        <div class="credential-row"><span class="credential-key">Password:</span><span class="credential-val">→ Supabase Dashboard → Settings → Database → Password</span></div>
+        <div class="credential-row"><span class="credential-key">SSL:</span><span class="credential-val">Aktivieren (require)</span></div>
+      </div>
+
+      <div class="credential-box">
+        <h4>2. Resend SMTP</h4>
+        <div class="credential-row"><span class="credential-key">Name in n8n:</span><span class="credential-val">Resend SMTP (Kita Bergfalke)</span></div>
+        <div class="credential-row"><span class="credential-key">Typ:</span><span class="credential-val">SMTP</span></div>
+        <div class="credential-row"><span class="credential-key">Host:</span><span class="credential-val">smtp.resend.com</span></div>
+        <div class="credential-row"><span class="credential-key">Port:</span><span class="credential-val">465 (SSL)</span></div>
+        <div class="credential-row"><span class="credential-key">User:</span><span class="credential-val">resend</span></div>
+        <div class="credential-row"><span class="credential-key">Password:</span><span class="credential-val">→ Resend Dashboard → API Keys → New Key</span></div>
+      </div>
+
+      <div class="credential-box">
+        <h4>3. Telegram Bot</h4>
+        <div class="credential-row"><span class="credential-key">Name in n8n:</span><span class="credential-val">Telegram Bot (Kita Bergfalke)</span></div>
+        <div class="credential-row"><span class="credential-key">Typ:</span><span class="credential-val">Telegram API</span></div>
+        <div class="credential-row"><span class="credential-key">Access Token:</span><span class="credential-val">→ @BotFather in Telegram → /newbot → Token kopieren</span></div>
+      </div>
+
+      <div class="warning">
+        <strong>Wichtig:</strong> Die Credentials werden verschlüsselt in n8n gespeichert (Encryption Key im docker-compose.yml). Den Key vor dem produktiven Einsatz ändern und sicher aufbewahren.
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3: TELEGRAM -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge">3</div>
+      <div class="phase-title">Telegram Broadcast-Kanal einrichten</div>
+    </div>
+
+    <div class="card">
+      <h3>Schritt-für-Schritt</h3>
+      <div class="step"><div class="step-num">1</div><div class="step-text">In Telegram: Neuen Kanal erstellen → <strong>Kita Bergfalke Aktuell</strong> → als öffentlichen Kanal anlegen mit Handle z.B. <code>@kita_bergfalke</code></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">In Telegram: <code>@BotFather</code> öffnen → <code>/newbot</code> → Name: <em>Kita Bergfalke Bot</em> → Token kopieren</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Bot als <strong>Administrator</strong> zum Kanal hinzufügen (Kanal-Infos → Admins → Bot hinzufügen)</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">Channel-ID ermitteln: Browser öffnen → <code>https://api.telegram.org/bot[TOKEN]/getUpdates</code> → eine Testnachricht im Kanal schicken → <code>chat.id</code> aus der Antwort kopieren (meist <code>-100xxxxxxxxxx</code>)</div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-text">In n8n: Environment Variable <code>TELEGRAM_CHANNEL_ID</code> setzen (Settings → Variables) mit der Channel-ID</div></div>
+    </div>
+  </div>
+
+  <!-- PHASE 4: SUPABASE SQL -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge">4</div>
+      <div class="phase-title">Supabase Datenbank vorbereiten</div>
+    </div>
+
+    <div class="card">
+      <h3>SQL ausführen</h3>
+      <div class="step"><div class="step-num">1</div><div class="step-text">Supabase Dashboard öffnen → dein Projekt → <strong>SQL Editor</strong></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">Datei <code>n8n/supabase-setup.sql</code> öffnen → Inhalt kopieren → in SQL Editor einfügen → <strong>Run</strong></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Prüfen ob die Tabellen <code>notifications</code> und <code>broadcasts</code> unter <strong>Table Editor</strong> erscheinen</div></div>
+      <div class="success">✓ Webhook-URLs zeigen direkt auf <strong>eugen-m.n8n.irn.hk</strong> — Supabase kann sie ohne Tunnel direkt erreichen.</div>
+    </div>
+
+    <div class="card">
+      <h3>Workflows testen (ohne Supabase-Trigger)</h3>
+      <p>Workflow öffnen → <strong>Test Workflow</strong> → Webhook-Node → <strong>Listen for Test Event</strong> → dann curl:</p>
+      <pre><span class="comment"># Beispiel: Ticket-Webhook testen</span>
+curl -X POST https://eugen-m.n8n.irn.hk/webhook-test/ticket-created \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event": "ticket.created",
+    "ticket_id": "test-123",
+    "parent_id": "DEINE-USER-ID",
+    "subject": "Testticket",
+    "body": "Das ist ein Test.",
+    "created_at": "2025-05-15T10:00:00Z"
+  }'</pre>
+    </div>
+  </div>
+
+  <!-- PHASE 5: WORKFLOWS IMPORTIEREN -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge">5</div>
+      <div class="phase-title">Workflows importieren</div>
+    </div>
+
+    <div class="card">
+      <h3>JSON-Workflows in n8n laden</h3>
+      <div class="step"><div class="step-num">1</div><div class="step-text"><a href="https://eugen-m.n8n.irn.hk">eugen-m.n8n.irn.hk</a> öffnen → <strong>Workflows</strong> → oben rechts <strong>⋯ → Import from File</strong></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">Nacheinander importieren aus dem Ordner <code>n8n/workflows/</code>:</div></div>
+      <pre>01-ticket-created.json
+02-broadcast.json
+03-parent-registered.json
+04-observation-created.json</pre>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Jeden Workflow öffnen → Credentials zuweisen (die vorher angelegten) → <strong>Aktivieren</strong></div></div>
+      <div class="success">✓ Alle Workflows sind jetzt aktiv und warten auf Webhook-Aufrufe.</div>
+    </div>
+  </div>
+
+  <!-- PHASE 6: ENV VARS -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge">6</div>
+      <div class="phase-title">Environment Variables in n8n</div>
+    </div>
+
+    <div class="card">
+      <h3>Settings → Variables → Neue Variable anlegen</h3>
+      <table class="env-table">
+        <tr><td>TELEGRAM_CHANNEL_ID</td><td>Channel-ID des Telegram-Kanals (z.B. -100123456789)</td></tr>
+        <tr><td>VAPID_PUSH_ENDPOINT</td><td>URL deiner Next.js Push-API Route (z.B. https://kita-bergfalke.vercel.app/api/push/send)</td></tr>
+        <tr><td>VAPID_PRIVATE_KEY</td><td>VAPID Private Key für Web Push (generiert in Next.js-App)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- PHASE 7: MIGRATION -->
+  <div class="phase">
+    <div class="phase-header">
+      <div class="phase-badge">7</div>
+      <div class="phase-title">Später: Migration zu n8n Cloud</div>
+    </div>
+
+    <div class="card">
+      <h3>Warum n8n Cloud?</h3>
+      <p>n8n ist ein deutsches Unternehmen — DSGVO-konform, EU-Hosting, keine Daten in die USA. Für Produktion empfohlen (~20 €/Monat Starter).</p>
+      <h3 style="margin-top:16px;">Migration in 3 Schritten</h3>
+      <div class="step"><div class="step-num">1</div><div class="step-text">Alle Workflows exportieren: Workflow → <strong>⋯ → Export</strong> (JSON)</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">n8n Cloud Account anlegen → Workflows importieren → Credentials neu anlegen</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">In <code>supabase-setup.sql</code>: alle <code>host.docker.internal:5678</code> durch deine n8n Cloud Webhook-URLs ersetzen → SQL erneut ausführen</div></div>
+      <div class="success">✓ Supabase Webhooks können dann direkt n8n Cloud erreichen — kein Tunnel mehr nötig.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Kita Bergfalke · Berlin · DSGVO-konform · EU-Hosting · Stand: Mai 2025
+</footer>
+
+</body>
+</html>
