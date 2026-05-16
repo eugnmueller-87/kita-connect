@@ -132,8 +132,8 @@
     </div>
     <div style="flex:1; min-width:200px; display:flex; flex-direction:column; justify-content:center;">
       <div style="font-size:13px; color:#666; margin-bottom:6px;">Gesamtfortschritt</div>
-      <div class="progress-bar"><div class="progress-fill" style="width:25%"></div></div>
-      <div style="font-size:12px; color:#999; margin-top:4px;">Phase 1 von 4 abgeschlossen</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:35%"></div></div>
+      <div style="font-size:12px; color:#999; margin-top:4px;">Phase 1 fast abgeschlossen — API Keys ✅, n8n Workflows importiert ✅</div>
     </div>
   </div>
 
@@ -230,49 +230,76 @@
         <div class="tags"><span class="tag">n8n</span><span class="tag olive">DSGVO</span></div>
       </div>
 
-      <div class="card wip">
+      <div class="card done">
         <div class="card-header">
-          <div class="card-title">n8n Credentials eintragen</div>
-          <div class="status-badge wip">Ausstehend</div>
+          <div class="card-title">API Keys & .env.local</div>
+          <div class="status-badge done">Fertig ✅</div>
         </div>
-        <div class="card-desc">Supabase Postgres, Resend SMTP, Telegram Bot API — in n8n hinterlegen und Workflows aktivieren.</div>
-        <div class="tags"><span class="tag">Supabase</span><span class="tag">Resend</span><span class="tag">Telegram</span></div>
+        <div class="card-desc">Alle Keys eingetragen: Supabase (URL + anon + service_role), Resend, seven.io, Telegram Bot Token, Anthropic. .env.local vollständig.</div>
+        <div class="tags"><span class="tag">Supabase</span><span class="tag">Resend</span><span class="tag">seven.io</span><span class="tag">Telegram</span><span class="tag">Claude</span></div>
       </div>
 
-      <div class="card wip">
+      <div class="card done">
         <div class="card-header">
-          <div class="card-title">Supabase Projekt anlegen</div>
-          <div class="status-badge wip">Ausstehend</div>
+          <div class="card-title">Supabase Projekt + DB-Schema</div>
+          <div class="status-badge done">Fertig ✅</div>
         </div>
-        <div class="card-desc">Projekt auf supabase.com, SQL ausführen (notifications, broadcasts, Trigger, RLS-Policies), Realtime aktivieren.</div>
-        <div class="tags"><span class="tag">Supabase</span><span class="tag olive">RLS</span><span class="tag gray">EU-Region</span></div>
+        <div class="card-desc">Projekt kita-connect angelegt (EU Ireland), alle 11 Tabellen, RLS-Policies, Webhook-Trigger und Realtime aktiv.</div>
+        <div class="tags"><span class="tag">Supabase</span><span class="tag olive">RLS</span><span class="tag gray">EU</span></div>
       </div>
 
-      <div class="card wip">
+      <div class="card done">
         <div class="card-header">
-          <div class="card-title">Telegram Broadcast-Kanal</div>
-          <div class="status-badge wip">Ausstehend</div>
+          <div class="card-title">Telegram Bot erstellt</div>
+          <div class="status-badge done">Fertig ✅</div>
         </div>
-        <div class="card-desc">Kanal erstellen, Bot via @BotFather anlegen, als Admin hinzufügen, Channel-ID in n8n eintragen.</div>
-        <div class="tags"><span class="tag">Telegram</span><span class="tag gray">Broadcast</span></div>
+        <div class="card-desc">@Kita_connectTEST_bot via @BotFather angelegt, Token in .env.local gespeichert. Channel-ID ausstehend (Bot muss noch als Admin in Kanal).</div>
+        <div class="tags"><span class="tag">Telegram</span><span class="tag gray">Bot Token ✅</span></div>
       </div>
 
-      <div class="card wip">
+      <div class="card done">
         <div class="card-header">
-          <div class="card-title">Resend Account & Domain</div>
-          <div class="status-badge wip">Ausstehend</div>
+          <div class="card-title">Resend Account & API Key</div>
+          <div class="status-badge done">Fertig ✅</div>
         </div>
-        <div class="card-desc">Account auf resend.com, Absender-Domain verifizieren (noreply@kita-connect.app), API Key für n8n.</div>
+        <div class="card-desc">Account erstellt, API Key in .env.local. Domain-Verifizierung (noreply@kita-connect.app) ausstehend.</div>
         <div class="tags"><span class="tag">Resend</span><span class="tag gray">3.000/Monat kostenlos</span></div>
       </div>
 
-      <div class="card todo">
+      <div class="card done">
         <div class="card-header">
-          <div class="card-title">SMS-Kanal (Anbieter offen)</div>
-          <div class="status-badge todo">Später</div>
+          <div class="card-title">Telegram vollständig eingerichtet</div>
+          <div class="status-badge done">Fertig ✅</div>
         </div>
-        <div class="card-desc">Für Eltern ohne Smartphone. Twilio oder Sinch. Slot in n8n Broadcast-Workflow bereits vorbereitet.</div>
-        <div class="tags"><span class="tag gray">Twilio / Sinch</span><span class="tag olive">Fallback</span></div>
+        <div class="card-desc">Bot @Kita_connectTEST_bot erstellt, Token + Channel-ID in .env.local. Telegram Broadcast-Kanal bereit.</div>
+        <div class="tags"><span class="tag">Telegram</span><span class="tag gray">Bot + Channel ✅</span></div>
+      </div>
+
+      <div class="card done">
+        <div class="card-header">
+          <div class="card-title">SMS — seven.io</div>
+          <div class="status-badge done">Key eingetragen ✅</div>
+        </div>
+        <div class="card-desc">Deutsche Firma, DSGVO-konform. Account + API Key in .env.local. n8n Workflow-Slot bereits vorbereitet. Für Eltern ohne Smartphone.</div>
+        <div class="tags"><span class="tag gray">seven.io</span><span class="tag olive">Fallback</span></div>
+      </div>
+
+      <div class="card wip">
+        <div class="card-header">
+          <div class="card-title">n8n Credentials + Workflows aktivieren</div>
+          <div class="status-badge wip">Nächster Schritt</div>
+        </div>
+        <div class="card-desc">Supabase Postgres, Resend SMTP, Telegram Bot, seven.io in n8n eintragen. Alle 4 Workflows aktivieren und end-to-end testen.</div>
+        <div class="tags"><span class="tag">n8n</span><span class="tag gray">Testing</span></div>
+      </div>
+
+      <div class="card wip">
+        <div class="card-header">
+          <div class="card-title">VAPID Keys (Web Push)</div>
+          <div class="status-badge wip">Später (Phase 2)</div>
+        </div>
+        <div class="card-desc">Wird generiert wenn Next.js App aufgesetzt wird: npx web-push generate-vapid-keys</div>
+        <div class="tags"><span class="tag gray">Web Push API</span></div>
       </div>
 
     </div>
