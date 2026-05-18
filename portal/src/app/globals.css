@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --teal:        #2EA89A;
+  --teal-dark:   #1D7A6F;
+  --teal-light:  #E1F5EE;
+  --yellow:      #FFD166;
+  --peach:       #FFB347;
+  --bg:          #F5F0E8;
+  --card:        #FFFFFF;
+  --text:        #2C2C2C;
+  --text-soft:   #7A7A7A;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', 'Segoe UI', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Cartoon card style */
+.kc-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 0 0 #D4C9BA, 0 6px 24px rgba(0,0,0,0.06);
+  border: 2px solid #EDE8DF;
+}
+
+/* Cartoon button */
+.kc-btn {
+  border-radius: 14px;
+  font-weight: 700;
+  box-shadow: 0 4px 0 0 var(--teal-dark);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.kc-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 0 var(--teal-dark);
+}
+
+/* Cartoon input */
+.kc-input {
+  border-radius: 14px;
+  border: 2.5px solid #EDE8DF;
+  background: #FDFAF6;
+  transition: border-color 0.15s;
+}
+.kc-input:focus {
+  outline: none;
+  border-color: var(--teal);
+  background: white;
+}
+
+/* Badge pill */
+.kc-badge {
+  border-radius: 99px;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 3px 12px;
+}
