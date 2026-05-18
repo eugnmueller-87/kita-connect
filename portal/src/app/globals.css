@@ -33,6 +33,7 @@ body {
 .kc-btn {
   border-radius: 14px;
   font-weight: 700;
+  cursor: pointer;
   box-shadow: 0 4px 0 0 var(--teal-dark);
   transition: transform 0.1s, box-shadow 0.1s;
 }

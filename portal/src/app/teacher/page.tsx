@@ -1,22 +1,42 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/navbar'
 import { ChevronRight } from 'lucide-react'
+import type { Profile } from '@/types'
 
-export default async function TeacherDashboard() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+const mockProfile: Profile = {
+  id: 'dev-teacher',
+  full_name: 'Maria Schmidt',
+  email: 'maria@kita-connect.de',
+  role: 'teacher',
+  phone: null,
+  notify_email: true,
+  notify_sms: false,
+  onboarding_status: 'active',
+  created_at: new Date().toISOString(),
+}
 
-  const [{ data: profile }, { data: children }, { data: observations }, { data: stories }] =
-    await Promise.all([
-      supabase.from('profiles').select('*').eq('id', user.id).single(),
-      supabase.from('children').select('*').order('name'),
-      supabase.from('observations').select('*').eq('teacher_id', user.id).order('created_at', { ascending: false }).limit(5),
-      supabase.from('learning_stories').select('*').eq('teacher_id', user.id).order('created_at', { ascending: false }).limit(5),
-    ])
+const mockChildren = [
+  { id: '1', name: 'Emma Müller', group_name: 'Schmetterlinge' },
+  { id: '2', name: 'Luca Becker', group_name: 'Schmetterlinge' },
+  { id: '3', name: 'Mia Fischer', group_name: 'Schmetterlinge' },
+  { id: '4', name: 'Noah Klein', group_name: 'Schmetterlinge' },
+]
 
-  if (!profile || profile.role !== 'teacher') redirect('/login')
+const mockObservations = [
+  { id: '1', category: 'Sozialverhalten', situation: 'Emma hat heute beim Bauen im Sandkasten anderen Kindern geholfen und Ideen eingebracht.', created_at: new Date().toISOString() },
+  { id: '2', category: 'Sprache', situation: 'Luca hat beim Vorlesen viele Fragen gestellt und neue Wörter wiederholt.', created_at: new Date(Date.now() - 86400000).toISOString() },
+]
+
+const mockStories = [
+  { id: '1', title: 'Emma entdeckt die Welt der Insekten', status: 'published', created_at: new Date(Date.now() - 172800000).toISOString() },
+  { id: '2', title: 'Luca baut seine erste Brücke', status: 'review', created_at: new Date(Date.now() - 86400000).toISOString() },
+  { id: '3', title: 'Mias Kunstwerk', status: 'draft', created_at: new Date().toISOString() },
+]
+
+export default function TeacherDashboard() {
+  const profile = mockProfile
+  const children = mockChildren
+  const observations = mockObservations
+  const stories = mockStories
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
@@ -38,9 +58,9 @@ export default async function TeacherDashboard() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           {[
-            { emoji: '👶', count: (children ?? []).length, label: 'Kinder', color: '#E1F5EE', href: '/teacher/children' },
-            { emoji: '👁️', count: (observations ?? []).length, label: 'Meine Beobachtungen', color: '#FFF8E7', href: '/teacher/observations' },
-            { emoji: '📖', count: (stories ?? []).length, label: 'Lerngeschichten', color: '#FFF0F5', href: '/teacher/stories' },
+            { emoji: '👶', count: children.length, label: 'Kinder', color: '#E1F5EE', href: '/teacher/children' },
+            { emoji: '👁️', count: observations.length, label: 'Meine Beobachtungen', color: '#FFF8E7', href: '/teacher/observations' },
+            { emoji: '📖', count: stories.length, label: 'Lerngeschichten', color: '#FFF0F5', href: '/teacher/stories' },
           ].map(s => (
             <a key={s.label} href={s.href} className="kc-card p-5 flex flex-col items-center gap-2 hover:scale-105 transition-transform cursor-pointer" style={{ background: s.color }}>
               <span className="text-4xl">{s.emoji}</span>
@@ -64,15 +84,7 @@ export default async function TeacherDashboard() {
               </a>
             </div>
             <div className="divide-y-2 divide-[#F5F0E8]">
-              {(observations ?? []).length === 0 ? (
-                <div className="px-5 py-8 text-center">
-                  <p className="text-3xl mb-2">📝</p>
-                  <p className="text-gray-400 font-semibold text-sm">Noch keine Beobachtungen</p>
-                  <a href="/teacher/observations" className="mt-2 inline-block text-teal-600 text-sm font-bold hover:underline">
-                    Erste erfassen →
-                  </a>
-                </div>
-              ) : (observations ?? []).map(o => (
+              {observations.map(o => (
                 <div key={o.id} className="px-5 py-3">
                   <div className="flex items-center justify-between mb-1">
                     <span className="kc-badge bg-teal-100 text-teal-700 text-xs">{o.category}</span>
@@ -96,15 +108,7 @@ export default async function TeacherDashboard() {
               </a>
             </div>
             <div className="divide-y-2 divide-[#F5F0E8]">
-              {(stories ?? []).length === 0 ? (
-                <div className="px-5 py-8 text-center">
-                  <p className="text-3xl mb-2">✨</p>
-                  <p className="text-gray-400 font-semibold text-sm">Noch keine Lerngeschichten</p>
-                  <a href="/teacher/stories" className="mt-2 inline-block text-teal-600 text-sm font-bold hover:underline">
-                    Neue erstellen →
-                  </a>
-                </div>
-              ) : (stories ?? []).map(s => (
+              {stories.map(s => (
                 <a key={s.id} href={`/teacher/stories/${s.id}`} className="px-5 py-3 flex items-center justify-between hover:bg-[#F5F0E8] transition-colors">
                   <p className="text-sm font-bold text-gray-800">{s.title}</p>
                   <span className={`kc-badge text-xs ${
