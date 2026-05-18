@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 
 const CATEGORIES = [
   { key: 'sprache', label: '🗣️ Sprache' },
@@ -14,34 +13,34 @@ const CATEGORIES = [
 
 interface Child { id: string; name: string }
 
-export default function NewObservationForm({ children, teacherId }: { children: Child[]; teacherId: string }) {
-  const router = useRouter()
+export default function NewObservationForm({ children }: { children: Child[]; teacherId: string }) {
   const [childId, setChildId] = useState('')
   const [category, setCategory] = useState('')
   const [situation, setSituation] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [saved, setSaved] = useState(false)
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
-    setError('')
-    try {
-      const res = await fetch('/api/teacher/observations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ child_id: childId, category, situation, teacher_id: teacherId }),
-      })
-      if (!res.ok) throw new Error('Fehler beim Speichern')
+    await new Promise(r => setTimeout(r, 600))
+    setLoading(false)
+    setSaved(true)
+    setTimeout(() => {
+      setSaved(false)
       setChildId('')
       setCategory('')
       setSituation('')
-      router.refresh()
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Fehler')
-    } finally {
-      setLoading(false)
-    }
+    }, 2000)
+  }
+
+  if (saved) {
+    return (
+      <div className="py-6 text-center">
+        <p className="text-4xl mb-2">✅</p>
+        <p className="font-black text-teal-700">Beobachtung gespeichert!</p>
+      </div>
+    )
   }
 
   return (
@@ -88,8 +87,6 @@ export default function NewObservationForm({ children, teacherId }: { children: 
           className="kc-input w-full px-4 py-3 text-sm resize-none"
         />
       </div>
-
-      {error && <p className="text-sm text-red-600 font-semibold">⚠️ {error}</p>}
 
       <button
         type="submit"

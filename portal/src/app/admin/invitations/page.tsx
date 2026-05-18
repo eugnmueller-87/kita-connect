@@ -1,19 +1,22 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/navbar'
 import InviteForm from './invite-form'
+import type { Profile } from '@/types'
 
-export default async function AdminInvitationsPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+const mockProfile: Profile = {
+  id: 'dev-admin', full_name: 'Admin Nutzer', email: 'admin@kita-connect.de',
+  role: 'admin', phone: null, notify_email: true, notify_sms: false,
+  onboarding_status: 'active', created_at: new Date().toISOString(),
+}
 
-  const [{ data: profile }, { data: invitations }] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', user.id).single(),
-    supabase.from('invitations').select('*').order('created_at', { ascending: false }),
-  ])
+const mockInvitations = [
+  { id: '1', email: 'neue.mutter@example.de', role: 'parent', used_at: null, created_at: new Date().toISOString() },
+  { id: '2', email: 'erzieherin@example.de', role: 'teacher', used_at: new Date(Date.now() - 3600000).toISOString(), created_at: new Date(Date.now() - 86400000).toISOString() },
+  { id: '3', email: 'vater@example.de', role: 'parent', used_at: null, created_at: new Date(Date.now() - 172800000).toISOString() },
+]
 
-  if (!profile || profile.role !== 'admin') redirect('/login')
+export default function AdminInvitationsPage() {
+  const profile = mockProfile
+  const invitations = mockInvitations
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
@@ -27,11 +30,10 @@ export default async function AdminInvitationsPage() {
           <div className="text-6xl flex-shrink-0">✉️</div>
           <div>
             <h1 className="text-2xl font-black text-white">Einladungen</h1>
-            <p className="text-purple-200 font-semibold text-sm mt-1">{(invitations ?? []).length} Einladungen gesendet</p>
+            <p className="text-purple-200 font-semibold text-sm mt-1">{invitations.length} Einladungen gesendet</p>
           </div>
         </div>
 
-        {/* Invite form */}
         <div className="kc-card p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">📨</span>
@@ -40,19 +42,13 @@ export default async function AdminInvitationsPage() {
           <InviteForm />
         </div>
 
-        {/* Invitation list */}
         <div className="kc-card overflow-hidden">
           <div className="px-5 py-4 border-b-2 border-[#EDE8DF] flex items-center gap-2">
             <span className="text-xl">📋</span>
             <h2 className="font-black text-gray-800">Gesendete Einladungen</h2>
           </div>
           <div className="divide-y-2 divide-[#F5F0E8]">
-            {(invitations ?? []).length === 0 ? (
-              <div className="px-5 py-8 text-center">
-                <p className="text-3xl mb-2">📭</p>
-                <p className="text-gray-400 font-semibold text-sm">Noch keine Einladungen gesendet</p>
-              </div>
-            ) : (invitations ?? []).map(inv => (
+            {invitations.map(inv => (
               <div key={inv.id} className="px-5 py-3 flex items-center justify-between">
                 <div>
                   <p className="font-bold text-gray-800">{inv.email}</p>
@@ -62,9 +58,7 @@ export default async function AdminInvitationsPage() {
                   <span className="kc-badge bg-teal-100 text-teal-700 text-xs">
                     {inv.role === 'parent' ? '👨‍👩‍👧 Elternteil' : '👩‍🏫 Erzieher/in'}
                   </span>
-                  <span className={`kc-badge text-xs ${
-                    inv.used_at ? 'bg-gray-100 text-gray-500' : 'bg-yellow-100 text-yellow-700'
-                  }`}>
+                  <span className={`kc-badge text-xs ${inv.used_at ? 'bg-gray-100 text-gray-500' : 'bg-yellow-100 text-yellow-700'}`}>
                     {inv.used_at ? '✅ Angenommen' : '⏳ Ausstehend'}
                   </span>
                 </div>

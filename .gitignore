@@ -44,5 +44,10 @@ handover.md
 # Confidential: Workflows, DB-Schema, Infrastruktur
 n8n/workflows/
 n8n/supabase-setup.sql
+n8n/supabase-schema.sql
+n8n/seed-*.sql
 n8n/docker-compose.yml
 n8n/n8n-setup-anleitung.html
+
+# Claude internal
+.claude/
