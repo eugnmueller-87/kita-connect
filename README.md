@@ -156,11 +156,16 @@ Every table has RLS enabled. Key policies:
 | 1 — Automation | n8n — 8 workflows active and tested | ✅ Complete |
 | 2 — Portal | Next.js — all 25 screens across 3 role portals | ✅ Complete |
 | 3 — Live | Real Supabase data, middleware auth guards, audit log | 🔵 In progress |
-| 4 — Mobile | PWA installable on iOS & Android | ⬜ Planned |
+| 4 — Mobile | Native iOS App (App Store) + Android App (Google Play) | ⬜ Planned |
 | 5 — Launch | Legal (DPAs), marketing website, CI/CD | ⬜ Planned |
 | 6 — Monetization | Pricing, Stripe, pilot program, i18n | ⬜ Planned |
 
 **Phase 3 remaining:** Web Push (VAPID), error monitoring (Sentry)
+
+**Products planned:**
+- Web App — [app.kita-connect.cloud](https://app.kita-connect.cloud)
+- iOS App — Apple App Store (native, post web launch)
+- Android App — Google Play Store (native, post web launch)
 
 ---
 
