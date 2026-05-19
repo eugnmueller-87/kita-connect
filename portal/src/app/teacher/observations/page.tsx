@@ -1,25 +1,7 @@
 import Navbar from '@/components/navbar'
 import NewObservationForm from './new-observation-form'
-import type { Profile } from '@/types'
-
-const mockProfile: Profile = {
-  id: 'dev-teacher', full_name: 'Maria Schmidt', email: 'maria@kita-connect.de',
-  role: 'teacher', phone: null, notify_email: true, notify_sms: false,
-  onboarding_status: 'active', created_at: new Date().toISOString(),
-}
-
-const mockChildren = [
-  { id: '1', name: 'Emma Müller' },
-  { id: '2', name: 'Luca Becker' },
-  { id: '3', name: 'Mia Fischer' },
-  { id: '4', name: 'Noah Klein' },
-]
-
-const mockObservations = [
-  { id: '1', category: 'sozial', situation: 'Emma hat heute beim Bauen im Sandkasten anderen Kindern geholfen und Ideen eingebracht.', child: { name: 'Emma Müller' }, learning_disposition: 'Zugehörigkeit und Gemeinschaft', created_at: new Date().toISOString() },
-  { id: '2', category: 'sprache', situation: 'Luca hat beim Vorlesen viele Fragen gestellt und neue Wörter aktiv wiederholt.', child: { name: 'Luca Becker' }, learning_disposition: null, created_at: new Date(Date.now() - 86400000).toISOString() },
-  { id: '3', category: 'kreativitaet', situation: 'Mia hat eigenständig ein Bild mit Wasserfarben gemalt und dabei Farben gemischt.', child: { name: 'Mia Fischer' }, learning_disposition: 'Wohlbefinden und Zugehörigkeit', created_at: new Date(Date.now() - 172800000).toISOString() },
-]
+import { createClient } from '@/lib/supabase/server'
+import { requireRole } from '@/lib/auth'
 
 const categoryLabel: Record<string, string> = {
   sprache: '🗣️ Sprache',
@@ -30,8 +12,20 @@ const categoryLabel: Record<string, string> = {
   selbstaendigkeit: '⭐ Selbständigkeit',
 }
 
-export default function TeacherObservationsPage() {
-  const profile = mockProfile
+export default async function TeacherObservationsPage() {
+  const { profile, userId } = await requireRole('teacher')
+  const supabase = await createClient()
+
+  const [{ data: childData }, { data: obsData }] = await Promise.all([
+    supabase.from('children').select('id, name').order('name'),
+    supabase.from('observations')
+      .select('id, category, situation, created_at, child:children(name), learning_disposition')
+      .eq('teacher_id', userId)
+      .order('created_at', { ascending: false }),
+  ])
+
+  const children = (childData ?? []).map(c => ({ id: c.id, name: c.name }))
+  const observations = obsData ?? []
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
@@ -45,9 +39,7 @@ export default function TeacherObservationsPage() {
           <div className="text-6xl flex-shrink-0">👁️</div>
           <div>
             <h1 className="text-2xl font-black text-white">Beobachtungen</h1>
-            <p className="text-yellow-100 font-semibold text-sm mt-1">
-              {mockObservations.length} erfasste Beobachtungen
-            </p>
+            <p className="text-yellow-100 font-semibold text-sm mt-1">{observations.length} erfasste Beobachtungen</p>
           </div>
         </div>
 
@@ -56,7 +48,7 @@ export default function TeacherObservationsPage() {
             <span className="text-xl">📝</span>
             <h2 className="font-black text-gray-800">Neue Beobachtung erfassen</h2>
           </div>
-          <NewObservationForm children={mockChildren} teacherId={mockProfile.id} />
+          <NewObservationForm children={children} teacherId={userId} />
         </div>
 
         <div className="kc-card overflow-hidden">
@@ -64,27 +56,32 @@ export default function TeacherObservationsPage() {
             <span className="text-xl">📋</span>
             <h2 className="font-black text-gray-800">Meine Beobachtungen</h2>
           </div>
-          <div className="divide-y-2 divide-[#F5F0E8]">
-            {mockObservations.map(o => (
-              <div key={o.id} className="px-5 py-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="kc-badge bg-teal-100 text-teal-700 text-xs">
-                      {categoryLabel[o.category] ?? o.category}
-                    </span>
-                    <span className="text-xs font-bold text-gray-500">👶 {o.child.name}</span>
+          {observations.length === 0 ? (
+            <p className="px-5 py-6 text-sm text-gray-400 font-semibold text-center">Noch keine Beobachtungen erfasst.</p>
+          ) : (
+            <div className="divide-y-2 divide-[#F5F0E8]">
+              {observations.map(o => {
+                const child = Array.isArray(o.child) ? o.child[0] as { name: string } | undefined : o.child as { name: string } | null
+                return (
+                  <div key={o.id} className="px-5 py-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="kc-badge bg-teal-100 text-teal-700 text-xs">
+                          {categoryLabel[o.category] ?? o.category}
+                        </span>
+                        {child && <span className="text-xs font-bold text-gray-500">👶 {child.name}</span>}
+                      </div>
+                      <span className="text-xs text-gray-400 font-semibold">{new Date(o.created_at).toLocaleDateString('de-DE')}</span>
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed">{o.situation}</p>
+                    {o.learning_disposition && (
+                      <p className="text-xs text-purple-600 font-semibold mt-1">💡 {o.learning_disposition}</p>
+                    )}
                   </div>
-                  <span className="text-xs text-gray-400 font-semibold">
-                    {new Date(o.created_at).toLocaleDateString('de-DE')}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-700 leading-relaxed">{o.situation}</p>
-                {o.learning_disposition && (
-                  <p className="text-xs text-purple-600 font-semibold mt-1">💡 {o.learning_disposition}</p>
-                )}
-              </div>
-            ))}
-          </div>
+                )
+              })}
+            </div>
+          )}
         </div>
 
       </div>
