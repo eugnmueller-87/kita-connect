@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  await writeAuditLog(supabase, user.id, 'observation_created', data.id, { child_id, category })
+  await writeAuditLog(supabase, user.id, 'observation_created', { record_id: data.id, details: { child_id, category }, request })
 
   try {
     await fetch(`${process.env.N8N_BASE_URL}/observation-created`, {

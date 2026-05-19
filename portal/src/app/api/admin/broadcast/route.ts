@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
   if (!res.ok) return NextResponse.json({ error: 'n8n error' }, { status: 500 })
 
-  await writeAuditLog(supabase, user.id, 'broadcast_sent', null, { title })
+  await writeAuditLog(supabase, user.id, 'broadcast_sent', { details: { title }, request })
 
   return NextResponse.json({ ok: true })
 }

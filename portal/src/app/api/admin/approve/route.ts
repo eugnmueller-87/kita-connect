@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
   if (!res.ok) return NextResponse.json({ error: 'n8n error' }, { status: 500 })
 
-  await writeAuditLog(supabase, user.id, action === 'approve' ? 'parent_approved' : 'parent_rejected', parent_id)
+  await writeAuditLog(supabase, user.id, action === 'approve' ? 'parent_approved' : 'parent_rejected', { record_id: parent_id, request })
 
   return NextResponse.json({ ok: true })
 }

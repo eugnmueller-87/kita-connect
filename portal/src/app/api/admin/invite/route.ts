@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  await writeAuditLog(supabase, user.id, 'invitation_sent', null, { role })
+  await writeAuditLog(supabase, user.id, 'invitation_sent', { details: { role }, request })
 
   try {
     await fetch(`${process.env.N8N_BASE_URL}/invitation-created`, {
