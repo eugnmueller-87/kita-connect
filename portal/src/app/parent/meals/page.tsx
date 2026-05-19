@@ -55,12 +55,17 @@ export default function ParentMealsPage() {
   const meal = meals[selectedDay as keyof typeof meals]
   const fb = emmaFeedback[selectedDay]
 
-  const score = Math.min(100, Math.round(
-    (meal.protein / 40) * 35 +
-    (meal.vitamins.length / 4) * 35 +
-    (meal.kcal >= 300 && meal.kcal <= 600 ? 30 : 10)
-  ))
-  const scoreColor = score >= 75 ? '#1D7A6F' : score >= 50 ? '#92400E' : '#9D174D'
+  // DGE-Ampel: Qualitätsstandard für Verpflegung in Tageseinrichtungen für Kinder (2023)
+  const dge = {
+    kcal:    meal.kcal >= 530 && meal.kcal <= 600   ? 'green' : meal.kcal >= 450 && meal.kcal <= 680  ? 'yellow' : 'red',
+    protein: meal.protein >= 15                      ? 'green' : meal.protein >= 10                    ? 'yellow' : 'red',
+    fat:     meal.fat >= 17 && meal.fat <= 23        ? 'green' : meal.fat >= 12 && meal.fat <= 28      ? 'yellow' : 'red',
+    carbs:   meal.carbs >= 70 && meal.carbs <= 80    ? 'green' : meal.carbs >= 55 && meal.carbs <= 95  ? 'yellow' : 'red',
+  }
+  const dgeColor:  Record<string, string> = { green: '#16a34a', yellow: '#d97706', red: '#dc2626' }
+  const dgeBg:     Record<string, string> = { green: '#f0fdf4', yellow: '#fffbeb', red: '#fff1f2' }
+  const dgeBorder: Record<string, string> = { green: '#bbf7d0', yellow: '#fde68a', red: '#fecdd3' }
+  const dgeIcon:   Record<string, string> = { green: '✅', yellow: '⚠️', red: '❌' }
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
@@ -110,17 +115,21 @@ export default function ParentMealsPage() {
           <p className="font-black text-gray-800 text-xl mb-1">{meal.dish}</p>
           <p className="text-xs text-gray-400 font-semibold mb-4">{selectedDay}, {DATES[DAYS.indexOf(selectedDay)]}2026</p>
 
-          {/* Score */}
-          <div className="flex items-center gap-4 p-4 rounded-2xl border-2 mb-4" style={{ background: '#F0FFF8', borderColor: '#C6F6D5' }}>
-            <div className="text-center flex-shrink-0">
-              <div className="text-4xl font-black" style={{ color: scoreColor }}>{score}</div>
-              <div className="text-[10px] font-black text-gray-400">PUNKTE</div>
+          {/* DGE-Ampel */}
+          <div className="mb-4 p-3 rounded-2xl border-2 border-[#EDE8DF] bg-gray-50">
+            <p className="text-xs font-black text-gray-500 uppercase tracking-wider mb-2">DGE-Richtwerte · Kinder 4–6 J. · Mittagessen</p>
+            <div className="grid grid-cols-2 gap-2">
+              {([['kcal', 'Energie', `${meal.kcal} kcal`, '530–600 kcal'], ['protein', 'Eiweiß', `${meal.protein}g`, '≥ 15g'], ['fat', 'Fett', `${meal.fat}g`, '17–23g'], ['carbs', 'Kohlenhydrate', `${meal.carbs}g`, '70–80g']] as const).map(([key, label, val, ref]) => (
+                <div key={key} className="flex items-center gap-2 p-2 rounded-xl border" style={{ background: dgeBg[dge[key]], borderColor: dgeBorder[dge[key]] }}>
+                  <span className="text-base">{dgeIcon[dge[key]]}</span>
+                  <div>
+                    <p className="text-xs font-black text-gray-700">{label}</p>
+                    <p className="text-xs font-bold" style={{ color: dgeColor[dge[key]] }}>{val} <span className="text-gray-400 font-normal">({ref})</span></p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="flex-1">
-              <p className="font-black text-gray-800 text-sm">Nährwert-Score</p>
-              <p className="text-xs text-gray-500 mt-0.5">Basierend auf Eiweiß, Vitaminen und Kaloriengehalt</p>
-            </div>
-            <div className="text-3xl">{score >= 75 ? '🌟' : score >= 50 ? '👍' : '⚠️'}</div>
+            <p className="text-[10px] text-gray-400 mt-2">Richtwerte basieren auf dem DGE-Qualitätsstandard für Kita-Verpflegung. Keine medizinische Ernährungsberatung.</p>
           </div>
 
           {/* Kcal + macros */}
