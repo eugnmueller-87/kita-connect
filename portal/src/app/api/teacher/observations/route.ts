@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { writeAuditLog } from '@/lib/audit'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -23,6 +24,8 @@ export async function POST(request: Request) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  await writeAuditLog(supabase, user.id, 'observation_created', data.id, { child_id, category })
 
   try {
     await fetch(`${process.env.N8N_BASE_URL}/observation-created`, {

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { writeAuditLog } from '@/lib/audit'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -19,5 +20,8 @@ export async function POST(request: Request) {
   })
 
   if (!res.ok) return NextResponse.json({ error: 'n8n error' }, { status: 500 })
+
+  await writeAuditLog(supabase, user.id, action === 'approve' ? 'parent_approved' : 'parent_rejected', parent_id)
+
   return NextResponse.json({ ok: true })
 }
