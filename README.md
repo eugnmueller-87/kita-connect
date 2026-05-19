@@ -97,15 +97,17 @@ Kita Connect replaces fragmented communication tools (WhatsApp groups, paper for
 
 ## Status
 
-See [roadmap.html](roadmap.html) for the full product roadmap.
+**[View Kanban board →](https://github.com/users/eugnmueller-87/projects/9/views/1)** · **[View Roadmap →](https://github.com/users/eugnmueller-87/projects/9/views/2)**
 
-| Phase | Status |
-|-------|--------|
-| 0 — Prototypes & Concept | ✅ Complete |
-| 1 — Infrastructure & Automation (n8n) | 🟡 In progress |
-| 2 — Next.js App implementation | ⬜ Upcoming |
-| 3 — Educator & Admin portal | ⬜ Upcoming |
-| 4 — i18n, Polish & Launch | ⬜ Upcoming |
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 0 — Foundation | DB schema, RLS, Supabase Auth | ✅ Complete |
+| 1 — Automation | n8n — 8 workflows built | ✅ Complete |
+| 2 — Portal | Next.js frontend — all 3 role portals built | 🟡 In progress |
+| 3 — Live integration | Real Supabase data, auth guards, logging | ⬜ Next |
+| 4 — Mobile | PWA + App Store submission | ⬜ Planned |
+| 5 — Launch | Legal (DPAs), marketing website, CI/CD | ⬜ Planned |
+| 6 — Monetization | Pricing, Stripe, pilot program, i18n | ⬜ Planned |
 
 ---
 
