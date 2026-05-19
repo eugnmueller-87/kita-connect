@@ -65,13 +65,24 @@ export default function AdminMealsPage() {
     setTimeout(() => setSaved(false), 2000)
   }
 
-  const score = Math.min(100, Math.round(
-    (meal.protein / 40) * 35 +
-    (meal.vitamins.length / 4) * 35 +
-    (meal.kcal >= 300 && meal.kcal <= 600 ? 30 : 10)
-  ))
-  const scoreColor = score >= 75 ? '#1D7A6F' : score >= 50 ? '#92400E' : '#9D174D'
-  const scoreLabel = score >= 75 ? '🌟 Sehr gut' : score >= 50 ? '👍 Gut' : '⚠️ Ausbaufähig'
+  // DGE-Ampel: Qualitätsstandard für Verpflegung in Tageseinrichtungen für Kinder (2023)
+  // Richtwerte Mittagessen, Kinder 4–6 Jahre
+  const dge = {
+    kcal:    meal.kcal >= 530 && meal.kcal <= 600   ? 'green' : meal.kcal >= 450 && meal.kcal < 530 || meal.kcal > 600 && meal.kcal <= 680 ? 'yellow' : 'red',
+    protein: meal.protein >= 15                      ? 'green' : meal.protein >= 10                                                          ? 'yellow' : 'red',
+    fat:     meal.fat >= 17 && meal.fat <= 23        ? 'green' : meal.fat >= 12 && meal.fat < 17 || meal.fat > 23 && meal.fat <= 28          ? 'yellow' : 'red',
+    carbs:   meal.carbs >= 70 && meal.carbs <= 80    ? 'green' : meal.carbs >= 55 && meal.carbs < 70 || meal.carbs > 80 && meal.carbs <= 95  ? 'yellow' : 'red',
+  }
+  const dgeColor:   Record<string, string> = { green: '#16a34a', yellow: '#d97706', red: '#dc2626' }
+  const dgeBg:      Record<string, string> = { green: '#f0fdf4', yellow: '#fffbeb', red: '#fff1f2' }
+  const dgeBorder:  Record<string, string> = { green: '#bbf7d0', yellow: '#fde68a', red: '#fecdd3' }
+  const dgeLabel:   Record<string, string> = { green: '✅', yellow: '⚠️', red: '❌' }
+  const dgeText = {
+    kcal:    { green: '530–600 kcal ✅', yellow: `${meal.kcal} kcal ⚠️`, red: `${meal.kcal} kcal ❌` },
+    protein: { green: `${meal.protein}g ✅`, yellow: `${meal.protein}g ⚠️`, red: `${meal.protein}g ❌` },
+    fat:     { green: `${meal.fat}g ✅`, yellow: `${meal.fat}g ⚠️`, red: `${meal.fat}g ❌` },
+    carbs:   { green: `${meal.carbs}g ✅`, yellow: `${meal.carbs}g ⚠️`, red: `${meal.carbs}g ❌` },
+  }
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
@@ -161,17 +172,21 @@ export default function AdminMealsPage() {
             <div className="p-5">
               <p className="font-black text-gray-800 text-xl mb-4">{meal.dish}</p>
 
-              {/* Score */}
-              <div className="flex items-center gap-3 mb-4 p-3 rounded-2xl border-2" style={{ background: '#F0FFF8', borderColor: '#C6F6D5' }}>
-                <div className="text-center flex-shrink-0">
-                  <div className="text-3xl font-black" style={{ color: scoreColor }}>{score}</div>
-                  <div className="text-[10px] font-black text-gray-400">/ 100</div>
+              {/* DGE-Ampel */}
+              <div className="mb-4 p-3 rounded-2xl border-2 border-[#EDE8DF] bg-gray-50">
+                <p className="text-xs font-black text-gray-500 uppercase tracking-wider mb-2">DGE-Richtwerte · Kinder 4–6 J. · Mittagessen</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {([['kcal', 'Energie', `${meal.kcal} kcal`, '530–600'], ['protein', 'Eiweiß', `${meal.protein}g`, '≥ 15g'], ['fat', 'Fett', `${meal.fat}g`, '17–23g'], ['carbs', 'Kohlenhydrate', `${meal.carbs}g`, '70–80g']] as const).map(([key, label, val, ref]) => (
+                    <div key={key} className="flex items-center gap-2 p-2 rounded-xl border" style={{ background: dgeBg[dge[key]], borderColor: dgeBorder[dge[key]] }}>
+                      <span className="text-base">{dgeLabel[dge[key]]}</span>
+                      <div>
+                        <p className="text-xs font-black text-gray-700">{label}</p>
+                        <p className="text-xs font-bold" style={{ color: dgeColor[dge[key]] }}>{val} <span className="text-gray-400 font-normal">({ref})</span></p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <p className="font-black text-sm text-gray-800">Nährwert-Score</p>
-                  <p className="text-xs font-bold" style={{ color: scoreColor }}>{scoreLabel}</p>
-                </div>
-                <div className="ml-auto text-2xl">{score >= 75 ? '🌟' : score >= 50 ? '👍' : '⚠️'}</div>
+                <p className="text-[10px] text-gray-400 mt-2">Richtwerte basieren auf dem DGE-Qualitätsstandard für Kita-Verpflegung. Keine medizinische Ernährungsberatung.</p>
               </div>
 
               {/* Macros */}
@@ -210,16 +225,16 @@ export default function AdminMealsPage() {
           <div className="space-y-2">
             {DAYS.map((day, i) => {
               const m = meals[day]
-              const s = Math.min(100, Math.round((m.protein / 40) * 35 + (m.vitamins.length / 4) * 35 + (m.kcal >= 300 && m.kcal <= 600 ? 30 : 10)))
+              const kcalOk = m.kcal >= 530 && m.kcal <= 600
+              const protOk = m.protein >= 15
+              const ampel = kcalOk && protOk ? '✅' : (!kcalOk || !protOk) ? '⚠️' : '❌'
               return (
                 <button key={day} onClick={() => { setSelectedDay(day); setEditing(false) }}
                   className={`w-full flex items-center gap-3 p-3 rounded-2xl border-2 text-left transition-all hover:border-red-300 ${selectedDay === day ? 'border-red-400 bg-red-50' : 'border-[#EDE8DF] bg-white'}`}>
                   <span className="text-xs font-black text-gray-400 w-6 text-center">{DATES[i]}</span>
                   <span className="font-black text-gray-700 text-sm w-20">{day}</span>
                   <span className="flex-1 text-xs text-gray-500 font-semibold truncate">{m.dish}</span>
-                  <span className="text-xs font-black flex-shrink-0" style={{ color: s >= 75 ? '#1D7A6F' : s >= 50 ? '#92400E' : '#9D174D' }}>
-                    {s >= 75 ? '🌟' : s >= 50 ? '👍' : '⚠️'} {s}
-                  </span>
+                  <span className="text-xs font-black flex-shrink-0">{ampel} {m.kcal} kcal</span>
                 </button>
               )
             })}
