@@ -99,7 +99,7 @@
     <p>Berlin · Ziel: vollständige Kita-Management-App · ~0 €/Monat laufende Kosten</p>
   </div>
   <div class="header-meta">
-    Stand: Mai 2026<br/>
+    Stand: Mai 2025<br/>
     Next.js · Supabase · n8n · Vercel
   </div>
 </header>
@@ -115,8 +115,8 @@
   <!-- SUMMARY -->
   <div class="summary">
     <div class="summary-stat">
-      <div class="summary-num">16+</div>
-      <div class="summary-label">Screens implementiert</div>
+      <div class="summary-num">7</div>
+      <div class="summary-label">Screens als Prototyp</div>
     </div>
     <div class="summary-stat">
       <div class="summary-num">4</div>
@@ -132,8 +132,8 @@
     </div>
     <div style="flex:1; min-width:200px; display:flex; flex-direction:column; justify-content:center;">
       <div style="font-size:13px; color:#666; margin-bottom:6px;">Gesamtfortschritt</div>
-      <div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div>
-      <div style="font-size:12px; color:#999; margin-top:4px;">Phase 0–3 abgeschlossen — Next.js App, Erzieher-Portal, Eltern-Portal, Admin ✅</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:35%"></div></div>
+      <div style="font-size:12px; color:#999; margin-top:4px;">Phase 1 fast abgeschlossen — API Keys ✅, n8n Workflows importiert ✅</div>
     </div>
   </div>
 
@@ -215,8 +215,8 @@
   <!-- PHASE 1: INFRASTRUKTUR -->
   <div class="phase">
     <div class="phase-label">
-      <div class="phase-tag">Phase 1</div>
-      <div class="phase-title">Infrastruktur & Automatisierung ✅</div>
+      <div class="phase-tag wip">Phase 1</div>
+      <div class="phase-title">Infrastruktur & Automatisierung — Jetzt</div>
       <div class="phase-line"></div>
     </div>
     <div class="cards">
@@ -308,73 +308,82 @@
   <!-- PHASE 2: NEXT.JS APP -->
   <div class="phase">
     <div class="phase-label">
-      <div class="phase-tag">Phase 2</div>
-      <div class="phase-title">Next.js App — Eltern-Portal ✅</div>
+      <div class="phase-tag todo">Phase 2</div>
+      <div class="phase-title">Next.js App — Screens implementieren</div>
       <div class="phase-line"></div>
     </div>
     <div class="cards">
 
-      <div class="card done">
+      <div class="card todo">
         <div class="card-header">
-          <div class="card-title">App-Gerüst & Design-System</div>
-          <div class="status-badge done">Fertig ✅</div>
+          <div class="card-title">App-Gerüst aufsetzen</div>
+          <div class="status-badge todo">Todo</div>
         </div>
-        <div class="card-desc">Next.js 16 App Router, TypeScript, Tailwind. Cartoon Design-System mit kc-card, kc-btn, kc-badge. Supabase SDK integriert.</div>
-        <div class="tags"><span class="tag">Next.js</span><span class="tag">Tailwind</span><span class="tag gray">TypeScript</span></div>
+        <div class="card-desc">npx create-next-app@latest mit TypeScript, Tailwind, App Router. Supabase SDK installieren. Vercel-Deployment.</div>
+        <div class="tags"><span class="tag">Next.js</span><span class="tag">Tailwind</span><span class="tag gray">Vercel</span></div>
       </div>
 
-      <div class="card done">
+      <div class="card todo">
         <div class="card-header">
-          <div class="card-title">Auth — Magic Link (vorbereitet)</div>
-          <div class="status-badge done">Fertig ✅</div>
+          <div class="card-title">Auth — Magic Link Login</div>
+          <div class="status-badge todo">Todo</div>
         </div>
-        <div class="card-desc">Supabase OTP Magic Link, flowType: implicit. Login-Seite, Confirm-Route, Session-Handling. Auth-Bypass für Dev-Modus.</div>
+        <div class="card-desc">Supabase Magic Link. Kein Passwort-Management. Login-Seite, E-Mail-Bestätigung, Session-Handling (SSR).</div>
         <div class="tags"><span class="tag">Supabase Auth</span><span class="tag olive">Magic Link</span></div>
       </div>
 
-      <div class="card done">
+      <div class="card todo">
         <div class="card-header">
           <div class="card-title">Eltern-Dashboard</div>
-          <div class="status-badge done">Fertig ✅</div>
+          <div class="status-badge todo">Todo</div>
         </div>
-        <div class="card-desc">Übersicht: Kinder-Karten, ungelesene Nachrichten, Notifications-Bell, Schnellzugriff. Mobile-first.</div>
+        <div class="card-desc">Übersicht: Kinder, ungelesene Nachrichten, Notifications-Bell, Schnellzugriff auf alle Bereiche.</div>
         <div class="tags"><span class="tag">Mobile-first</span><span class="tag gray">RLS</span></div>
       </div>
 
-      <div class="card done">
+      <div class="card todo">
         <div class="card-header">
-          <div class="card-title">Kindprofil (Eltern-Sicht)</div>
-          <div class="status-badge done">Fertig ✅</div>
+          <div class="card-title">Nachrichten (Chat)</div>
+          <div class="status-badge todo">Todo</div>
         </div>
-        <div class="card-desc">Beobachtungen & Lerngeschichten lesen. Opt-in Layer 3: Entwicklungs­perspektive aus weltbesten Bildungssystemen. Erzieher direkt fragen.</div>
-        <div class="tags"><span class="tag">Layer 3</span><span class="tag olive">Opt-in</span><span class="tag gray">Read-only</span></div>
+        <div class="card-desc">Chat-Bubbles UI, Quick-Template Chips, Emoji. Supabase Realtime für Live-Updates.</div>
+        <div class="tags"><span class="tag">Realtime</span><span class="tag gray">Templates</span></div>
       </div>
 
-      <div class="card done">
+      <div class="card todo">
         <div class="card-header">
           <div class="card-title">Ticketing (Eltern-seitig)</div>
-          <div class="status-badge done">Fertig ✅</div>
+          <div class="status-badge todo">Todo</div>
         </div>
-        <div class="card-desc">Eltern erstellen Tickets, sehen Status-Updates (Offen / In Bearbeitung / Erledigt). n8n-Workflow feuert automatisch.</div>
+        <div class="card-desc">Eltern erstellen Tickets, sehen Status-Updates. n8n-Workflow feuert bei neuem Ticket automatisch.</div>
         <div class="tags"><span class="tag">n8n</span><span class="tag gray">Status-Tracking</span></div>
       </div>
 
-      <div class="card done">
+      <div class="card todo">
         <div class="card-header">
-          <div class="card-title">KI-Chatbot (FAQ)</div>
-          <div class="status-badge done">Fertig ✅</div>
+          <div class="card-title">Entwicklungsdoku (Erzieher)</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Schnellerfassung, Sismik/Seldak/Perik-Bögen, Lerngeschichten (Claude Haiku), Portfolio-Timeline.</div>
+        <div class="tags"><span class="tag">Claude Haiku</span><span class="tag olive">Standardbögen</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">KI-Chatbot einbinden</div>
+          <div class="status-badge todo">Todo</div>
         </div>
         <div class="card-desc">Chat-Widget in App. FAQ-Cache aus Supabase prüfen, bei Cache-Miss Claude Haiku anfragen, Antwort cachen.</div>
         <div class="tags"><span class="tag">Claude Haiku</span><span class="tag olive">FAQ-Cache</span></div>
       </div>
 
-      <div class="card done">
+      <div class="card todo">
         <div class="card-header">
-          <div class="card-title">Notifications</div>
-          <div class="status-badge done">Fertig ✅</div>
+          <div class="card-title">Web Push Notifications</div>
+          <div class="status-badge todo">Todo</div>
         </div>
-        <div class="card-desc">In-App Benachrichtigungen, Notification-Bell, Lesen-Status. Supabase Realtime vorbereitet.</div>
-        <div class="tags"><span class="tag gray">Realtime</span><span class="tag">Supabase</span></div>
+        <div class="card-desc">Service Worker, VAPID Keys generieren, /api/push/send Route. n8n ruft diese Route auf.</div>
+        <div class="tags"><span class="tag gray">Web Push API</span><span class="tag">n8n</span></div>
       </div>
 
     </div>
@@ -383,63 +392,45 @@
   <!-- PHASE 3: ERZIEHER & LEITUNG -->
   <div class="phase">
     <div class="phase-label">
-      <div class="phase-tag">Phase 3</div>
-      <div class="phase-title">Erzieher-Portal & Admin-Bereich ✅</div>
+      <div class="phase-tag todo">Phase 3</div>
+      <div class="phase-title">Erzieher-Portal & Admin-Bereich</div>
       <div class="phase-line"></div>
     </div>
     <div class="cards">
 
-      <div class="card done">
+      <div class="card todo">
         <div class="card-header">
           <div class="card-title">Erzieher-Dashboard</div>
-          <div class="status-badge done">Fertig ✅</div>
+          <div class="status-badge todo">Todo</div>
         </div>
-        <div class="card-desc">Alle Kinder der Gruppe mit gender-spezifischen SVG-Avataren, offene Tickets, Entwicklungsdoku-Schnellzugriff.</div>
+        <div class="card-desc">Alle Kinder der Gruppe, offene Tickets, ungelesene Nachrichten, Entwicklungsdoku-Schnellzugriff.</div>
         <div class="tags"><span class="tag gray">Erzieher-Rolle</span></div>
       </div>
 
-      <div class="card done">
-        <div class="card-header">
-          <div class="card-title">Kindprofil (Erzieher) — 3 Tabs</div>
-          <div class="status-badge done">Fertig ✅</div>
-        </div>
-        <div class="card-desc">Tab 1: Übersicht (Beobachtungen + Lerngeschichten). Tab 2: Beobachtung erfassen mit Layer 2 (globale Bildungsrahmen). Tab 3: Lerngeschichte schreiben.</div>
-        <div class="tags"><span class="tag">Layer 2</span><span class="tag olive">3-Tab UI</span><span class="tag gray">Foto-Upload</span></div>
-      </div>
-
-      <div class="card done">
-        <div class="card-header">
-          <div class="card-title">Entwicklungs-Benchmarks (Layer 2)</div>
-          <div class="status-badge done">Fertig ✅</div>
-        </div>
-        <div class="card-desc">Beim Schreiben einer Beobachtung: Bildungsplan-Kontext (DE) + internationale Frameworks (Te Whāriki, HighScope, Reggio, Montessori) + beobachtbare Indikatoren.</div>
-        <div class="tags"><span class="tag">HighScope</span><span class="tag olive">Te Whāriki</span><span class="tag gray">Bildungsplan</span></div>
-      </div>
-
-      <div class="card done">
+      <div class="card todo">
         <div class="card-header">
           <div class="card-title">Ticket-Management (Erzieher)</div>
-          <div class="status-badge done">Fertig ✅</div>
+          <div class="status-badge todo">Todo</div>
         </div>
         <div class="card-desc">Tickets annehmen, bearbeiten, schließen. Status-Updates triggern automatisch Eltern-Benachrichtigung via n8n.</div>
         <div class="tags"><span class="tag">n8n</span><span class="tag gray">Workflow</span></div>
       </div>
 
-      <div class="card done">
+      <div class="card todo">
         <div class="card-header">
           <div class="card-title">Broadcast-Tool (Leitung)</div>
-          <div class="status-badge done">Fertig ✅</div>
+          <div class="status-badge todo">Todo</div>
         </div>
         <div class="card-desc">Formular für Kita-weite Ankündigungen. Kanal-Auswahl (Telegram / E-Mail / SMS). n8n verschickt automatisch.</div>
         <div class="tags"><span class="tag">Telegram</span><span class="tag">E-Mail</span><span class="tag olive">SMS-Slot</span></div>
       </div>
 
-      <div class="card done">
+      <div class="card todo">
         <div class="card-header">
-          <div class="card-title">Admin — Eltern-Freischaltung</div>
-          <div class="status-badge done">Fertig ✅</div>
+          <div class="card-title">Kind-Verwaltung (Admin)</div>
+          <div class="status-badge todo">Todo</div>
         </div>
-        <div class="card-desc">Einladungen versenden, neue Eltern freischalten (Ja/Nein), Onboarding-Status verwalten.</div>
+        <div class="card-desc">Kinder anlegen, Gruppen zuweisen, Eltern-Accounts verknüpfen. Registrierungslink generieren.</div>
         <div class="tags"><span class="tag gray">Admin-Rolle</span><span class="tag olive">DSGVO</span></div>
       </div>
 
@@ -494,10 +485,76 @@
     </div>
   </div>
 
+  <!-- PHASE 5: MOBILE APP -->
+  <div class="phase">
+    <div class="phase-label">
+      <div class="phase-tag todo">Phase 5</div>
+      <div class="phase-title">Mobile App — React Native (Expo)</div>
+      <div class="phase-line"></div>
+    </div>
+    <div class="cards">
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Expo App Grundgerüst</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Expo + TypeScript Setup, Supabase JS Client, Navigation (Expo Router), Auth-Flow (Login/Logout). Gleiche Supabase-Instanz wie Web — kein separates Backend nötig.</div>
+        <div class="tags"><span class="tag">React Native</span><span class="tag">Expo</span><span class="tag">TypeScript</span><span class="tag">iOS + Android</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Eltern-Features (Mobile)</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Nachrichten lesen/schreiben, Meilensteine tracken, Benachrichtigungen (Push via Expo Notifications), Tickets erstellen, Lerngeschichten ansehen.</div>
+        <div class="tags"><span class="tag">Eltern</span><span class="tag">Push</span><span class="tag">Supabase RLS</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Erzieher-Features (Mobile)</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Schnellerfassung Beobachtungen, Lerngeschichte generieren (KI), Broadcasts senden. Optimiert für Tablet-Nutzung im Kita-Alltag.</div>
+        <div class="tags"><span class="tag">Erzieher</span><span class="tag">KI</span><span class="tag">Tablet</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Admin-Features (Mobile)</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Kind-Verwaltung, Nutzerverwaltung, Gruppenzuweisung. Eher selten genutzt — Mobile-optimierte Ansicht der Admin-Kernfunktionen.</div>
+        <div class="tags"><span class="tag">Admin</span><span class="tag">Verwaltung</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">Push Notifications (Expo)</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">Expo Push Notification Service als Ersatz/Ergänzung zu Web Push. n8n Workflow anpassen: Expo Push Token in DB speichern, bei Events benachrichtigen.</div>
+        <div class="tags"><span class="tag">Expo Push</span><span class="tag">n8n</span><span class="tag">iOS</span><span class="tag">Android</span></div>
+      </div>
+
+      <div class="card todo">
+        <div class="card-header">
+          <div class="card-title">App Store Release</div>
+          <div class="status-badge todo">Todo</div>
+        </div>
+        <div class="card-desc">EAS Build (Expo Application Services) für iOS + Android. Apple Developer Account (99 $/Jahr), Google Play Console (25 $ einmalig). Testflight für Beta.</div>
+        <div class="tags"><span class="tag gray">App Store</span><span class="tag gray">Google Play</span><span class="tag">EAS Build</span></div>
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
 <footer>
-  Kita Connect · Berlin · Stand: Mai 2026 · Tech: Next.js · Supabase · n8n · Vercel · Resend · Claude Haiku
+  Kita Connect · Berlin · Stand: Mai 2025 · Tech: Next.js · Supabase · n8n · Vercel · Resend · Claude Haiku · React Native (Expo)
 </footer>
 
 </body>

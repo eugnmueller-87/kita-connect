@@ -85,13 +85,13 @@ export default function ParentDashboard() {
             </div>
             <div className="divide-y-2 divide-[#F5F0E8]">
               {notifications.map(n => (
-                <div key={n.id} className={`px-5 py-3 flex items-start gap-3 ${!n.read ? 'bg-teal-50' : ''}`}>
+                <a key={n.id} href="/parent/notifications" className={`px-5 py-3 flex items-start gap-3 hover:bg-[#F5F0E8] transition-colors ${!n.read ? 'bg-teal-50 hover:bg-teal-100' : ''}`}>
                   {!n.read && <span className="mt-2 w-2.5 h-2.5 rounded-full bg-teal-500 flex-shrink-0" />}
                   <div>
                     <p className="text-sm font-bold text-gray-800">{n.title}</p>
                     <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{n.body}</p>
                   </div>
-                </div>
+                </a>
               ))}
             </div>
           </div>
@@ -129,12 +129,19 @@ export default function ParentDashboard() {
         </div>
 
         {/* Quick actions */}
-        <div className="grid grid-cols-2 gap-4 mt-6">
+        <div className="grid grid-cols-3 gap-4 mt-6">
           <a href="/parent/child" className="kc-card p-5 flex items-center gap-4 hover:scale-105 transition-transform" style={{ background: '#FFF8E7' }}>
             <span className="text-4xl">📖</span>
             <div>
               <p className="font-black text-gray-800">Lerngeschichten</p>
               <p className="text-xs text-gray-500 font-semibold">Entwicklung meines Kindes</p>
+            </div>
+          </a>
+          <a href="/parent/meals" className="kc-card p-5 flex items-center gap-4 hover:scale-105 transition-transform" style={{ background: '#FFF0E8' }}>
+            <span className="text-4xl">🍽️</span>
+            <div>
+              <p className="font-black text-gray-800">Speiseplan</p>
+              <p className="text-xs text-gray-500 font-semibold">Mahlzeiten & Ernährung</p>
             </div>
           </a>
           <a href="/parent/faq" className="kc-card p-5 flex items-center gap-4 hover:scale-105 transition-transform" style={{ background: '#F0F4FF' }}>
