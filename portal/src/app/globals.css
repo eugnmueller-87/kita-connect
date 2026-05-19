@@ -33,9 +33,13 @@ body {
 .kc-btn {
   border-radius: 14px;
   font-weight: 700;
+  cursor: pointer !important;
   box-shadow: 0 4px 0 0 var(--teal-dark);
   transition: transform 0.1s, box-shadow 0.1s;
 }
+
+button { cursor: pointer; }
+a { cursor: pointer; }
 .kc-btn:active {
   transform: translateY(3px);
   box-shadow: 0 1px 0 0 var(--teal-dark);
