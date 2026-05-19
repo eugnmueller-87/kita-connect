@@ -31,21 +31,18 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
     const supabase = createClient()
-    console.log('[verify] attempting verifyOtp for', email, 'code:', code, 'length:', code.length)
     const { data, error } = await supabase.auth.verifyOtp({
       email,
       token: code,
       type: 'email',
     })
-    console.log('[verify] result — error:', JSON.stringify(error), 'user:', data?.user?.id ?? null)
     if (error || !data.user) {
       const msg = error ? `${error.message} (status: ${error.status})` : 'Kein Nutzer zurückgegeben'
       setError(msg)
       setLoading(false)
       return
     }
-    const { data: profile, error: profileError } = await supabase.from('profiles').select('role').eq('id', data.user.id).single()
-    console.log('[verify] profile:', profile, 'profileError:', profileError)
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single()
     if (profile?.role === 'admin') router.replace('/admin')
     else if (profile?.role === 'teacher') router.replace('/teacher')
     else router.replace('/parent')

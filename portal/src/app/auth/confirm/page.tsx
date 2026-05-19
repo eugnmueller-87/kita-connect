@@ -38,6 +38,32 @@ function ConfirmHandler() {
     }
 
     async function redirect(supabase: ReturnType<typeof createClient>, userId: string) {
+      // Check if this is a new registration — complete profile from pending_registrations
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user?.email) {
+        const { data: pending } = await supabase
+          .from('pending_registrations')
+          .select('*')
+          .eq('email', user.email)
+          .is('completed_at', null)
+          .single()
+
+        if (pending) {
+          await supabase.from('profiles').upsert({
+            id: userId,
+            email: user.email,
+            role: pending.role,
+            full_name: pending.full_name,
+            phone: pending.phone,
+            onboarding_status: 'active',
+          })
+          await supabase
+            .from('pending_registrations')
+            .update({ completed_at: new Date().toISOString() })
+            .eq('id', pending.id)
+        }
+      }
+
       const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).single()
       if (profile?.role === 'admin') router.replace('/admin')
       else if (profile?.role === 'teacher') router.replace('/teacher')
