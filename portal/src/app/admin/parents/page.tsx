@@ -1,22 +1,25 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/navbar'
 import ParentActions from './parent-actions'
+import type { Profile } from '@/types'
 
-export default async function AdminParentsPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+const mockProfile: Profile = {
+  id: 'dev-admin', full_name: 'Admin Nutzer', email: 'admin@kita-connect.de',
+  role: 'admin', phone: null, notify_email: true, notify_sms: false,
+  onboarding_status: 'active', created_at: new Date().toISOString(),
+}
 
-  const [{ data: profile }, { data: parents }] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', user.id).single(),
-    supabase.from('profiles').select('*').eq('role', 'parent').order('created_at', { ascending: false }),
-  ])
+const mockParents = [
+  { id: '1', full_name: 'Anna Müller', email: 'anna@example.de', onboarding_status: 'pending', created_at: new Date().toISOString() },
+  { id: '2', full_name: 'Thomas Becker', email: 'thomas@example.de', onboarding_status: 'pending', created_at: new Date(Date.now() - 86400000).toISOString() },
+  { id: '3', full_name: 'Sara Klein', email: 'sara@example.de', onboarding_status: 'approved', created_at: new Date(Date.now() - 172800000).toISOString() },
+  { id: '4', full_name: 'Marc Weber', email: 'marc@example.de', onboarding_status: 'approved', created_at: new Date(Date.now() - 259200000).toISOString() },
+]
 
-  if (!profile || profile.role !== 'admin') redirect('/login')
-
-  const pending = (parents ?? []).filter(p => p.onboarding_status === 'pending')
-  const approved = (parents ?? []).filter(p => p.onboarding_status === 'approved')
+export default function AdminParentsPage() {
+  const profile = mockProfile
+  const parents = mockParents
+  const pending = parents.filter(p => p.onboarding_status === 'pending')
+  const approved = parents.filter(p => p.onboarding_status === 'approved')
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
@@ -36,7 +39,6 @@ export default async function AdminParentsPage() {
           </div>
         </div>
 
-        {/* Pending */}
         {pending.length > 0 && (
           <div className="kc-card overflow-hidden mb-6">
             <div className="px-5 py-4 border-b-2 border-[#EDE8DF] flex items-center gap-2" style={{ background: '#FFF8E7' }}>
@@ -58,19 +60,13 @@ export default async function AdminParentsPage() {
           </div>
         )}
 
-        {/* All parents */}
         <div className="kc-card overflow-hidden">
           <div className="px-5 py-4 border-b-2 border-[#EDE8DF] flex items-center gap-2">
             <span className="text-xl">✅</span>
-            <h2 className="font-black text-gray-800">Alle Eltern ({(parents ?? []).length})</h2>
+            <h2 className="font-black text-gray-800">Alle Eltern ({parents.length})</h2>
           </div>
           <div className="divide-y-2 divide-[#F5F0E8]">
-            {(parents ?? []).length === 0 ? (
-              <div className="px-5 py-8 text-center">
-                <p className="text-3xl mb-2">👨‍👩‍👧</p>
-                <p className="text-gray-400 font-semibold text-sm">Noch keine Eltern registriert</p>
-              </div>
-            ) : (parents ?? []).map(p => (
+            {parents.map(p => (
               <div key={p.id} className="px-5 py-3 flex items-center justify-between">
                 <div>
                   <p className="font-bold text-gray-800">{p.full_name}</p>

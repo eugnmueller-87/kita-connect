@@ -1,24 +1,40 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/navbar'
 import { ChevronRight } from 'lucide-react'
+import type { Profile } from '@/types'
 
-export default async function ParentDashboard() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+const mockProfile: Profile = {
+  id: 'dev-parent',
+  full_name: 'Anna Müller',
+  email: 'anna@example.de',
+  role: 'parent',
+  phone: null,
+  notify_email: true,
+  notify_sms: false,
+  onboarding_status: 'active',
+  created_at: new Date().toISOString(),
+}
 
-  const [{ data: profile }, { data: notifications }, { data: tickets }, { data: children }] =
-    await Promise.all([
-      supabase.from('profiles').select('*').eq('id', user.id).single(),
-      supabase.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
-      supabase.from('tickets').select('*').eq('parent_id', user.id).order('updated_at', { ascending: false }).limit(5),
-      supabase.from('children').select('*').limit(10),
-    ])
+const mockNotifications = [
+  { id: '1', title: 'Neue Lerngeschichte', body: 'Eine neue Lerngeschichte über Emma wurde veröffentlicht.', read: false, created_at: new Date().toISOString() },
+  { id: '2', title: 'Elternabend', body: 'Der nächste Elternabend findet am 12. Juni statt.', read: false, created_at: new Date(Date.now() - 3600000).toISOString() },
+  { id: '3', title: 'Gruppenausflug', body: 'Die Schmetterlingsgruppe macht einen Ausflug zum Stadtpark.', read: true, created_at: new Date(Date.now() - 86400000).toISOString() },
+]
 
-  if (!profile) redirect('/login')
+const mockTickets = [
+  { id: '1', subject: 'Frage zu Bring- und Abholzeiten', status: 'open', updated_at: new Date().toISOString() },
+  { id: '2', subject: 'Essensplan diese Woche', status: 'in_progress', updated_at: new Date(Date.now() - 86400000).toISOString() },
+]
 
-  const unread = (notifications ?? []).filter(n => !n.read).length
+const mockChildren = [
+  { id: '1', name: 'Emma Müller' },
+]
+
+export default function ParentDashboard() {
+  const profile = mockProfile
+  const notifications = mockNotifications
+  const tickets = mockTickets
+  const children = mockChildren
+  const unread = notifications.filter(n => !n.read).length
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
@@ -43,8 +59,8 @@ export default async function ParentDashboard() {
         <div className="grid grid-cols-3 gap-4 mb-6">
           {[
             { emoji: '🔔', count: unread, label: 'Neue Meldungen', color: '#FFF8E7', border: '#FFD166', href: '/parent/notifications' },
-            { emoji: '💬', count: (tickets ?? []).filter(t => t.status === 'open').length, label: 'Offene Tickets', color: '#E1F5EE', border: '#2EA89A', href: '/parent/tickets' },
-            { emoji: '👶', count: (children ?? []).length, label: 'Kinder', color: '#FFF0F5', border: '#FF69B4', href: '/parent/child' },
+            { emoji: '💬', count: tickets.filter(t => t.status === 'open').length, label: 'Offene Tickets', color: '#E1F5EE', border: '#2EA89A', href: '/parent/tickets' },
+            { emoji: '👶', count: children.length, label: 'Kinder', color: '#FFF0F5', border: '#FF69B4', href: '/parent/child' },
           ].map(s => (
             <a key={s.label} href={s.href} className="kc-card p-5 flex flex-col items-center gap-2 hover:scale-105 transition-transform cursor-pointer" style={{ background: s.color, borderColor: s.border }}>
               <span className="text-4xl">{s.emoji}</span>
@@ -68,19 +84,14 @@ export default async function ParentDashboard() {
               </a>
             </div>
             <div className="divide-y-2 divide-[#F5F0E8]">
-              {(notifications ?? []).length === 0 ? (
-                <div className="px-5 py-8 text-center">
-                  <p className="text-3xl mb-2">✨</p>
-                  <p className="text-gray-400 font-semibold text-sm">Alles auf dem neuesten Stand!</p>
-                </div>
-              ) : (notifications ?? []).map(n => (
-                <div key={n.id} className={`px-5 py-3 flex items-start gap-3 ${!n.read ? 'bg-teal-50' : ''}`}>
+              {notifications.map(n => (
+                <a key={n.id} href="/parent/notifications" className={`px-5 py-3 flex items-start gap-3 hover:bg-[#F5F0E8] transition-colors ${!n.read ? 'bg-teal-50 hover:bg-teal-100' : ''}`}>
                   {!n.read && <span className="mt-2 w-2.5 h-2.5 rounded-full bg-teal-500 flex-shrink-0" />}
                   <div>
                     <p className="text-sm font-bold text-gray-800">{n.title}</p>
                     <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{n.body}</p>
                   </div>
-                </div>
+                </a>
               ))}
             </div>
           </div>
@@ -97,15 +108,7 @@ export default async function ParentDashboard() {
               </a>
             </div>
             <div className="divide-y-2 divide-[#F5F0E8]">
-              {(tickets ?? []).length === 0 ? (
-                <div className="px-5 py-8 text-center">
-                  <p className="text-3xl mb-2">📭</p>
-                  <p className="text-gray-400 font-semibold text-sm">Noch keine Nachrichten</p>
-                  <a href="/parent/tickets/new" className="mt-3 inline-block text-teal-600 text-sm font-bold hover:underline">
-                    Erste Anfrage stellen →
-                  </a>
-                </div>
-              ) : (tickets ?? []).map(t => (
+              {tickets.map(t => (
                 <a key={t.id} href={`/parent/tickets/${t.id}`} className="px-5 py-3 flex items-center justify-between hover:bg-[#F5F0E8] transition-colors">
                   <div>
                     <p className="text-sm font-bold text-gray-800">{t.subject}</p>
@@ -126,12 +129,19 @@ export default async function ParentDashboard() {
         </div>
 
         {/* Quick actions */}
-        <div className="grid grid-cols-2 gap-4 mt-6">
+        <div className="grid grid-cols-3 gap-4 mt-6">
           <a href="/parent/child" className="kc-card p-5 flex items-center gap-4 hover:scale-105 transition-transform" style={{ background: '#FFF8E7' }}>
             <span className="text-4xl">📖</span>
             <div>
               <p className="font-black text-gray-800">Lerngeschichten</p>
               <p className="text-xs text-gray-500 font-semibold">Entwicklung meines Kindes</p>
+            </div>
+          </a>
+          <a href="/parent/meals" className="kc-card p-5 flex items-center gap-4 hover:scale-105 transition-transform" style={{ background: '#FFF0E8' }}>
+            <span className="text-4xl">🍽️</span>
+            <div>
+              <p className="font-black text-gray-800">Speiseplan</p>
+              <p className="text-xs text-gray-500 font-semibold">Mahlzeiten & Ernährung</p>
             </div>
           </a>
           <a href="/parent/faq" className="kc-card p-5 flex items-center gap-4 hover:scale-105 transition-transform" style={{ background: '#F0F4FF' }}>

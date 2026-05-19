@@ -25,7 +25,6 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #111; color: var(--text); }
 
-/* SLIDE CONTAINER */
 .slide {
   width: 1280px;
   min-height: 720px;
@@ -39,7 +38,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   page-break-after: always;
 }
 
-/* SLIDE HEADER */
 .slide-header {
   background: linear-gradient(135deg, var(--teal), var(--teal-dark));
   color: white;
@@ -50,16 +48,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 }
 .slide-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
 .slide-header .sub { font-size: 14px; opacity: 0.8; margin-top: 4px; }
-.slide-num { font-size: 13px; opacity: 0.6; font-weight: 600; letter-spacing: 0.1em; }
+.slide-num { font-size: 13px; opacity: 0.6; font-weight: 600; letter-spacing: 0.1em; flex-shrink: 0; }
+.slide-header.dark { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+.slide-header.olive { background: linear-gradient(135deg, var(--olive), #6b5e45); }
+.slide-header.red { background: linear-gradient(135deg, #E53935, #B71C1C); }
 
-.slide-header.dark {
-  background: linear-gradient(135deg, #1a1a2e, #16213e);
-}
-.slide-header.olive {
-  background: linear-gradient(135deg, var(--olive), #6b5e45);
-}
-
-/* SLIDE BODY */
 .slide-body {
   flex: 1;
   padding: 36px 48px;
@@ -71,13 +64,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .slide-body.cols-3 { flex-direction: row; gap: 24px; }
 .col { flex: 1; display: flex; flex-direction: column; gap: 16px; }
 
-/* TYPOGRAPHY */
 h2 { font-size: 20px; font-weight: 700; color: var(--teal-dark); margin-bottom: 4px; }
 h3 { font-size: 15px; font-weight: 700; color: var(--teal-dark); margin-bottom: 6px; }
 p  { font-size: 14px; line-height: 1.65; color: #444; }
 .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--grey); margin-bottom: 6px; }
 
-/* CARDS */
 .card {
   background: #fafafa;
   border: 1px solid var(--border);
@@ -91,7 +82,6 @@ p  { font-size: 14px; line-height: 1.65; color: #444; }
 .card.grey   { border-left-color: var(--grey); }
 .card.olive  { border-left-color: var(--olive); }
 
-/* BADGES */
 .badge {
   display: inline-block;
   font-size: 11px;
@@ -107,20 +97,13 @@ p  { font-size: 14px; line-height: 1.65; color: #444; }
 .badge.grey   { background: var(--grey-light);   color: var(--grey); }
 .badge.teal   { background: var(--teal-light);   color: var(--teal-dark); }
 
-/* TABLE */
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th { background: var(--teal-dark); color: white; padding: 9px 14px; text-align: left; font-weight: 600; font-size: 12px; }
 td { padding: 8px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
 tr:last-child td { border-bottom: none; }
 tr:nth-child(even) td { background: #fafafa; }
 
-/* FLOW DIAGRAM */
-.flow {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0;
-}
+.flow { display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
 .flow-step {
   background: var(--teal-light);
   border: 1.5px solid var(--teal);
@@ -136,19 +119,9 @@ tr:nth-child(even) td { background: #fafafa; }
 .flow-step.ext  { background: #FFF3E0; border-color: var(--orange); color: #E65100; }
 .flow-step.grey { background: var(--grey-light); border-color: var(--grey); color: #555; }
 .flow-step.red  { background: var(--red-light); border-color: var(--red); color: var(--red); }
-.flow-arrow {
-  color: var(--teal);
-  font-size: 20px;
-  padding: 0 6px;
-  font-weight: 300;
-}
+.flow-arrow { color: var(--teal); font-size: 20px; padding: 0 6px; font-weight: 300; }
 
-/* ARCH BOX */
-.arch-box {
-  border: 2px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-}
+.arch-box { border: 2px solid var(--border); border-radius: 10px; overflow: hidden; }
 .arch-box-header {
   background: var(--teal-dark);
   color: white;
@@ -161,51 +134,23 @@ tr:nth-child(even) td { background: #fafafa; }
 .arch-box-header.purple { background: #512DA8; }
 .arch-box-header.orange { background: #E65100; }
 .arch-box-header.dark   { background: #1a1a2e; }
-.arch-box-body {
-  padding: 14px 16px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.arch-chip {
-  background: var(--teal-light);
-  color: var(--teal-dark);
-  border-radius: 6px;
-  padding: 5px 12px;
-  font-size: 12px;
-  font-weight: 600;
-}
+.arch-box-body { padding: 14px 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+.arch-chip { background: var(--teal-light); color: var(--teal-dark); border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; }
 .arch-chip.purple { background: #EDE7F6; color: #4527A0; }
 .arch-chip.orange { background: #FFF3E0; color: #E65100; }
 .arch-chip.dark   { background: #e8e8f0; color: #1a1a2e; }
 
-/* CHECKLIST */
 .checklist { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-.checklist li {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-size: 13.5px;
-  line-height: 1.5;
-}
+.checklist li { display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; line-height: 1.5; }
 .checklist li .icon { flex-shrink: 0; margin-top: 1px; font-size: 15px; }
 
-/* STAT BOXES */
 .stats { display: flex; gap: 16px; }
-.stat-box {
-  flex: 1;
-  background: var(--teal-light);
-  border-radius: 10px;
-  padding: 18px;
-  text-align: center;
-}
+.stat-box { flex: 1; background: var(--teal-light); border-radius: 10px; padding: 18px; text-align: center; }
 .stat-box .num { font-size: 36px; font-weight: 800; color: var(--teal-dark); line-height: 1; }
 .stat-box .lbl { font-size: 12px; color: var(--teal); margin-top: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 
-/* DIVIDER */
 .divider { height: 1px; background: var(--border); margin: 4px 0; }
 
-/* FOOTER */
 .slide-footer {
   background: #f5f5f5;
   border-top: 1px solid var(--border);
@@ -217,17 +162,35 @@ tr:nth-child(even) td { background: #fafafa; }
   color: #999;
 }
 
-/* DPA WARNING BOX */
-.warning-box {
-  background: var(--red-light);
-  border: 1.5px solid var(--red);
-  border-radius: 8px;
-  padding: 14px 18px;
-}
+.warning-box { background: var(--red-light); border: 1.5px solid var(--red); border-radius: 8px; padding: 14px 18px; }
 .warning-box h3 { color: var(--red); margin-bottom: 6px; }
 
-/* TAG ROW */
 .tag-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Screenshot slide */
+.screenshot-frame {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  flex: 1;
+}
+.screenshot-frame img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+
+/* Feature pill */
+.feature-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fafafa;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+.feature-pill .icon { font-size: 16px; }
 
 @media print {
   body { background: white; }
@@ -256,7 +219,7 @@ tr:nth-child(even) td { background: #fafafa; }
   </div>
   <div class="slide-footer">
     <span>Kita Connect · Eugen Mueller</span>
-    <span>Slide 1 / 10</span>
+    <span>Slide 1 / 15</span>
   </div>
 </div>
 
@@ -266,7 +229,7 @@ tr:nth-child(even) td { background: #fafafa; }
 <div class="slide">
   <div class="slide-header">
     <div><h1>The Problem & Solution</h1><div class="sub">Why Kita Connect exists</div></div>
-    <span class="slide-num">02 / 10</span>
+    <span class="slide-num">02 / 15</span>
   </div>
   <div class="slide-body cols-2">
     <div class="col">
@@ -292,7 +255,7 @@ tr:nth-child(even) td { background: #fafafa; }
           <li><span class="icon">✅</span>GDPR-compliant by design — EU-only infrastructure</li>
           <li><span class="icon">✅</span>Structured child development documentation</li>
           <li><span class="icon">✅</span>AI-generated learning story drafts (Lerngeschichten)</li>
-          <li><span class="icon">✅</span>Automated notifications: In-App, Email, SMS</li>
+          <li><span class="icon">✅</span>Automated notifications: In-App, Email, SMS, Telegram</li>
           <li><span class="icon">✅</span>Near-zero monthly cost (~0 € on free tiers)</li>
         </ul>
       </div>
@@ -304,38 +267,37 @@ tr:nth-child(even) td { background: #fafafa; }
       </div>
     </div>
   </div>
-  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 2 / 10</span></div>
+  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 2 / 15</span></div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
-     SLIDE 3 — TECH STACK, APIs & COMPLIANCE
+     SLIDE 3 — TECH STACK & COMPLIANCE
 ═══════════════════════════════════════════════════════════════ -->
 <div class="slide">
   <div class="slide-header">
     <div><h1>Tech Stack, APIs & Compliance</h1><div class="sub">Services used, policies in place, and pending DPAs</div></div>
-    <span class="slide-num">03 / 10</span>
+    <span class="slide-num">03 / 15</span>
   </div>
   <div class="slide-body cols-2">
     <div class="col">
       <h2>Technology Stack</h2>
       <table>
         <tr><th>Layer</th><th>Service</th><th>Region</th></tr>
-        <tr><td>Frontend</td><td>Next.js 16 (App Router)</td><td><span class="badge teal">EU · Vercel Frankfurt</span></td></tr>
+        <tr><td>Frontend</td><td>Next.js (App Router)</td><td><span class="badge teal">EU · Vercel Frankfurt</span></td></tr>
         <tr><td>Database + Auth</td><td>Supabase (PostgreSQL + RLS)</td><td><span class="badge teal">EU · Ireland</span></td></tr>
         <tr><td>Automation</td><td>n8n (German company)</td><td><span class="badge teal">EU · Germany</span></td></tr>
         <tr><td>Email</td><td>Resend SMTP</td><td><span class="badge teal">EU · Ireland SES</span></td></tr>
         <tr><td>SMS</td><td>seven.io (German company)</td><td><span class="badge teal">EU · Germany</span></td></tr>
+        <tr><td>Broadcast</td><td>Telegram Bot API</td><td><span class="badge orange">US · no personal data</span></td></tr>
         <tr><td>AI</td><td>Claude Haiku (Anthropic)</td><td><span class="badge orange">US · pseudonymized</span></td></tr>
       </table>
-
       <div class="divider"></div>
       <h2>GDPR Policies in Place</h2>
       <ul class="checklist">
         <li><span class="icon">✅</span>Row Level Security (RLS) on all database tables</li>
         <li><span class="icon">✅</span>Pseudonymization — real child names never reach Claude API</li>
         <li><span class="icon">✅</span>Audit logging on sensitive tables (children, profiles)</li>
-        <li><span class="icon">✅</span>Deletion concept defined (Art. 17 GDPR)</li>
-        <li><span class="icon">✅</span>EU-only infrastructure (except Anthropic — mitigated)</li>
+        <li><span class="icon">✅</span>EU-only infrastructure (except Anthropic & Telegram — mitigated)</li>
         <li><span class="icon">✅</span>HTTPS / TLS everywhere</li>
       </ul>
     </div>
@@ -352,7 +314,7 @@ tr:nth-child(even) td { background: #fafafa; }
           <tr><td>Anthropic</td><td>US — needs SCCs</td><td><span class="badge red">Critical</span></td></tr>
         </table>
       </div>
-      <div class="card orange">
+      <div class="card orange" style="margin-top:12px;">
         <h3>Also Missing Before Launch</h3>
         <ul class="checklist" style="margin-top:8px;">
           <li><span class="icon">📄</span>Datenschutzerklärung (Privacy Policy)</li>
@@ -363,16 +325,16 @@ tr:nth-child(even) td { background: #fafafa; }
       </div>
     </div>
   </div>
-  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 3 / 10</span></div>
+  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 3 / 15</span></div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
-     SLIDE 4 — FULL SYSTEM ARCHITECTURE
+     SLIDE 4 — SYSTEM ARCHITECTURE
 ═══════════════════════════════════════════════════════════════ -->
 <div class="slide">
   <div class="slide-header">
     <div><h1>System Architecture</h1><div class="sub">How all components connect</div></div>
-    <span class="slide-num">04 / 10</span>
+    <span class="slide-num">04 / 15</span>
   </div>
   <div class="slide-body" style="gap:16px;">
     <div class="arch-box">
@@ -410,6 +372,7 @@ tr:nth-child(even) td { background: #fafafa; }
           <div class="arch-chip purple">ai_pseudonym_map</div>
           <div class="arch-chip purple">invitations</div>
           <div class="arch-chip purple">tickets · observations</div>
+          <div class="arch-chip purple">broadcasts · meals</div>
         </div>
       </div>
       <div class="arch-box" style="flex:1;">
@@ -417,6 +380,7 @@ tr:nth-child(even) td { background: #fafafa; }
         <div class="arch-box-body" style="flex-direction:column; gap:6px;">
           <div class="arch-chip orange">📧 Resend SMTP — Email</div>
           <div class="arch-chip orange">📱 seven.io — SMS (opt-in)</div>
+          <div class="arch-chip orange">📢 Telegram Bot — Broadcast</div>
           <div class="arch-chip orange">🤖 Claude Haiku — AI</div>
         </div>
       </div>
@@ -426,20 +390,243 @@ tr:nth-child(even) td { background: #fafafa; }
           <div class="arch-chip">🔔 In-App (Realtime)</div>
           <div class="arch-chip">✉️ Email (Resend)</div>
           <div class="arch-chip">💬 SMS (seven.io)</div>
+          <div class="arch-chip">📢 Telegram (broadcast)</div>
         </div>
       </div>
     </div>
   </div>
-  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 4 / 10</span></div>
+  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 4 / 15</span></div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
-     SLIDE 5 — WF 01 & 02
+     SLIDE 5 — PORTAL SCREENSHOTS OVERVIEW
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div><h1>Portal — Three Role Dashboards</h1><div class="sub">Parent · Teacher · Admin — all built, running on Next.js with mock data</div></div>
+    <span class="slide-num">05 / 15</span>
+  </div>
+  <div class="slide-body" style="flex-direction:row; gap:24px; padding-top:28px; padding-bottom:28px;">
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
+      <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--grey);">👨‍👩‍👧 Parent Dashboard · /parent</div>
+      <div class="screenshot-frame" style="flex:1;">
+        <img src="../Screenshots/parent.png" alt="Parent Dashboard" />
+      </div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
+      <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--grey);">👩‍🏫 Teacher Dashboard · /teacher</div>
+      <div class="screenshot-frame" style="flex:1;">
+        <img src="../Screenshots/teacher.png" alt="Teacher Dashboard" />
+      </div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
+      <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--grey);">⚙️ Admin Dashboard · /admin</div>
+      <div class="screenshot-frame" style="flex:1;">
+        <img src="../Screenshots/Admin.png" alt="Admin Dashboard" />
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 5 / 15</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 6 — PARENT PORTAL FEATURES
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div><h1>Parent Portal</h1><div class="sub">Everything a parent needs in one place — /parent/*</div></div>
+    <span class="slide-num">06 / 15</span>
+  </div>
+  <div class="slide-body cols-2">
+    <div class="col">
+      <h2>Screens & Features</h2>
+      <table>
+        <tr><th>Route</th><th>Purpose</th></tr>
+        <tr><td>/parent</td><td>Dashboard — notifications, open tickets, quick actions</td></tr>
+        <tr><td>/parent/child</td><td>Child profile — learning stories, milestones</td></tr>
+        <tr><td>/parent/tickets</td><td>Support ticket inbox (open / in progress / closed)</td></tr>
+        <tr><td>/parent/tickets/new</td><td>New ticket form</td></tr>
+        <tr><td>/parent/tickets/[id]</td><td>Ticket thread — parent-teacher conversation</td></tr>
+        <tr><td>/parent/notifications</td><td>Full notification inbox with read/unread</td></tr>
+        <tr><td>/parent/meals</td><td>Weekly meal plan + child eating feedback from teacher</td></tr>
+        <tr><td>/parent/faq</td><td>AI chatbot — Kita questions answered instantly</td></tr>
+        <tr><td>/parent/settings</td><td>Notification preferences (Email / SMS)</td></tr>
+      </table>
+    </div>
+    <div class="col">
+      <h2>Key Design Decisions</h2>
+      <div class="card green">
+        <h3>Eating Feedback from Teacher</h3>
+        <p style="margin-top:6px; font-size:13px;">Teachers log how each child ate (😄 alles aufgegessen / 🙂 gut / 😐 wenig / 😕 nicht gemocht) with optional notes. Parents see this per day in their meal plan view. Bridges the gap between Kita day and home.</p>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <h3>Ticket System</h3>
+        <p style="margin-top:6px; font-size:13px;">Replaces WhatsApp for parent-teacher communication. Full thread view, status tracking, and email notifications on every reply — all GDPR-compliant.</p>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <h3>FAQ Chatbot</h3>
+        <p style="margin-top:6px; font-size:13px;">Cache-first Claude Haiku chatbot. Answers common Kita questions without involving staff. Most answers served from DB cache — near-zero API cost.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 6 / 15</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 7 — TEACHER PORTAL FEATURES
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div><h1>Teacher (Educator) Portal</h1><div class="sub">Documentation, group management, AI-assisted stories — /teacher/*</div></div>
+    <span class="slide-num">07 / 15</span>
+  </div>
+  <div class="slide-body cols-2">
+    <div class="col">
+      <h2>Screens & Features</h2>
+      <table>
+        <tr><th>Route</th><th>Purpose</th></tr>
+        <tr><td>/teacher</td><td>Dashboard — group filter, observations, stories, quick actions</td></tr>
+        <tr><td>/teacher/children</td><td>All children list with search + group filter</td></tr>
+        <tr><td>/teacher/children/[id]</td><td>Child detail — observations, milestones, learning stories</td></tr>
+        <tr><td>/teacher/groups</td><td>Group management — create groups, assign children</td></tr>
+        <tr><td>/teacher/observations</td><td>Observation list + new observation entry</td></tr>
+        <tr><td>/teacher/observations/new</td><td>New observation form (category, situation, child)</td></tr>
+        <tr><td>/teacher/stories</td><td>Learning story list (draft / review / published)</td></tr>
+        <tr><td>/teacher/meals</td><td>Weekly meal plan view + per-child eating feedback entry</td></tr>
+        <tr><td>/teacher/broadcast</td><td>Send Kita-wide announcements (multi-channel)</td></tr>
+        <tr><td>/teacher/settings</td><td>Notification preferences</td></tr>
+      </table>
+    </div>
+    <div class="col">
+      <h2>Key Design Decisions</h2>
+      <div class="card green">
+        <h3>Group-Scoped Dashboard</h3>
+        <p style="margin-top:6px; font-size:13px;">Teacher dashboard has a group dropdown (Alle Gruppen / Schmetterlinge 🦋 / Bienen 🐝 / Sonnenkäfer 🐞). Stats, observations, and stories all filter to the selected group — no information overload.</p>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <h3>Group Management</h3>
+        <p style="margin-top:6px; font-size:13px;">Teachers can create groups, drag/assign children, and remove them. Unassigned children are highlighted. Changes save to Supabase. Solves the annual group reshuffle problem.</p>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <h3>AI Learning Story Flow</h3>
+        <p style="margin-top:6px; font-size:13px;">Teacher selects a child, enters the observation context. n8n picks up the webhook, pseudonymizes the child name, sends to Claude Haiku, and saves the draft. Teacher reviews and publishes.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 7 / 15</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 8 — ADMIN PORTAL FEATURES
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div><h1>Admin Portal</h1><div class="sub">User management, invitations, Kita-wide operations — /admin/*</div></div>
+    <span class="slide-num">08 / 15</span>
+  </div>
+  <div class="slide-body cols-2">
+    <div class="col">
+      <h2>Screens & Features</h2>
+      <table>
+        <tr><th>Route</th><th>Purpose</th></tr>
+        <tr><td>/admin</td><td>Dashboard — pending approvals, recent invitations, quick stats</td></tr>
+        <tr><td>/admin/parents</td><td>All parent accounts — approve / reject / suspend</td></tr>
+        <tr><td>/admin/invitations</td><td>Send invitations to parents and staff via email</td></tr>
+        <tr><td>/admin/broadcast</td><td>Send Kita-wide broadcast (In-App + Email + SMS + Telegram)</td></tr>
+        <tr><td>/admin/meals</td><td>Weekly meal plan editor — dish, macros, vitamins, allergens</td></tr>
+        <tr><td>/admin/settings</td><td>Kita-wide settings — opening hours, contact info</td></tr>
+      </table>
+      <div class="card" style="margin-top:16px;">
+        <h3>Parent Approval Workflow</h3>
+        <p style="margin-top:6px; font-size:13px;">New parents register via magic link invitation. They land in <em>pending</em> status. Admin sees them in the dashboard and approves or rejects — triggering n8n Workflow 08 which emails the parent and activates/suspends their account.</p>
+      </div>
+    </div>
+    <div class="col">
+      <h2>Broadcast — All 4 Channels</h2>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
+        <div class="feature-pill"><span class="icon">🔔</span><div><strong>In-App</strong> — always sent to all active parents</div></div>
+        <div class="feature-pill"><span class="icon">✉️</span><div><strong>Email</strong> — sent if parent opted in (notify_email = true)</div></div>
+        <div class="feature-pill"><span class="icon">💬</span><div><strong>SMS</strong> — sent if parent opted in (notify_sms = true) via seven.io</div></div>
+        <div class="feature-pill"><span class="icon">📢</span><div><strong>Telegram</strong> — channel broadcast @Kita_connectTEST_bot, no opt-in needed</div></div>
+      </div>
+      <div class="card orange" style="margin-top:16px;">
+        <h3>Meal Plan Editor</h3>
+        <p style="margin-top:6px; font-size:13px;">Admin edits the weekly meal plan (dish name, kcal, protein, carbs, fat, vitamins, allergens) per day. The same data is read by the parent and teacher meal plan views. Nutrition score calculated per DGE children's reference values (Richtwerte für Kinder 4–6 Jahre).</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 8 / 15</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 9 — MEALS & NUTRITION MODULE
+═══════════════════════════════════════════════════════════════ -->
+<div class="slide">
+  <div class="slide-header">
+    <div><h1>Meals & Nutrition Module</h1><div class="sub">DGE-based nutrition guidance · Eating feedback · Allergen tracking</div></div>
+    <span class="slide-num">09 / 15</span>
+  </div>
+  <div class="slide-body cols-2">
+    <div class="col">
+      <h2>Three Views, One Data Source</h2>
+      <table>
+        <tr><th>Role</th><th>What they see / can do</th></tr>
+        <tr><td>Admin</td><td>Edit full meal plan — dish, macros, vitamins, allergens</td></tr>
+        <tr><td>Teacher</td><td>View meal + log per-child eating feedback with optional notes</td></tr>
+        <tr><td>Parent</td><td>View meal + see their child's eating feedback from teacher</td></tr>
+      </table>
+
+      <div class="card" style="margin-top:16px;">
+        <h3>Eating Feedback Loop</h3>
+        <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
+          <div class="flow">
+            <div class="flow-step grey" style="min-width:80px;">Midday<br/>meal</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step" style="min-width:120px;">Teacher logs<br/>feedback per child</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step db" style="min-width:100px;">Saved to<br/>Supabase</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step grey" style="min-width:90px;">Parent sees<br/>it that evening</div>
+          </div>
+        </div>
+        <p style="margin-top:12px; font-size:13px;">Feedback options: 😄 Alles aufgegessen · 🙂 Gut gegessen · 😐 Wenig gegessen · 😕 Nicht gemocht — with an optional text note per child.</p>
+      </div>
+    </div>
+    <div class="col">
+      <h2>Nutrition Score</h2>
+      <p>Based on <strong>DGE Qualitätsstandard für Verpflegung in Tageseinrichtungen für Kinder</strong> — the official German standard for Kita catering. Not the EU Nutriscore (designed for packaged products, not hot meals).</p>
+
+      <div class="card" style="margin-top:12px; background: #F0FFF8; border-left-color: var(--green);">
+        <div class="label">DGE Reference Values · Mittagessen · Kinder 4–6 Jahre</div>
+        <table style="margin-top:8px;">
+          <tr><th>Nutrient</th><th>DGE Target</th><th>Score Weight</th></tr>
+          <tr><td>Energy (kcal)</td><td>530–600 kcal</td><td>30 pts (in range) / 10 pts (out)</td></tr>
+          <tr><td>Protein</td><td>≥ 15g (ideal 40g)</td><td>up to 35 pts</td></tr>
+          <tr><td>Vitamins / nutrients</td><td>3–4 listed</td><td>up to 35 pts</td></tr>
+        </table>
+      </div>
+
+      <div class="card orange" style="margin-top:12px;">
+        <h3>⚠️ Disclaimer shown in UI</h3>
+        <p style="font-size:13px; margin-top:6px; font-style:italic;">"Richtwerte basieren auf dem DGE-Qualitätsstandard für Kita-Verpflegung. Dies ist keine medizinische Ernährungsberatung."</p>
+      </div>
+
+      <div class="card grey" style="margin-top:12px;">
+        <h3>Allergen Tracking</h3>
+        <p style="font-size:13px; margin-top:6px;">Each meal lists EU-regulated allergens (Gluten, Milch, Ei, Fisch etc.) as warning badges. Parents with allergic children see them prominently.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 9 / 15</span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SLIDE 10 — WORKFLOWS 01 & 02
 ═══════════════════════════════════════════════════════════════ -->
 <div class="slide">
   <div class="slide-header">
     <div><h1>Workflows 01 & 02</h1><div class="sub">Ticket Notifications · Broadcast to All Parents</div></div>
-    <span class="slide-num">05 / 10</span>
+    <span class="slide-num">10 / 15</span>
   </div>
   <div class="slide-body cols-2">
     <div class="col">
@@ -468,7 +655,7 @@ tr:nth-child(even) td { background: #fafafa; }
     <div class="col">
       <div class="label">Workflow 02 · /broadcast-created</div>
       <h2>Broadcast to All Parents</h2>
-      <p>Admin sends a Kita-wide message. Each parent receives it on their preferred channels — in-app always, email and SMS only if opted in.</p>
+      <p>Admin or teacher sends a Kita-wide message. Each parent receives it on their preferred channels — in-app always, email/SMS/Telegram only if opted in or subscribed.</p>
       <div style="margin-top:12px; display:flex; flex-direction:column; gap:8px;">
         <div class="flow">
           <div class="flow-step grey">Webhook</div>
@@ -477,10 +664,11 @@ tr:nth-child(even) td { background: #fafafa; }
           <div class="flow-arrow">→</div>
           <div class="flow-step grey">Split by<br/>preference</div>
         </div>
-        <div class="flow" style="gap:8px;">
+        <div class="flow" style="gap:6px;">
           <div class="flow-step db" style="flex:1;">In-App<br/><small>ALL parents</small></div>
           <div class="flow-step ext" style="flex:1;">Email<br/><small>if notify_email</small></div>
           <div class="flow-step ext" style="flex:1;">SMS<br/><small>if notify_sms</small></div>
+          <div class="flow-step ext" style="flex:1;">Telegram<br/><small>channel</small></div>
         </div>
       </div>
       <div class="card" style="margin-top:12px;">
@@ -489,20 +677,21 @@ tr:nth-child(even) td { background: #fafafa; }
           <span class="badge teal">In-App always</span>
           <span class="badge orange">Email opt-in</span>
           <span class="badge orange">SMS opt-in</span>
+          <span class="badge orange">Telegram channel</span>
         </div>
       </div>
     </div>
   </div>
-  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 5 / 10</span></div>
+  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 10 / 15</span></div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
-     SLIDE 6 — WF 03 & 04
+     SLIDE 11 — WORKFLOWS 03 & 04
 ═══════════════════════════════════════════════════════════════ -->
 <div class="slide">
   <div class="slide-header">
     <div><h1>Workflows 03 & 04</h1><div class="sub">Welcome Email · Development Observation</div></div>
-    <span class="slide-num">06 / 10</span>
+    <span class="slide-num">11 / 15</span>
   </div>
   <div class="slide-body cols-2">
     <div class="col">
@@ -554,16 +743,16 @@ tr:nth-child(even) td { background: #fafafa; }
       </div>
     </div>
   </div>
-  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 6 / 10</span></div>
+  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 11 / 15</span></div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
-     SLIDE 7 — WF 05: AI LEARNING STORIES
+     SLIDE 12 — WF 05: AI LEARNING STORIES
 ═══════════════════════════════════════════════════════════════ -->
 <div class="slide">
   <div class="slide-header">
     <div><h1>Workflow 05 — AI Learning Stories</h1><div class="sub">Claude Haiku · GDPR Pseudonymization · Lerngeschichten</div></div>
-    <span class="slide-num">07 / 10</span>
+    <span class="slide-num">12 / 15</span>
   </div>
   <div class="slide-body cols-2">
     <div class="col">
@@ -615,16 +804,16 @@ tr:nth-child(even) td { background: #fafafa; }
       </div>
     </div>
   </div>
-  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 7 / 10</span></div>
+  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 12 / 15</span></div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
-     SLIDE 8 — WF 06: FAQ CHATBOT
+     SLIDE 13 — WF 06: FAQ CHATBOT
 ═══════════════════════════════════════════════════════════════ -->
 <div class="slide">
   <div class="slide-header">
     <div><h1>Workflow 06 — FAQ Chatbot</h1><div class="sub">Cache-first architecture · Claude Haiku fallback · Cost optimized</div></div>
-    <span class="slide-num">08 / 10</span>
+    <span class="slide-num">13 / 15</span>
   </div>
   <div class="slide-body cols-2">
     <div class="col">
@@ -679,16 +868,16 @@ tr:nth-child(even) td { background: #fafafa; }
       </div>
     </div>
   </div>
-  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 8 / 10</span></div>
+  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 13 / 15</span></div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
-     SLIDE 9 — WF 07 & 08
+     SLIDE 14 — WORKFLOWS 07 & 08
 ═══════════════════════════════════════════════════════════════ -->
 <div class="slide">
   <div class="slide-header">
     <div><h1>Workflows 07 & 08</h1><div class="sub">Invitations · Parent Account Approval</div></div>
-    <span class="slide-num">09 / 10</span>
+    <span class="slide-num">14 / 15</span>
   </div>
   <div class="slide-body cols-2">
     <div class="col">
@@ -741,38 +930,41 @@ tr:nth-child(even) td { background: #fafafa; }
       </div>
     </div>
   </div>
-  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 9 / 10</span></div>
+  <div class="slide-footer"><span>Kita Connect · Technical Overview</span><span>Slide 14 / 15</span></div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
-     SLIDE 10 — STATUS & ROADMAP
+     SLIDE 15 — STATUS & ROADMAP
 ═══════════════════════════════════════════════════════════════ -->
 <div class="slide">
   <div class="slide-header">
     <div><h1>Status & Roadmap</h1><div class="sub">What's done, what's next, what's blocking launch</div></div>
-    <span class="slide-num">10 / 10</span>
+    <span class="slide-num">15 / 15</span>
   </div>
   <div class="slide-body cols-2">
     <div class="col">
       <h2>Phase Status</h2>
       <table style="margin-top:4px;">
         <tr><th>Phase</th><th>Description</th><th>Status</th></tr>
-        <tr><td>0</td><td>DB Schema, RLS, Concept</td><td><span class="badge green">Complete</span></td></tr>
+        <tr><td>0</td><td>DB Schema, RLS, Prototypes</td><td><span class="badge green">Complete</span></td></tr>
         <tr><td>1</td><td>n8n Automation (8 workflows)</td><td><span class="badge green">Complete</span></td></tr>
-        <tr><td>2</td><td>Next.js Frontend</td><td><span class="badge orange">In Progress</span></td></tr>
-        <tr><td>3</td><td>Educator & Admin Portal</td><td><span class="badge grey">Planned</span></td></tr>
-        <tr><td>4</td><td>i18n, Polish & Pilot Launch</td><td><span class="badge grey">Planned</span></td></tr>
-        <tr><td>5</td><td>Mobile App (React Native)</td><td><span class="badge grey">Planned</span></td></tr>
+        <tr><td>2</td><td>Next.js Frontend — all role portals</td><td><span class="badge orange">In Progress</span></td></tr>
+        <tr><td>3</td><td>Supabase integration (live data)</td><td><span class="badge grey">Planned</span></td></tr>
+        <tr><td>4</td><td>i18n DE / EN / RU, Polish & Pilot</td><td><span class="badge grey">Planned</span></td></tr>
+        <tr><td>5</td><td>Mobile App (React Native / PWA)</td><td><span class="badge grey">Planned</span></td></tr>
       </table>
 
-      <h2 style="margin-top:20px;">What's Working Today</h2>
+      <h2 style="margin-top:20px;">What's Working Today (Phase 2)</h2>
       <ul class="checklist" style="margin-top:8px;">
-        <li><span class="icon">✅</span>All 8 n8n workflows published and active</li>
-        <li><span class="icon">✅</span>Email domain <code>kita-connect.cloud</code> verified</li>
-        <li><span class="icon">✅</span>Supabase DB with full schema, RLS, triggers</li>
-        <li><span class="icon">✅</span>Claude Haiku connected and tested</li>
-        <li><span class="icon">✅</span>seven.io SMS via environment variable</li>
-        <li><span class="icon">✅</span>GDPR pseudonymization implemented</li>
+        <li><span class="icon">✅</span>All 3 role dashboards — Parent, Teacher, Admin</li>
+        <li><span class="icon">✅</span>Meals module — admin editor, teacher feedback, parent view</li>
+        <li><span class="icon">✅</span>Group management — create, assign, reassign children</li>
+        <li><span class="icon">✅</span>Learning stories — list, draft, review, publish flow</li>
+        <li><span class="icon">✅</span>Observations — entry form with category mapping</li>
+        <li><span class="icon">✅</span>Ticket system — full thread view per parent</li>
+        <li><span class="icon">✅</span>FAQ chatbot UI — connected to n8n webhook</li>
+        <li><span class="icon">✅</span>Settings pages — notification preferences per role</li>
+        <li><span class="icon">✅</span>Broadcast — admin + teacher send, 4 channels</li>
       </ul>
     </div>
     <div class="col">
@@ -788,18 +980,25 @@ tr:nth-child(even) td { background: #fafafa; }
           <li><span class="icon">❌</span>Impressum (§5 TMG)</li>
         </ul>
       </div>
+      <div class="card orange" style="margin-top:16px;">
+        <h3>Next Technical Steps</h3>
+        <ul class="checklist" style="margin-top:8px; font-size:13px;">
+          <li><span class="icon">1️⃣</span>Enter n8n credentials (Supabase, Resend, Telegram, seven.io, Anthropic)</li>
+          <li><span class="icon">2️⃣</span>Activate + test all 8 n8n workflows end-to-end</li>
+          <li><span class="icon">3️⃣</span>Replace mock data with live Supabase queries</li>
+          <li><span class="icon">4️⃣</span>Generate VAPID keys for Web Push notifications</li>
+          <li><span class="icon">5️⃣</span>Replace custom nutrition score with DGE-Ampel system</li>
+        </ul>
+      </div>
       <div class="stats" style="margin-top:16px;">
         <div class="stat-box"><div class="num">8</div><div class="lbl">Workflows</div></div>
-        <div class="stat-box"><div class="num">3</div><div class="lbl">Channels</div></div>
+        <div class="stat-box"><div class="num">4</div><div class="lbl">Channels</div></div>
         <div class="stat-box"><div class="num">~0€</div><div class="lbl">Monthly</div></div>
         <div class="stat-box"><div class="num">EU</div><div class="lbl">Hosted</div></div>
       </div>
-      <div class="card" style="margin-top:16px; background:var(--teal-light); border-left-color:var(--teal-dark);">
-        <p style="font-size:13px; font-style:italic; color:var(--teal-dark);">"A GDPR-compliant, AI-assisted Kita management platform built on modern EU-hosted infrastructure — automating parent communication, child documentation, and educator workflows at near-zero monthly cost."</p>
-      </div>
     </div>
   </div>
-  <div class="slide-footer"><span>Kita Connect · Technical Overview · May 2026</span><span>Slide 10 / 10</span></div>
+  <div class="slide-footer"><span>Kita Connect · Technical Overview · May 2026</span><span>Slide 15 / 15</span></div>
 </div>
 
 </body>

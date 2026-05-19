@@ -1,22 +1,35 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/navbar'
 import { ChevronRight } from 'lucide-react'
+import type { Profile } from '@/types'
 
-export default async function AdminDashboard() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+const mockProfile: Profile = {
+  id: 'dev-admin',
+  full_name: 'Admin Nutzer',
+  email: 'admin@kita-connect.de',
+  role: 'admin',
+  phone: null,
+  notify_email: true,
+  notify_sms: false,
+  onboarding_status: 'active',
+  created_at: new Date().toISOString(),
+}
 
-  const [{ data: profile }, { data: parents }, { data: pending }, { data: invitations }] =
-    await Promise.all([
-      supabase.from('profiles').select('*').eq('id', user.id).single(),
-      supabase.from('profiles').select('*').eq('role', 'parent'),
-      supabase.from('profiles').select('*').eq('role', 'parent').eq('onboarding_status', 'pending'),
-      supabase.from('invitations').select('*').order('created_at', { ascending: false }).limit(5),
-    ])
+const mockParents = [
+  { id: '1', full_name: 'Anna Müller', email: 'anna@example.de', onboarding_status: 'pending' },
+  { id: '2', full_name: 'Thomas Becker', email: 'thomas@example.de', onboarding_status: 'pending' },
+  { id: '3', full_name: 'Sara Klein', email: 'sara@example.de', onboarding_status: 'active' },
+]
 
-  if (!profile || profile.role !== 'admin') redirect('/login')
+const mockInvitations = [
+  { id: '1', email: 'neue.mutter@example.de', role: 'parent', created_at: new Date().toISOString() },
+  { id: '2', email: 'erzieherin@example.de', role: 'teacher', created_at: new Date(Date.now() - 86400000).toISOString() },
+]
+
+export default function AdminDashboard() {
+  const profile = mockProfile
+  const parents = mockParents
+  const pending = mockParents.filter(p => p.onboarding_status === 'pending')
+  const invitations = mockInvitations
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
@@ -34,11 +47,12 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-5 gap-4 mb-6">
           {[
-            { emoji: '👨‍👩‍👧', count: (parents ?? []).length, label: 'Eltern gesamt', color: '#E1F5EE', href: '/admin/parents' },
-            { emoji: '⏳', count: (pending ?? []).length, label: 'Ausstehend', color: '#FFF8E7', href: '/admin/parents' },
-            { emoji: '✉️', count: (invitations ?? []).length, label: 'Einladungen', color: '#F0F4FF', href: '/admin/invitations' },
+            { emoji: '👨‍👩‍👧', count: parents.length, label: 'Eltern gesamt', color: '#E1F5EE', href: '/admin/parents' },
+            { emoji: '⏳', count: pending.length, label: 'Ausstehend', color: '#FFF8E7', href: '/admin/parents' },
+            { emoji: '✉️', count: invitations.length, label: 'Einladungen', color: '#F0F4FF', href: '/admin/invitations' },
+            { emoji: '🍽️', count: null, label: 'Speiseplan', color: '#FFF0E8', href: '/admin/meals' },
             { emoji: '📢', count: null, label: 'Broadcast senden', color: '#FFF0F5', href: '/admin/broadcast' },
           ].map(s => (
             <a key={s.label} href={s.href} className="kc-card p-4 flex flex-col items-center gap-2 hover:scale-105 transition-transform cursor-pointer" style={{ background: s.color }}>
@@ -63,32 +77,15 @@ export default async function AdminDashboard() {
               </a>
             </div>
             <div className="divide-y-2 divide-[#F5F0E8]">
-              {(pending ?? []).length === 0 ? (
-                <div className="px-5 py-8 text-center">
-                  <p className="text-3xl mb-2">✅</p>
-                  <p className="text-gray-400 font-semibold text-sm">Alle Eltern freigeschaltet!</p>
-                </div>
-              ) : (pending ?? []).map(p => (
+              {pending.map(p => (
                 <div key={p.id} className="px-5 py-3 flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-bold text-gray-800">{p.full_name}</p>
                     <p className="text-xs text-gray-400">{p.email}</p>
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
-                    <form action="/api/admin/approve" method="POST">
-                      <input type="hidden" name="parent_id" value={p.id} />
-                      <input type="hidden" name="action" value="approve" />
-                      <button type="submit" className="kc-btn text-xs bg-teal-600 text-white px-3 py-1.5">
-                        ✅ Ja
-                      </button>
-                    </form>
-                    <form action="/api/admin/approve" method="POST">
-                      <input type="hidden" name="parent_id" value={p.id} />
-                      <input type="hidden" name="action" value="reject" />
-                      <button type="submit" className="kc-btn text-xs bg-red-100 text-red-600 px-3 py-1.5">
-                        ❌ Nein
-                      </button>
-                    </form>
+                    <button className="kc-btn text-xs bg-teal-600 text-white px-3 py-1.5">✅ Ja</button>
+                    <button className="kc-btn text-xs bg-red-100 text-red-600 px-3 py-1.5">❌ Nein</button>
                   </div>
                 </div>
               ))}
@@ -107,15 +104,7 @@ export default async function AdminDashboard() {
               </a>
             </div>
             <div className="divide-y-2 divide-[#F5F0E8]">
-              {(invitations ?? []).length === 0 ? (
-                <div className="px-5 py-8 text-center">
-                  <p className="text-3xl mb-2">📭</p>
-                  <p className="text-gray-400 font-semibold text-sm">Noch keine Einladungen</p>
-                  <a href="/admin/invitations" className="mt-2 inline-block text-teal-600 text-sm font-bold hover:underline">
-                    Einladung senden →
-                  </a>
-                </div>
-              ) : (invitations ?? []).map(inv => (
+              {invitations.map(inv => (
                 <div key={inv.id} className="px-5 py-3 flex items-center justify-between">
                   <div>
                     <p className="text-sm font-bold text-gray-800">{inv.email}</p>
