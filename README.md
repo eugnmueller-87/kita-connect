@@ -31,7 +31,7 @@ Kita Connect replaces fragmented communication tools (WhatsApp groups, paper for
 - Broadcast announcements to all parents
 
 **For Kita Management**
-- Multi-channel communication: In-App, E-Mail, Telegram, SMS
+- Multi-channel communication: In-App, E-Mail, SMS
 - Invite-only registration — no self-signup, full access control
 - Automated workflows for registrations, tickets, announcements
 - GDPR-compliant audit log with 90-day retention
@@ -48,6 +48,7 @@ Kita Connect replaces fragmented communication tools (WhatsApp groups, paper for
 | Automation | n8n (self-hosted) | German company, GDPR-compliant, self-hostable |
 | Email | Resend | 3,000 emails/month free |
 | Push | Web Push API (VAPID) | Browser-native, no cost |
+| SMS | seven.io | Fallback for parents without smartphones |
 | AI | Claude Haiku (Anthropic) | Most cost-efficient model for summaries & learning stories |
 | Hosting | Vercel + Supabase EU | EU region, GDPR-compliant data residency |
 | Analytics | Vercel Web Analytics | Privacy-friendly, no cookies, included in Hobby plan |
@@ -80,8 +81,8 @@ Kita Connect replaces fragmented communication tools (WhatsApp groups, paper for
 └──────┬──────────┬─────────────┬─────────────────┘
        │          │             │
        ▼          ▼             ▼
-   Resend      Telegram     Claude Haiku
-   (Email)    (Broadcast)   (AI, pseudonymized)
+   Resend      seven.io     Claude Haiku
+   (Email)      (SMS)      (AI, pseudonymized)
 ```
 
 ---
