@@ -1,40 +1,57 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Navbar from '@/components/navbar'
+import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/types'
 
-const mockProfile: Profile = {
-  id: 'dev-admin', full_name: 'Admin Nutzer', email: 'admin@kita-connect.de',
-  role: 'admin', phone: null, notify_email: true, notify_sms: false,
-  onboarding_status: 'active', created_at: new Date().toISOString(),
-}
-
-// Each parent linked to their group(s) and opted-in channels
-const mockParents = [
-  { id: '1', name: 'Anna Müller',   group: 'Schmetterlinge', notifyEmail: true,  notifySms: false, notifyPush: true  },
-  { id: '2', name: 'Thomas Becker', group: 'Schmetterlinge', notifyEmail: true,  notifySms: false, notifyPush: false },
-  { id: '3', name: 'Sara Klein',    group: 'Bienen',         notifyEmail: false, notifySms: true,  notifyPush: true  },
-  { id: '4', name: 'Marc Weber',    group: 'Bienen',         notifyEmail: true,  notifySms: true,  notifyPush: true  },
-  { id: '5', name: 'Julia Braun',   group: 'Sonnenkäfer',    notifyEmail: false, notifySms: false, notifyPush: true  },
-  { id: '6', name: 'Kevin Fischer', group: 'Sonnenkäfer',    notifyEmail: true,  notifySms: false, notifyPush: false },
-]
-
-const GROUPS = ['Alle Gruppen', 'Schmetterlinge', 'Bienen', 'Sonnenkäfer']
-const GROUP_EMOJI: Record<string, string> = { 'Schmetterlinge': '🦋', 'Bienen': '🐝', 'Sonnenkäfer': '🐞' }
+type Parent = { id: string; name: string; group: string; notifyEmail: boolean; notifySms: boolean; notifyPush: boolean }
 
 export default function AdminBroadcastPage() {
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [parents, setParents] = useState<Parent[]>([])
+  const [groups, setGroups] = useState<string[]>(['Alle Gruppen'])
   const [title, setTitle]           = useState('')
   const [body, setBody]             = useState('')
   const [targetGroup, setTargetGroup] = useState('Alle Gruppen')
   const [sent, setSent]             = useState(false)
   const [loading, setLoading]       = useState(false)
+  const [error, setError]           = useState('')
 
-  // Filter parents by selected group — this drives ALL reach numbers
-  const audience = targetGroup === 'Alle Gruppen'
-    ? mockParents
-    : mockParents.filter(p => p.group === targetGroup)
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data: p } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      if (p) setProfile(p as Profile)
 
+      const { data: parentData } = await supabase
+        .from('profiles')
+        .select('id, full_name, assigned_groups, notify_email, notify_sms, notify_push')
+        .eq('role', 'parent')
+        .eq('onboarding_status', 'active')
+
+      if (parentData) {
+        const mapped: Parent[] = parentData.map(p => ({
+          id: p.id,
+          name: p.full_name,
+          group: (p.assigned_groups as string[] | null)?.[0] ?? 'Allgemein',
+          notifyEmail: p.notify_email ?? false,
+          notifySms: p.notify_sms ?? false,
+          notifyPush: p.notify_push ?? false,
+        }))
+        setParents(mapped)
+        const uniqueGroups = ['Alle Gruppen', ...new Set(mapped.map(p => p.group))]
+        setGroups(uniqueGroups)
+      }
+    }
+    load()
+  }, [])
+
+  const GROUP_EMOJI: Record<string, string> = { 'Schmetterlinge': '🦋', 'Bienen': '🐝', 'Sonnenkäfer': '🐞' }
+
+  const audience = targetGroup === 'Alle Gruppen' ? parents : parents.filter(p => p.group === targetGroup)
   const total      = audience.length
   const pushCount  = audience.filter(p => p.notifyPush).length
   const emailCount = audience.filter(p => p.notifyEmail).length
@@ -43,15 +60,23 @@ export default function AdminBroadcastPage() {
   async function handleSend(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    await new Promise(r => setTimeout(r, 900))
+    setError('')
+    const res = await fetch('/api/admin/broadcast', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, body }),
+    })
     setLoading(false)
+    if (!res.ok) { setError('Fehler beim Senden'); return }
     setSent(true)
   }
+
+  if (!profile) return null
 
   if (sent) {
     return (
       <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-        <Navbar profile={mockProfile} unreadCount={0} />
+        <Navbar profile={profile} unreadCount={0} />
         <div className="max-w-2xl mx-auto px-4 py-8">
           <div className="kc-card px-6 py-14 text-center">
             <p className="text-7xl mb-4">🎉</p>
@@ -83,7 +108,7 @@ export default function AdminBroadcastPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={mockProfile} unreadCount={0} />
+      <Navbar profile={profile} unreadCount={0} />
 
       <div className="max-w-2xl mx-auto px-4 py-8">
         <a href="/admin" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">← Zurück</a>
@@ -98,11 +123,13 @@ export default function AdminBroadcastPage() {
           </div>
         </div>
 
+        {error && <div className="kc-card p-4 mb-4 bg-red-50 border-2 border-red-200 text-red-600 text-sm font-semibold">{error}</div>}
+
         <BroadcastForm
           title={title} setTitle={setTitle}
           body={body} setBody={setBody}
           targetGroup={targetGroup} setTargetGroup={setTargetGroup}
-          groups={GROUPS} groupEmoji={GROUP_EMOJI}
+          groups={groups} groupEmoji={GROUP_EMOJI}
           audience={audience}
           total={total} pushCount={pushCount} emailCount={emailCount} smsCount={smsCount}
           loading={loading} onSubmit={handleSend}
@@ -120,7 +147,7 @@ interface BroadcastFormProps {
   body: string; setBody: (v: string) => void
   targetGroup: string; setTargetGroup: (v: string) => void
   groups: string[]; groupEmoji: Record<string, string>
-  audience: typeof mockParents
+  audience: Parent[]
   total: number; pushCount: number; emailCount: number; smsCount: number
   loading: boolean
   onSubmit: (e: React.FormEvent) => void

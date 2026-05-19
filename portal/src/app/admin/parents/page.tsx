@@ -1,25 +1,21 @@
 import Navbar from '@/components/navbar'
 import ParentActions from './parent-actions'
-import type { Profile } from '@/types'
+import { createClient } from '@/lib/supabase/server'
+import { requireRole } from '@/lib/auth'
 
-const mockProfile: Profile = {
-  id: 'dev-admin', full_name: 'Admin Nutzer', email: 'admin@kita-connect.de',
-  role: 'admin', phone: null, notify_email: true, notify_sms: false,
-  onboarding_status: 'active', created_at: new Date().toISOString(),
-}
+export default async function AdminParentsPage() {
+  const { profile } = await requireRole('admin')
+  const supabase = await createClient()
 
-const mockParents = [
-  { id: '1', full_name: 'Anna Müller', email: 'anna@example.de', onboarding_status: 'pending', created_at: new Date().toISOString() },
-  { id: '2', full_name: 'Thomas Becker', email: 'thomas@example.de', onboarding_status: 'pending', created_at: new Date(Date.now() - 86400000).toISOString() },
-  { id: '3', full_name: 'Sara Klein', email: 'sara@example.de', onboarding_status: 'approved', created_at: new Date(Date.now() - 172800000).toISOString() },
-  { id: '4', full_name: 'Marc Weber', email: 'marc@example.de', onboarding_status: 'approved', created_at: new Date(Date.now() - 259200000).toISOString() },
-]
+  const { data } = await supabase
+    .from('profiles')
+    .select('id, full_name, email, onboarding_status, created_at')
+    .eq('role', 'parent')
+    .order('created_at', { ascending: false })
 
-export default function AdminParentsPage() {
-  const profile = mockProfile
-  const parents = mockParents
+  const parents = data ?? []
   const pending = parents.filter(p => p.onboarding_status === 'pending')
-  const approved = parents.filter(p => p.onboarding_status === 'approved')
+  const approved = parents.filter(p => p.onboarding_status === 'active')
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
@@ -65,24 +61,28 @@ export default function AdminParentsPage() {
             <span className="text-xl">✅</span>
             <h2 className="font-black text-gray-800">Alle Eltern ({parents.length})</h2>
           </div>
-          <div className="divide-y-2 divide-[#F5F0E8]">
-            {parents.map(p => (
-              <div key={p.id} className="px-5 py-3 flex items-center justify-between">
-                <div>
-                  <p className="font-bold text-gray-800">{p.full_name}</p>
-                  <p className="text-xs text-gray-400">{p.email}</p>
+          {parents.length === 0 ? (
+            <p className="px-5 py-6 text-sm text-gray-400 font-semibold text-center">Noch keine Eltern registriert</p>
+          ) : (
+            <div className="divide-y-2 divide-[#F5F0E8]">
+              {parents.map(p => (
+                <div key={p.id} className="px-5 py-3 flex items-center justify-between">
+                  <div>
+                    <p className="font-bold text-gray-800">{p.full_name}</p>
+                    <p className="text-xs text-gray-400">{p.email}</p>
+                  </div>
+                  <span className={`kc-badge text-xs ${
+                    p.onboarding_status === 'active' ? 'bg-teal-100 text-teal-700' :
+                    p.onboarding_status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-red-100 text-red-600'
+                  }`}>
+                    {p.onboarding_status === 'active' ? '✅ Aktiv' :
+                     p.onboarding_status === 'pending' ? '⏳ Ausstehend' : '❌ Gesperrt'}
+                  </span>
                 </div>
-                <span className={`kc-badge text-xs ${
-                  p.onboarding_status === 'approved' ? 'bg-teal-100 text-teal-700' :
-                  p.onboarding_status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-red-100 text-red-600'
-                }`}>
-                  {p.onboarding_status === 'approved' ? '✅ Aktiv' :
-                   p.onboarding_status === 'pending' ? '⏳ Ausstehend' : '❌ Abgelehnt'}
-                </span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
       </div>

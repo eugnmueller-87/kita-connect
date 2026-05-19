@@ -1,14 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Navbar from '@/components/navbar'
+import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/types'
-
-const mockProfile: Profile = {
-  id: 'dev-admin', full_name: 'Admin Nutzer', email: 'admin@kita-connect.de',
-  role: 'admin', phone: null, notify_email: true, notify_sms: false,
-  onboarding_status: 'active', created_at: new Date().toISOString(),
-}
 
 const DAYS = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']
 const DATES = ['19.05.', '20.05.', '21.05.', '22.05.', '23.05.']
@@ -45,11 +40,55 @@ function NutritionBar({ label, value, max, color }: { label: string; value: numb
 }
 
 export default function AdminMealsPage() {
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [selectedDay, setSelectedDay] = useState('Montag')
   const [meals, setMeals] = useState<Record<string, Meal>>(initialMeals)
   const [editing, setEditing] = useState(false)
   const [saved, setSaved] = useState(false)
   const [editMeal, setEditMeal] = useState<Meal>({ ...initialMeals.Montag })
+
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data: p } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      if (p) setProfile(p as Profile)
+
+      // Load this week's meals from DB if they exist
+      const monday = getMonday()
+      const { data: mealData } = await supabase
+        .from('meals')
+        .select('*')
+        .gte('date', monday)
+        .lt('date', addDays(monday, 5))
+
+      if (mealData && mealData.length > 0) {
+        const mapped: Record<string, Meal> = {}
+        mealData.forEach((m: { date: string; dish: string; kcal: number; protein: number; carbs: number; fat: number; vitamins: string[]; allergens: string[] }) => {
+          const dayIndex = new Date(m.date).getDay() - 1
+          const dayName = DAYS[dayIndex]
+          if (dayName) mapped[dayName] = { dish: m.dish, kcal: m.kcal, protein: m.protein, carbs: m.carbs, fat: m.fat, vitamins: m.vitamins ?? [], allergens: m.allergens ?? [] }
+        })
+        setMeals(prev => ({ ...prev, ...mapped }))
+      }
+    }
+    load()
+  }, [])
+
+  function getMonday() {
+    const d = new Date()
+    const day = d.getDay()
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1)
+    d.setDate(diff)
+    return d.toISOString().split('T')[0]
+  }
+
+  function addDays(dateStr: string, days: number) {
+    const d = new Date(dateStr)
+    d.setDate(d.getDate() + days)
+    return d.toISOString().split('T')[0]
+  }
 
   const meal = meals[selectedDay]
 
@@ -58,11 +97,27 @@ export default function AdminMealsPage() {
     setEditing(true)
   }
 
-  function saveEdit() {
+  async function saveEdit() {
     setMeals(prev => ({ ...prev, [selectedDay]: editMeal }))
     setEditing(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
+
+    // Persist to DB
+    const supabase = createClient()
+    const dayIndex = DAYS.indexOf(selectedDay)
+    const monday = getMonday()
+    const mealDate = addDays(monday, dayIndex)
+    await supabase.from('meals').upsert({
+      date: mealDate,
+      dish: editMeal.dish,
+      kcal: editMeal.kcal,
+      protein: editMeal.protein,
+      carbs: editMeal.carbs,
+      fat: editMeal.fat,
+      vitamins: editMeal.vitamins,
+      allergens: editMeal.allergens,
+    }, { onConflict: 'date' })
   }
 
   // DGE-Ampel: Qualitätsstandard für Verpflegung in Tageseinrichtungen für Kinder (2023)
@@ -86,7 +141,7 @@ export default function AdminMealsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={mockProfile} unreadCount={0} />
+      {profile && <Navbar profile={profile} unreadCount={0} />}
 
       <div className="max-w-3xl mx-auto px-4 py-8">
         <a href="/admin" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">← Zurück</a>
