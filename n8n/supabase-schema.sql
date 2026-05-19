@@ -1164,6 +1164,7 @@ create trigger broadcast_created_trigger
 -- 13. AUDIT LOG (DSGVO Art. 5 & 32 — Nachweisbarkeit)
 --     Protokolliert sicherheitsrelevante Aktionen automatisch.
 --     Kein RLS-Schreibzugriff für normale Nutzer — nur service_role.
+--     Retention: 90 Tage (BSI-Empfehlung), danach automatisch gelöscht.
 -- ----------------------------------------------------------------
 create table if not exists audit_log (
   id          uuid primary key default gen_random_uuid(),
@@ -1173,6 +1174,7 @@ create table if not exists audit_log (
   record_id   uuid,            -- betroffene Zeilen-ID
   details     jsonb,           -- zusätzliche Infos (kein Klartext-Inhalt, nur Metadaten)
   ip_address  text,            -- optional, vom Frontend übergeben
+  user_agent  text,            -- Browser/Client-Info (BSI-Empfehlung)
   created_at  timestamptz default now()
 );
 
@@ -1188,22 +1190,58 @@ create policy "Kein direkter Schreibzugriff auf Audit-Log"
   on audit_log for insert
   with check (false);
 
+-- Migration: user_agent Spalte zu bestehender Tabelle hinzufügen
+do $audit_migration$
+begin
+  if not exists (select 1 from information_schema.columns where table_name='audit_log' and column_name='user_agent') then
+    alter table audit_log add column user_agent text;
+  end if;
+end;
+$audit_migration$;
+
 -- Hilfsfunktion: Audit-Eintrag schreiben (aufgerufen von Triggern & Backend)
 create or replace function write_audit_log(
   p_actor_id  uuid,
   p_action    text,
   p_table     text default null,
   p_record_id uuid default null,
-  p_details   jsonb default null
+  p_details   jsonb default null,
+  p_ip        text default null,
+  p_agent     text default null
 )
 returns void language plpgsql security definer as $$
 begin
-  insert into audit_log (actor_id, action, table_name, record_id, details)
-  values (p_actor_id, p_action, p_table, p_record_id, p_details);
+  insert into audit_log (actor_id, action, table_name, record_id, details, ip_address, user_agent)
+  values (p_actor_id, p_action, p_table, p_record_id, p_details, p_ip, p_agent);
 exception when others then
   raise warning 'Audit-Log-Schreibfehler: %', sqlerrm;
 end;
 $$;
+
+-- Automatische Löschung nach 90 Tagen (BSI-Empfehlung, DSGVO Art. 5 Speicherbegrenzung)
+create or replace function purge_old_audit_logs()
+returns void language plpgsql security definer as $$
+begin
+  delete from audit_log where created_at < now() - interval '90 days';
+end;
+$$;
+
+-- Automatischer Audit-Trigger: Kinder-Erstellung protokollieren
+create or replace function audit_child_insert()
+returns trigger language plpgsql security definer as $$
+begin
+  perform write_audit_log(
+    NEW.parent_id, 'child_created', 'children', NEW.id,
+    jsonb_build_object('group_name', NEW.group_name)
+  );
+  return NEW;
+end;
+$$;
+
+drop trigger if exists audit_child_insert_trigger on children;
+create trigger audit_child_insert_trigger
+  after insert on children
+  for each row execute function audit_child_insert();
 
 -- Automatischer Audit-Trigger: Kinder-Löschung protokollieren
 create or replace function audit_child_delete()
@@ -1377,6 +1415,34 @@ begin
   end if;
 end;
 $realtime$;
+
+-- ----------------------------------------------------------------
+-- 16. MODERATION LOG (Content Moderation)
+--     Protokolliert gemeldete/geblockte Nachrichten von Eltern.
+--     Kein Klartext gespeichert — nur Metadaten für Admin-Review.
+-- ----------------------------------------------------------------
+create table if not exists moderation_log (
+  id              uuid primary key default gen_random_uuid(),
+  user_id         uuid not null references auth.users(id) on delete cascade,
+  context         text not null default 'ticket',  -- 'ticket' | 'message'
+  context_id      uuid,              -- ticket_id oder message_id
+  flagged_reason  text not null,     -- kurze Beschreibung was Claude erkannt hat
+  severity        text not null default 'medium',  -- 'low' | 'medium' | 'high'
+  action_taken    text not null default 'blocked', -- 'blocked' | 'warned' | 'logged'
+  reviewed_by     uuid references auth.users(id) on delete set null,
+  reviewed_at     timestamptz,
+  created_at      timestamptz default now()
+);
+
+alter table moderation_log enable row level security;
+
+create policy "Admin liest Moderation-Log"
+  on moderation_log for select
+  using (exists (select 1 from profiles where id = auth.uid() and role in ('admin', 'super_admin')));
+
+create policy "Kein direkter Schreibzugriff auf Moderation-Log"
+  on moderation_log for insert
+  with check (false);
 
 -- ================================================================
 -- PENDING REGISTRATIONS
