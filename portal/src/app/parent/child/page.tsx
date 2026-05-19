@@ -99,9 +99,13 @@ export default function ParentChildPage() {
           </div>
           <button
             onClick={() => setAwarenessOn(!awarenessOn)}
-            className={`relative w-14 h-7 rounded-full transition-colors flex-shrink-0 ${awarenessOn ? 'bg-purple-600' : 'bg-gray-200'}`}
+            className={`relative flex-shrink-0 transition-colors duration-200 rounded-full ${awarenessOn ? 'bg-purple-600' : 'bg-gray-300'}`}
+            style={{ width: 52, height: 28 }}
           >
-            <span className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform ${awarenessOn ? 'translate-x-7' : 'translate-x-0.5'}`} />
+            <span
+              className="absolute bg-white rounded-full shadow-md transition-transform duration-200"
+              style={{ width: 22, height: 22, top: 3, left: 3, transform: awarenessOn ? 'translateX(24px)' : 'translateX(0)' }}
+            />
           </button>
         </div>
 

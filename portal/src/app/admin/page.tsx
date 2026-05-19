@@ -47,11 +47,12 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-5 gap-4 mb-6">
           {[
             { emoji: '👨‍👩‍👧', count: parents.length, label: 'Eltern gesamt', color: '#E1F5EE', href: '/admin/parents' },
             { emoji: '⏳', count: pending.length, label: 'Ausstehend', color: '#FFF8E7', href: '/admin/parents' },
             { emoji: '✉️', count: invitations.length, label: 'Einladungen', color: '#F0F4FF', href: '/admin/invitations' },
+            { emoji: '🍽️', count: null, label: 'Speiseplan', color: '#FFF0E8', href: '/admin/meals' },
             { emoji: '📢', count: null, label: 'Broadcast senden', color: '#FFF0F5', href: '/admin/broadcast' },
           ].map(s => (
             <a key={s.label} href={s.href} className="kc-card p-4 flex flex-col items-center gap-2 hover:scale-105 transition-transform cursor-pointer" style={{ background: s.color }}>

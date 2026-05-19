@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Bell, Menu, X, LogOut } from 'lucide-react'
+import { Bell, Menu, X, LogOut, Settings } from 'lucide-react'
 import type { Profile } from '@/types'
 
 interface NavbarProps {
@@ -20,13 +20,17 @@ const navLinks: Record<string, { label: string; href: string; emoji: string }[]>
   ],
   teacher: [
     { label: 'Übersicht', href: '/teacher', emoji: '🏠' },
+    { label: 'Gruppen', href: '/teacher/groups', emoji: '👥' },
     { label: 'Kinder', href: '/teacher/children', emoji: '👶' },
     { label: 'Beobachtungen', href: '/teacher/observations', emoji: '👁️' },
     { label: 'Lerngeschichten', href: '/teacher/stories', emoji: '📖' },
+    { label: 'Speiseplan', href: '/teacher/meals', emoji: '🍽️' },
+    { label: 'Mitteilung', href: '/teacher/broadcast', emoji: '📢' },
   ],
   admin: [
     { label: 'Übersicht', href: '/admin', emoji: '🏠' },
     { label: 'Eltern', href: '/admin/parents', emoji: '👨‍👩‍👧' },
+    { label: 'Speiseplan', href: '/admin/meals', emoji: '🍽️' },
     { label: 'Broadcast', href: '/admin/broadcast', emoji: '📢' },
     { label: 'Einladungen', href: '/admin/invitations', emoji: '✉️' },
   ],
@@ -92,6 +96,14 @@ export default function Navbar({ profile, unreadCount = 0 }: NavbarProps) {
             </span>
             <span className="text-sm font-bold text-teal-700">{profile.full_name.split(' ')[0]}</span>
           </div>
+
+          <a
+            href={`/${profile.role}/settings`}
+            className={`p-2 rounded-xl transition-colors ${pathname === `/${profile.role}/settings` ? 'bg-teal-100 text-teal-700' : 'hover:bg-gray-100 text-gray-400 hover:text-gray-700'}`}
+            title="Einstellungen"
+          >
+            <Settings size={18} />
+          </a>
 
           <button
             onClick={handleLogout}
