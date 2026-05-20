@@ -52,10 +52,15 @@ export default function LoginPage() {
       return
     }
 
-    // Wait for session to be fully established before redirecting
-    await supabase.auth.getSession()
+    // getUser() validates session server-side and ensures cookie is set
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      setError('Session konnte nicht etabliert werden')
+      setLoading(false)
+      return
+    }
 
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single()
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
     if (['admin', 'super_admin', 'traeger_admin'].includes(profile?.role ?? '')) router.replace('/admin')
     else if (profile?.role === 'teacher') router.replace('/teacher')
     else router.replace('/parent')
