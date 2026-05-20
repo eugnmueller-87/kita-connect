@@ -51,6 +51,10 @@ export default function LoginPage() {
       setLoading(false)
       return
     }
+
+    // Wait for session to be fully established before redirecting
+    await supabase.auth.getSession()
+
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single()
     if (['admin', 'super_admin', 'traeger_admin'].includes(profile?.role ?? '')) router.replace('/admin')
     else if (profile?.role === 'teacher') router.replace('/teacher')
