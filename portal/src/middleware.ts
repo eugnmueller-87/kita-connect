@@ -5,6 +5,8 @@ const PUBLIC_PATHS = ['/login', '/auth/confirm', '/auth/callback', '/register']
 
 const ROLE_PREFIXES: Record<string, string> = {
   admin: '/admin',
+  super_admin: '/admin',
+  traeger_admin: '/admin',
   teacher: '/teacher',
   parent: '/parent',
 }
