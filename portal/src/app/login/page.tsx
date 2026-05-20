@@ -52,7 +52,7 @@ export default function LoginPage() {
       return
     }
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single()
-    if (profile?.role === 'admin') router.replace('/admin')
+    if (['admin', 'super_admin', 'traeger_admin'].includes(profile?.role ?? '')) router.replace('/admin')
     else if (profile?.role === 'teacher') router.replace('/teacher')
     else router.replace('/parent')
   }
