@@ -61,9 +61,9 @@ export default function LoginPage() {
     }
 
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-    if (['admin', 'super_admin', 'traeger_admin'].includes(profile?.role ?? '')) router.replace('/admin')
-    else if (profile?.role === 'teacher') router.replace('/teacher')
-    else router.replace('/parent')
+    if (['admin', 'super_admin', 'traeger_admin'].includes(profile?.role ?? '')) window.location.href = '/admin'
+    else if (profile?.role === 'teacher') window.location.href = '/teacher'
+    else window.location.href = '/parent'
   }
 
   return (
