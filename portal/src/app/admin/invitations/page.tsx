@@ -10,11 +10,12 @@ export default async function AdminInvitationsPage() {
   const supabase = await createClient()
   const lang = await getLang()
   const tr = (node: { de: string; en: string; tr: string; ru: string }) => node[lang] ?? node.de
+  const isSuperAdmin = (profile.role as string) === 'super_admin'
 
-  const { data } = await supabase
-    .from('invitations')
-    .select('id, email, role, used_at, created_at')
-    .order('created_at', { ascending: false })
+  const [{ data }, { data: kitas }] = await Promise.all([
+    supabase.from('invitations').select('id, email, role, used_at, created_at, kita_id').order('created_at', { ascending: false }),
+    isSuperAdmin ? supabase.from('kitas').select('id, name').order('name') : Promise.resolve({ data: [] }),
+  ])
 
   const invitations = data ?? []
 
@@ -39,7 +40,7 @@ export default async function AdminInvitationsPage() {
             <span className="text-xl">📨</span>
             <h2 className="font-black text-gray-800">{tr(t.adminInvitations.newInvite)}</h2>
           </div>
-          <InviteForm lang={lang} />
+          <InviteForm lang={lang} kitas={kitas ?? []} isSuperAdmin={isSuperAdmin} />
         </div>
 
         <div className="kc-card overflow-hidden">

@@ -17,6 +17,8 @@ type AuditAction =
   | 'broadcast_sent'
   | 'ticket_created'
   | 'ticket_replied'
+  | 'kita_created'
+  | 'traeger_created'
 
 export async function writeAuditLog(
   supabase: SupabaseClient,

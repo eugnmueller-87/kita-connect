@@ -50,7 +50,8 @@ export const t = {
     language: { de: 'Sprache', en: 'Language', tr: 'Dil', ru: 'Язык' },
     notifications: { de: 'Benachrichtigungen', en: 'Notifications', tr: 'Bildirimler', ru: 'Уведомления' },
     role_parent: { de: 'Elternteil', en: 'Parent', tr: 'Ebeveyn', ru: 'Родитель' },
-    role_teacher: { de: 'Erzieher/in', en: 'Teacher', tr: 'Öğretmen', ru: 'Воспитатель' },
+    role_teacher: { de: 'Erzieher/in', en: 'Teacher', tr: 'Öğretmen', ru: 'Воспитatель' },
+    role_admin: { de: 'Admin', en: 'Admin', tr: 'Yönetici', ru: 'Администратор' },
     new: { de: '✏️ Neu', en: '✏️ New', tr: '✏️ Yeni', ru: '✏️ Новый' },
   },
 
@@ -406,6 +407,31 @@ export const t = {
     noParents: { de: 'Noch keine Eltern registriert', en: 'No parents registered yet', tr: 'Henüz ebeveyn kayıt olmadı', ru: 'Родители пока не зарегистрированы' },
     approve: { de: '✅ Freischalten', en: '✅ Approve', tr: '✅ Onayla', ru: '✅ Одобрить' },
     reject: { de: '❌ Ablehnen', en: '❌ Reject', tr: '❌ Reddet', ru: '❌ Отклонить' },
+  },
+
+  // --- Super Admin: Träger + Kitas ---
+  adminKitas: {
+    heading:         { de: 'Einrichtungen verwalten', en: 'Manage Facilities', tr: 'Tesisleri Yönet', ru: 'Управление учреждениями' },
+    newKita:         { de: 'Neue Kita anlegen', en: 'Add New Kita', tr: 'Yeni Kita Ekle', ru: 'Добавить Kita' },
+    newTraeger:      { de: 'Neuen Träger anlegen', en: 'Add New Träger', tr: 'Yeni Taşıyıcı Ekle', ru: 'Добавить Träger' },
+    kitaName:        { de: 'Name der Einrichtung', en: 'Facility Name', tr: 'Tesis Adı', ru: 'Название учреждения' },
+    traegerName:     { de: 'Name des Trägers', en: 'Träger Name', tr: 'Taşıyıcı Adı', ru: 'Название Träger' },
+    address:         { de: 'Adresse', en: 'Address', tr: 'Adres', ru: 'Адрес' },
+    city:            { de: 'Stadt', en: 'City', tr: 'Şehir', ru: 'Город' },
+    phone:           { de: 'Telefon', en: 'Phone', tr: 'Telefon', ru: 'Телефон' },
+    email:           { de: 'E-Mail', en: 'Email', tr: 'E-posta', ru: 'E-mail' },
+    maxChildren:     { de: 'Max. Kinder', en: 'Max. Children', tr: 'Maks. Çocuk', ru: 'Макс. детей' },
+    traegerOptional: { de: 'Träger (optional)', en: 'Träger (optional)', tr: 'Taşıyıcı (isteğe bağlı)', ru: 'Träger (необязательно)' },
+    noTraeger:       { de: 'Kein Träger (Einzel-Kita)', en: 'No Träger (standalone)', tr: 'Taşıyıcı yok (bağımsız)', ru: 'Без Träger (отдельная)' },
+    saveBtn:         { de: '💾 Speichern', en: '💾 Save', tr: '💾 Kaydet', ru: '💾 Сохранить' },
+    savedOk:         { de: 'Gespeichert!', en: 'Saved!', tr: 'Kaydedildi!', ru: 'Сохранено!' },
+    noKitas:         { de: 'Noch keine Einrichtungen angelegt', en: 'No facilities yet', tr: 'Henüz tesis eklenmedi', ru: 'Учреждений пока нет' },
+    noTraegers:      { de: 'Noch keine Träger angelegt', en: 'No Träger yet', tr: 'Henüz taşıyıcı eklenmedi', ru: 'Träger пока нет' },
+    teachers:        { de: 'Erzieher', en: 'Teachers', tr: 'Öğretmenler', ru: 'Воспитатели' },
+    children:        { de: 'Kinder', en: 'Children', tr: 'Çocuklar', ru: 'Дети' },
+    inviteAdmin:     { de: 'Admin einladen', en: 'Invite Admin', tr: 'Yönetici Davet Et', ru: 'Пригласить администратора' },
+    status_active:   { de: 'Aktiv', en: 'Active', tr: 'Aktif', ru: 'Активна' },
+    status_suspended:{ de: 'Gesperrt', en: 'Suspended', tr: 'Askıya alındı', ru: 'Заблокирована' },
   },
 
   // --- Admin invitations ---
