@@ -6,7 +6,7 @@ import { getLang } from '@/lib/getLang'
 import { t } from '@/lib/translations'
 
 export default async function AdminDashboard() {
-  const { profile } = await requireRole('admin')
+  const { profile } = await requireRole(['admin', 'super_admin', 'traeger_admin'])
   const supabase = await createClient()
   const lang = await getLang()
   const tr = (node: { de: string; en: string; tr: string; ru: string }) => node[lang] ?? node.de
