@@ -22,13 +22,13 @@ export async function POST(request: Request) {
 
   const token = crypto.randomUUID()
 
-  const { error } = await supabase.from('invitations').insert({
+  const { data: inserted, error } = await supabase.from('invitations').insert({
     email: email.trim().toLowerCase(),
     role,
     token,
     invited_by: user.id,
     kita_id: resolvedKitaId,
-  })
+  }).select('id').single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     await fetch(`${process.env.N8N_BASE_URL}/invitation-created`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, role, token }),
+      body: JSON.stringify({ invitation_id: inserted.id, email, role, token }),
     })
   } catch { /* non-critical */ }
 
