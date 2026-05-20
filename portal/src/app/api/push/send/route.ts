@@ -2,13 +2,19 @@ import { NextResponse } from 'next/server'
 import webpush from 'web-push'
 import { createClient } from '@/lib/supabase/server'
 
-webpush.setVapidDetails(
-  process.env.VAPID_EMAIL!,
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!,
-)
+let vapidInitialized = false
+function initVapid() {
+  if (vapidInitialized) return
+  webpush.setVapidDetails(
+    process.env.VAPID_EMAIL!,
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+    process.env.VAPID_PRIVATE_KEY!,
+  )
+  vapidInitialized = true
+}
 
 export async function POST(request: Request) {
+  initVapid()
   const { user_id, title, body } = await request.json()
   if (!user_id || !title) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
 
