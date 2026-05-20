@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   // Validate token — token is the invitation UUID (id)
   const { data: invitation, error: invErr } = await supabase
     .from('invitations')
-    .select('id, email, role, used_at')
+    .select('id, email, role, kita_id, used_at')
     .eq('id', token)
     .single()
 
@@ -32,14 +32,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Account existiert bereits' }, { status: 409 })
   }
 
-  // Create profile — user_id will be filled after they confirm via magic link
-  // We store the pending profile keyed by invitation token
+  // Store pending registration — kita_id carried over from invitation
+  // Invitation is NOT marked used_at here; it gets marked after Magic Link confirmation
   const { error: profileErr } = await supabase
     .from('pending_registrations')
     .insert({
       token,
       email: invitation.email,
       role: invitation.role,
+      kita_id: invitation.kita_id ?? null,
       full_name: full_name.trim(),
       phone: phone ?? null,
     })
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: profileErr.message }, { status: 500 })
   }
 
-  // Mark invitation as used
+  // Mark invitation as used only after pending_registration is saved
   await supabase
     .from('invitations')
     .update({ used_at: new Date().toISOString() })

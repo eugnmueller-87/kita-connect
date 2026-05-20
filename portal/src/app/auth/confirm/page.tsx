@@ -63,7 +63,8 @@ function ConfirmHandler() {
             role: pending.role,
             full_name: pending.full_name,
             phone: pending.phone,
-            onboarding_status: 'active',
+            kita_id: pending.kita_id ?? null,
+            onboarding_status: pending.role === 'parent' ? 'pending' : 'active',
           })
           await supabase
             .from('pending_registrations')

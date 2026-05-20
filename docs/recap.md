@@ -57,3 +57,11 @@
 - **CLAUDE.md created:** Auto-instructions for every session (recap updates, translation rule, secrets policy)
 - **`/mistake` skill created:** Logs dead ends to `docs/mistakes.md` so we never repeat them
 - **Web Push (#45):** VAPID keys generated, `web-push` installed, `/api/push/subscribe` + `/api/push/send` routes created, `sw.js` service worker, `usePushSubscription` hook, parent layout wired up, `push_subscriptions` table added to schema
+
+## 2026-05-21 — Vollständiger Bugfix-Sweep vor App-Build
+
+- **Bug #1 (kritisch):** `api/register` — `kita_id` aus Einladung wird jetzt in `pending_registrations` gespeichert
+- **Bug #2 (kritisch):** `auth/confirm` — `kita_id` + korrekter `onboarding_status` (`pending` für Eltern) beim Profil-Upsert
+- **Bug #3:** `api/admin/approve` — `super_admin` + `traeger_admin` dürfen jetzt Eltern genehmigen
+- **Bug #4:** `admin/parents/page` — `requireRole` auf alle Admin-Rollen erweitert
+- TypeScript: 0 Fehler · Build: PASS
