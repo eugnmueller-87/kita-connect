@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { writeAuditLog } from '@/lib/audit'
+import { publishEvent } from '@/lib/kafka'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -27,13 +28,7 @@ export async function POST(request: Request) {
 
   await writeAuditLog(supabase, user.id, 'observation_created', { record_id: data.id, details: { child_id, category }, request })
 
-  try {
-    await fetch(`${process.env.N8N_BASE_URL}/observation-created`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ observation_id: data.id, child_id, teacher_id: user.id }),
-    })
-  } catch { /* non-critical */ }
+  await publishEvent('notification.created', { observation_id: data.id, child_id, teacher_id: user.id })
 
   return NextResponse.json({ id: data.id })
 }

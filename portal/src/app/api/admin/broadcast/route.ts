@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { writeAuditLog } from '@/lib/audit'
+import { publishEvent } from '@/lib/kafka'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -13,14 +14,7 @@ export async function POST(request: Request) {
   const { title, body } = await request.json()
   if (!title || !body) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
 
-  const res = await fetch(`${process.env.N8N_BASE_URL}/broadcast-created`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, body }),
-  })
-
-  if (!res.ok) return NextResponse.json({ error: 'n8n error' }, { status: 500 })
-
+  await publishEvent('notification.created', { type: 'broadcast', title, body, sender_id: user.id })
   await writeAuditLog(supabase, user.id, 'broadcast_sent', { details: { title }, request })
 
   return NextResponse.json({ ok: true })

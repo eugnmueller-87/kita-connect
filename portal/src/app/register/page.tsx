@@ -3,11 +3,20 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useTranslation } from '@/lib/useTranslation'
+import { t } from '@/lib/translations'
+
+function getLangFromCookie(): string {
+  if (typeof document === 'undefined') return 'de'
+  const match = document.cookie.match(/kc_lang=([^;]+)/)
+  return match?.[1] ?? 'de'
+}
 
 function RegisterHandler() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
+  const { tr } = useTranslation(getLangFromCookie())
 
   const [step, setStep] = useState<'loading' | 'form' | 'error'>('loading')
   const [invitation, setInvitation] = useState<{ email: string; role: string } | null>(null)
@@ -58,7 +67,6 @@ function RegisterHandler() {
       return
     }
 
-    // Send magic link to complete signup
     const supabase = createClient()
     await supabase.auth.signInWithOtp({
       email: invitation.email,
@@ -73,7 +81,7 @@ function RegisterHandler() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
         <div className="text-center">
           <div className="text-6xl mb-4">⏳</div>
-          <p className="text-gray-600 font-bold text-lg">Einladung wird geprüft…</p>
+          <p className="text-gray-600 font-bold text-lg">{tr(t.register.checking)}</p>
         </div>
       </div>
     )
@@ -84,9 +92,9 @@ function RegisterHandler() {
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
         <div className="kc-card p-8 max-w-sm w-full text-center">
           <div className="text-6xl mb-4">❌</div>
-          <h1 className="text-xl font-black text-gray-800 mb-2">Ungültige Einladung</h1>
-          <p className="text-sm text-gray-500 font-semibold">Der Link ist abgelaufen oder wurde bereits verwendet.</p>
-          <a href="/login" className="mt-6 block text-teal-600 font-bold text-sm underline">Zur Anmeldung</a>
+          <h1 className="text-xl font-black text-gray-800 mb-2">{tr(t.register.invalidTitle)}</h1>
+          <p className="text-sm text-gray-500 font-semibold">{tr(t.register.invalidMsg)}</p>
+          <a href="/login" className="mt-6 block text-teal-600 font-bold text-sm underline">{tr(t.register.toLogin)}</a>
         </div>
       </div>
     )
@@ -101,17 +109,17 @@ function RegisterHandler() {
         <div className="text-center mb-8">
           <div className="text-7xl mb-3">🏡</div>
           <h1 className="text-3xl font-black text-teal-700 tracking-tight">Kita Connect</h1>
-          <p className="text-gray-500 text-sm mt-1 font-semibold">Account anlegen</p>
+          <p className="text-gray-500 text-sm mt-1 font-semibold">{tr(t.register.subtitle)}</p>
         </div>
 
         <div className="kc-card p-8">
           <div className="mb-5 p-3 rounded-2xl bg-teal-50 border-2 border-teal-200 text-sm text-teal-700 font-semibold text-center">
-            Eingeladen als <strong>{invitation?.role === 'parent' ? 'Elternteil' : 'Erzieher/in'}</strong>
+            {tr(t.register.invitedAs)} <strong>{invitation?.role === 'parent' ? tr(t.common.role_parent) : tr(t.common.role_teacher)}</strong>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-black text-gray-700 mb-2">E-Mail</label>
+              <label className="block text-sm font-black text-gray-700 mb-2">{tr(t.common.email)}</label>
               <input
                 type="email"
                 value={invitation?.email ?? ''}
@@ -120,25 +128,25 @@ function RegisterHandler() {
               />
             </div>
             <div>
-              <label className="block text-sm font-black text-gray-700 mb-2">Vollständiger Name</label>
+              <label className="block text-sm font-black text-gray-700 mb-2">{tr(t.common.name)}</label>
               <input
                 type="text"
                 required
                 value={fullName}
                 onChange={e => setFullName(e.target.value)}
-                placeholder="Max Mustermann"
+                placeholder={tr(t.register.namePlaceholder)}
                 className="kc-input w-full px-4 py-3 text-sm"
               />
             </div>
             <div>
               <label className="block text-sm font-black text-gray-700 mb-2">
-                Telefon <span className="font-normal text-gray-400">(optional)</span>
+                {tr(t.common.phone)} <span className="font-normal text-gray-400">{tr(t.common.optional)}</span>
               </label>
               <input
                 type="tel"
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
-                placeholder="+49 170 1234567"
+                placeholder={tr(t.register.phonePlaceholder)}
                 className="kc-input w-full px-4 py-3 text-sm"
               />
             </div>
@@ -152,12 +160,12 @@ function RegisterHandler() {
               disabled={submitting || !fullName.trim()}
               className="kc-btn w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-black py-3.5 text-sm transition-colors"
             >
-              {submitting ? '⏳ Wird erstellt…' : '✅ Account anlegen'}
+              {submitting ? tr(t.register.creating) : tr(t.register.create)}
             </button>
           </form>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6 font-semibold">DSGVO-konform · EU-Hosting 🇪🇺</p>
+        <p className="text-center text-xs text-gray-400 mt-6 font-semibold">{tr(t.common.gdpr)}</p>
       </div>
     </div>
   )

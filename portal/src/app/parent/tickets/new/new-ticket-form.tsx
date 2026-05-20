@@ -2,23 +2,27 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from '@/lib/useTranslation'
+import { t } from '@/lib/translations'
+import type { Lang } from '@/lib/translations'
 
-const CATEGORIES = [
-  { emoji: '🏥', label: 'Gesundheit & Krankheit' },
-  { emoji: '🍽️', label: 'Essen & Ernährung' },
-  { emoji: '📅', label: 'Termine & Abwesenheit' },
-  { emoji: '📖', label: 'Entwicklung & Lernen' },
-  { emoji: '💬', label: 'Allgemeine Frage' },
-  { emoji: '❓', label: 'Sonstiges' },
-]
-
-export default function NewTicketForm() {
+export default function NewTicketForm({ lang = 'de' }: { lang?: Lang }) {
   const router = useRouter()
+  const { tr } = useTranslation(lang)
   const [subject, setSubject] = useState('')
   const [category, setCategory] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  const CATEGORIES = [
+    { emoji: '🏥', label: tr(t.tickets.categories.health) },
+    { emoji: '🍽️', label: tr(t.tickets.categories.food) },
+    { emoji: '📅', label: tr(t.tickets.categories.dates) },
+    { emoji: '📖', label: tr(t.tickets.categories.development) },
+    { emoji: '💬', label: tr(t.tickets.categories.general) },
+    { emoji: '❓', label: tr(t.tickets.categories.other) },
+  ]
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -43,7 +47,7 @@ export default function NewTicketForm() {
     <form onSubmit={handleSubmit} className="kc-card p-6 space-y-5">
 
       <div>
-        <label className="block text-sm font-black text-gray-700 mb-2">Kategorie</label>
+        <label className="block text-sm font-black text-gray-700 mb-2">{tr(t.common.category)}</label>
         <div className="grid grid-cols-2 gap-2">
           {CATEGORIES.map(c => (
             <button
@@ -64,25 +68,25 @@ export default function NewTicketForm() {
       </div>
 
       <div>
-        <label className="block text-sm font-black text-gray-700 mb-2">Betreff</label>
+        <label className="block text-sm font-black text-gray-700 mb-2">{tr(t.common.subject)}</label>
         <input
           type="text"
           required
           value={subject}
           onChange={e => setSubject(e.target.value)}
-          placeholder="Kurze Beschreibung des Anliegens"
+          placeholder={tr(t.tickets.subjectPlaceholder)}
           className="kc-input w-full px-4 py-3 text-sm"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-black text-gray-700 mb-2">Nachricht</label>
+        <label className="block text-sm font-black text-gray-700 mb-2">{tr(t.common.message)}</label>
         <textarea
           required
           rows={5}
           value={message}
           onChange={e => setMessage(e.target.value)}
-          placeholder="Beschreiben Sie Ihr Anliegen…"
+          placeholder={tr(t.tickets.messagePlaceholder)}
           className="kc-input w-full px-4 py-3 text-sm resize-none"
         />
       </div>
@@ -98,7 +102,7 @@ export default function NewTicketForm() {
         disabled={loading || !subject.trim() || !message.trim()}
         className="kc-btn w-full bg-teal-600 disabled:opacity-50 text-white font-black py-3.5 text-sm hover:bg-teal-700 transition-colors"
       >
-        {loading ? '⏳ Wird gesendet…' : '📤 Anfrage senden'}
+        {loading ? tr(t.common.sending) : tr(t.tickets.submitBtn)}
       </button>
     </form>
   )

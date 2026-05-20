@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Navbar from '@/components/navbar'
 import { useProfileSettings } from '@/lib/useProfileSettings'
+import { useTranslation } from '@/lib/useTranslation'
+import { t } from '@/lib/translations'
 import type { Profile } from '@/types'
 
 const mockProfile: Profile = {
@@ -15,20 +17,18 @@ const LANGUAGES = [
   { code: 'de', flag: '🇩🇪', label: 'Deutsch' },
   { code: 'en', flag: '🇬🇧', label: 'English' },
   { code: 'ru', flag: '🇷🇺', label: 'Русский' },
-  { code: 'ar', flag: '🇸🇦', label: 'العربية' },
   { code: 'tr', flag: '🇹🇷', label: 'Türkçe' },
 ]
 
 export default function AdminSettingsPage() {
   const { settings, update } = useProfileSettings(mockProfile.id)
+  const { tr } = useTranslation(settings.lang)
   const [saved, setSaved] = useState(false)
 
-  // Admin-specific settings (local state — will persist to DB in production)
   const [kitaName, setKitaName] = useState('Kita Sonnenschein')
   const [kitaCity, setKitaCity] = useState('Berlin')
   const [autoApprove, setAutoApprove] = useState(false)
   const [welcomeEmail, setWelcomeEmail] = useState(true)
-  const [telegramEnabled, setTelegramEnabled] = useState(true)
   const [smsEnabled, setSmsEnabled] = useState(false)
   const [smsProvider, setSmsProvider] = useState('seven.io')
   const [maxGroupSize, setMaxGroupSize] = useState('12')
@@ -40,26 +40,24 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={mockProfile} unreadCount={0} />
+      <Navbar profile={mockProfile} unreadCount={0} lang={settings.lang} />
 
       <div className="max-w-2xl mx-auto px-4 py-8">
 
-        <a href="/admin" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">← Zurück</a>
+        <a href="/admin" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">{tr(t.common.back)}</a>
 
-        {/* Header */}
         <div className="kc-card p-6 mb-6 flex items-center gap-4" style={{ background: 'linear-gradient(135deg, #1D7A6F, #2EA89A)' }}>
           <span className="text-5xl">⚙️</span>
           <div>
-            <h1 className="text-2xl font-black text-white">Admin-Einstellungen</h1>
+            <h1 className="text-2xl font-black text-white">{tr(t.settings.adminHeading)}</h1>
             <p className="text-teal-200 text-sm font-semibold mt-0.5">{mockProfile.full_name} · {mockProfile.email}</p>
           </div>
         </div>
 
-        {/* Language */}
         <div className="kc-card p-5 mb-4">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">🌐</span>
-            <h2 className="font-black text-gray-800">Sprache</h2>
+            <h2 className="font-black text-gray-800">{tr(t.common.language)}</h2>
           </div>
           <div className="flex gap-3 flex-wrap">
             {LANGUAGES.map(l => (
@@ -79,15 +77,14 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        {/* Kita profile */}
         <div className="kc-card p-5 mb-4">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">🏡</span>
-            <h2 className="font-black text-gray-800">Kita-Profil</h2>
+            <h2 className="font-black text-gray-800">{tr(t.settings.kitaProfile)}</h2>
           </div>
           <div className="space-y-3">
             <div>
-              <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">Kita-Name</label>
+              <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">{tr(t.settings.kitaName)}</label>
               <input
                 value={kitaName}
                 onChange={e => setKitaName(e.target.value)}
@@ -95,7 +92,7 @@ export default function AdminSettingsPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">Stadt</label>
+              <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">{tr(t.settings.city)}</label>
               <input
                 value={kitaCity}
                 onChange={e => setKitaCity(e.target.value)}
@@ -103,7 +100,7 @@ export default function AdminSettingsPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">Max. Kinder pro Gruppe</label>
+              <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">{tr(t.settings.maxChildren)}</label>
               <input
                 type="number"
                 min="1"
@@ -116,16 +113,15 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        {/* Onboarding */}
         <div className="kc-card p-5 mb-4">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">👋</span>
-            <h2 className="font-black text-gray-800">Onboarding</h2>
+            <h2 className="font-black text-gray-800">{tr(t.settings.onboarding)}</h2>
           </div>
           <div className="space-y-4">
             {[
-              { label: 'Automatisch freischalten', desc: 'Neue Eltern werden ohne manuelle Prüfung aktiviert', value: autoApprove, set: setAutoApprove },
-              { label: 'Willkommens-E-Mail', desc: 'Automatische E-Mail bei Freischaltung via Resend', value: welcomeEmail, set: setWelcomeEmail },
+              { label: tr(t.settings.autoApprove), desc: tr(t.settings.autoApproveDesc), value: autoApprove, set: setAutoApprove },
+              { label: tr(t.settings.welcomeEmail), desc: tr(t.settings.welcomeEmailDesc), value: welcomeEmail, set: setWelcomeEmail },
             ].map(row => (
               <div key={row.label} className="flex items-center justify-between gap-4">
                 <div>
@@ -145,17 +141,15 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        {/* Communication channels */}
         <div className="kc-card p-5 mb-4">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">📡</span>
-            <h2 className="font-black text-gray-800">Kommunikationskanäle</h2>
+            <h2 className="font-black text-gray-800">{tr(t.settings.channels)}</h2>
           </div>
           <div className="space-y-4">
             {[
-              { label: 'E-Mail (Resend)', desc: 'Transaktions-E-Mails über Resend versenden', value: true, set: () => {}, locked: true },
-              { label: 'Telegram', desc: 'Kita-weite Ankündigungen über Telegram-Kanal', value: telegramEnabled, set: setTelegramEnabled },
-              { label: 'SMS (seven.io)', desc: 'SMS-Fallback für Eltern ohne Smartphone', value: smsEnabled, set: setSmsEnabled },
+              { label: tr(t.settings.channelEmail), desc: tr(t.settings.channelEmailDesc), value: true, set: () => {}, locked: true },
+              { label: tr(t.settings.channelSms), desc: tr(t.settings.channelSmsDesc), value: smsEnabled, set: setSmsEnabled },
             ].map(row => (
               <div key={row.label} className="flex items-center justify-between gap-4">
                 <div>
@@ -176,7 +170,7 @@ export default function AdminSettingsPage() {
 
             {smsEnabled && (
               <div className="pt-2 pl-4 border-l-4 border-teal-100">
-                <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">SMS-Anbieter</label>
+                <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">{tr(t.settings.smsProvider)}</label>
                 <div className="flex gap-2">
                   {['seven.io', 'Twilio'].map(p => (
                     <button
@@ -193,17 +187,16 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        {/* Notifications */}
         <div className="kc-card p-5 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">🔔</span>
-            <h2 className="font-black text-gray-800">Meine Benachrichtigungen</h2>
+            <h2 className="font-black text-gray-800">{tr(t.settings.myNotifications)}</h2>
           </div>
           <div className="space-y-4">
             {[
-              { label: 'E-Mail', desc: 'Admin-Meldungen per E-Mail', key: 'notifyEmail' as const },
-              { label: 'Push', desc: 'Browser-Benachrichtigungen', key: 'notifyPush' as const },
-              { label: 'SMS', desc: 'Kritische Meldungen per SMS', key: 'notifySms' as const },
+              { label: tr(t.settings.notifEmail), desc: tr(t.settings.notifEmailDesc), key: 'notifyEmail' as const },
+              { label: tr(t.settings.notifPush),  desc: tr(t.settings.notifPushDesc),  key: 'notifyPush' as const },
+              { label: tr(t.settings.notifSms),   desc: tr(t.settings.notifSmsDesc),   key: 'notifySms' as const },
             ].map(row => (
               <div key={row.key} className="flex items-center justify-between gap-4">
                 <div>
@@ -228,7 +221,7 @@ export default function AdminSettingsPage() {
           className="kc-btn w-full py-3 font-black text-white text-base"
           style={{ background: 'linear-gradient(135deg, #1D7A6F, #2EA89A)' }}
         >
-          {saved ? '✅ Gespeichert!' : '💾 Einstellungen speichern'}
+          {saved ? tr(t.common.saved) : tr(t.common.save)}
         </button>
 
       </div>

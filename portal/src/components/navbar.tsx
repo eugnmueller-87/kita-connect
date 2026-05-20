@@ -5,41 +5,46 @@ import { useRouter, usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Bell, Menu, X, LogOut, Settings } from 'lucide-react'
 import type { Profile } from '@/types'
+import { useTranslation } from '@/lib/useTranslation'
+import { t } from '@/lib/translations'
 
 interface NavbarProps {
   profile: Profile
   unreadCount?: number
+  lang?: string
 }
 
-const navLinks: Record<string, { label: string; href: string; emoji: string }[]> = {
-  parent: [
-    { label: 'Übersicht', href: '/parent', emoji: '🏠' },
-    { label: 'Mein Kind', href: '/parent/child', emoji: '👶' },
-    { label: 'Nachrichten', href: '/parent/tickets', emoji: '💬' },
-    { label: 'FAQ', href: '/parent/faq', emoji: '🤔' },
-  ],
-  teacher: [
-    { label: 'Übersicht', href: '/teacher', emoji: '🏠' },
-    { label: 'Gruppen', href: '/teacher/groups', emoji: '👥' },
-    { label: 'Kinder', href: '/teacher/children', emoji: '👶' },
-    { label: 'Beobachtungen', href: '/teacher/observations', emoji: '👁️' },
-    { label: 'Lerngeschichten', href: '/teacher/stories', emoji: '📖' },
-    { label: 'Speiseplan', href: '/teacher/meals', emoji: '🍽️' },
-    { label: 'Mitteilung', href: '/teacher/broadcast', emoji: '📢' },
-  ],
-  admin: [
-    { label: 'Übersicht', href: '/admin', emoji: '🏠' },
-    { label: 'Eltern', href: '/admin/parents', emoji: '👨‍👩‍👧' },
-    { label: 'Speiseplan', href: '/admin/meals', emoji: '🍽️' },
-    { label: 'Broadcast', href: '/admin/broadcast', emoji: '📢' },
-    { label: 'Einladungen', href: '/admin/invitations', emoji: '✉️' },
-  ],
-}
-
-export default function Navbar({ profile, unreadCount = 0 }: NavbarProps) {
+export default function Navbar({ profile, unreadCount = 0, lang = 'de' }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
+  const { tr } = useTranslation(lang)
+
+  const navLinks: Record<string, { label: string; href: string; emoji: string }[]> = {
+    parent: [
+      { label: tr(t.nav.home), href: '/parent', emoji: '🏠' },
+      { label: tr(t.nav.child), href: '/parent/child', emoji: '👶' },
+      { label: tr(t.nav.messages), href: '/parent/tickets', emoji: '💬' },
+      { label: tr(t.nav.faq), href: '/parent/faq', emoji: '🤔' },
+    ],
+    teacher: [
+      { label: tr(t.nav.home), href: '/teacher', emoji: '🏠' },
+      { label: tr(t.nav.groups), href: '/teacher/groups', emoji: '👥' },
+      { label: tr(t.nav.children), href: '/teacher/children', emoji: '👶' },
+      { label: tr(t.nav.observations), href: '/teacher/observations', emoji: '👁️' },
+      { label: tr(t.nav.stories), href: '/teacher/stories', emoji: '📖' },
+      { label: tr(t.nav.mealplan), href: '/teacher/meals', emoji: '🍽️' },
+      { label: tr(t.nav.broadcast), href: '/teacher/broadcast', emoji: '📢' },
+    ],
+    admin: [
+      { label: tr(t.nav.home), href: '/admin', emoji: '🏠' },
+      { label: tr(t.nav.parents), href: '/admin/parents', emoji: '👨‍👩‍👧' },
+      { label: tr(t.nav.mealplan), href: '/admin/meals', emoji: '🍽️' },
+      { label: tr(t.nav.broadcast), href: '/admin/broadcast', emoji: '📢' },
+      { label: tr(t.nav.invitations), href: '/admin/invitations', emoji: '✉️' },
+    ],
+  }
+
   const links = navLinks[profile.role] ?? []
 
   async function handleLogout() {
@@ -100,7 +105,7 @@ export default function Navbar({ profile, unreadCount = 0 }: NavbarProps) {
           <a
             href={`/${profile.role}/settings`}
             className={`p-2 rounded-xl transition-colors ${pathname === `/${profile.role}/settings` ? 'bg-teal-100 text-teal-700' : 'hover:bg-gray-100 text-gray-400 hover:text-gray-700'}`}
-            title="Einstellungen"
+            title={tr(t.nav.settings)}
           >
             <Settings size={18} />
           </a>
@@ -108,7 +113,7 @@ export default function Navbar({ profile, unreadCount = 0 }: NavbarProps) {
           <button
             onClick={handleLogout}
             className="p-2 rounded-xl hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
-            title="Abmelden"
+            title={tr(t.nav.logout)}
           >
             <LogOut size={18} />
           </button>

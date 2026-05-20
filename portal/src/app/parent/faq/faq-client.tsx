@@ -94,7 +94,7 @@ export default function FaqPage({ profile }: { profile: Profile }) {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={profile} unreadCount={0} />
+      <Navbar profile={profile} unreadCount={0} lang={lang} />
 
       <div className="max-w-2xl mx-auto px-4 py-8">
 

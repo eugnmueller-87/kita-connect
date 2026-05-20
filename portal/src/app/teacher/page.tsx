@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react'
 import Navbar from '@/components/navbar'
 import { ChevronRight, ChevronDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useProfileSettings } from '@/lib/useProfileSettings'
+import { useTranslation } from '@/lib/useTranslation'
+import { t } from '@/lib/translations'
 import type { Profile } from '@/types'
 
 const GROUP_EMOJI: Record<string, string> = { 'Schmetterlinge': '🦋', 'Bienen': '🐝', 'Sonnenkäfer': '🐞' }
@@ -16,6 +19,9 @@ export default function TeacherDashboard() {
   const [groups, setGroups] = useState<string[]>([])
   const [selectedGroup, setSelectedGroup] = useState('all')
   const [dropdownOpen, setDropdownOpen] = useState(false)
+
+  const { settings } = useProfileSettings(profile?.id ?? 'guest')
+  const { tr } = useTranslation(settings.lang)
 
   useEffect(() => {
     async function load() {
@@ -47,15 +53,17 @@ export default function TeacherDashboard() {
     const child = children.find(c => c.id === o.child_id)
     return child?.group_name === selectedGroup
   })
-  const filteredStories = selectedGroup === 'all' ? stories : stories
+  const filteredStories = stories
 
-  const groupLabel = selectedGroup === 'all' ? '👥 Alle Gruppen' : `${GROUP_EMOJI[selectedGroup] ?? '📍'} ${selectedGroup}`
+  const groupLabel = selectedGroup === 'all'
+    ? `👥 ${tr(t.teacherDash.allGroups)}`
+    : `${GROUP_EMOJI[selectedGroup] ?? '📍'} ${selectedGroup}`
 
   if (!profile) return null
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={profile} unreadCount={0} />
+      <Navbar profile={profile} unreadCount={0} lang={settings.lang} />
 
       <div className="max-w-5xl mx-auto px-4 py-8">
 
@@ -63,9 +71,9 @@ export default function TeacherDashboard() {
           <div className="flex items-center gap-4">
             <div className="text-6xl flex-shrink-0">👩‍🏫</div>
             <div>
-              <h1 className="text-2xl font-black text-white">Hallo, {profile.full_name.split(' ')[0]}! 👋</h1>
+              <h1 className="text-2xl font-black text-white">{tr(t.parentDash.greeting).replace('{name}', profile.full_name.split(' ')[0])}</h1>
               <p className="text-teal-200 font-semibold text-sm mt-1">
-                {selectedGroup === 'all' ? 'Alle Gruppen' : `Gruppe ${selectedGroup}`} · {filteredChildren.length} Kinder
+                {selectedGroup === 'all' ? tr(t.teacherDash.allGroups) : `Gruppe ${selectedGroup}`} · {tr(t.teacherDash.childrenCount).replace('{n}', String(filteredChildren.length))}
               </p>
             </div>
           </div>
@@ -83,7 +91,7 @@ export default function TeacherDashboard() {
               <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border-2 border-[#EDE8DF] overflow-hidden z-50 min-w-52">
                 <button onClick={() => { setSelectedGroup('all'); setDropdownOpen(false) }}
                   className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-left transition-colors hover:bg-teal-50 ${selectedGroup === 'all' ? 'bg-teal-50 text-teal-700' : 'text-gray-700'}`}>
-                  <span>👥</span><span>Alle Gruppen</span>
+                  <span>👥</span><span>{tr(t.teacherDash.allGroups)}</span>
                   <span className="ml-auto text-xs text-gray-400 font-semibold">{children.length}</span>
                 </button>
                 <div className="border-t-2 border-[#F5F0E8]" />
@@ -101,9 +109,9 @@ export default function TeacherDashboard() {
 
         <div className="grid grid-cols-3 gap-4 mb-6">
           {[
-            { emoji: '👶', count: filteredChildren.length, label: 'Kinder', color: '#E1F5EE', href: '/teacher/children' },
-            { emoji: '👁️', count: filteredObs.length, label: 'Beobachtungen', color: '#FFF8E7', href: '/teacher/observations' },
-            { emoji: '📖', count: filteredStories.length, label: 'Lerngeschichten', color: '#FFF0F5', href: '/teacher/stories' },
+            { emoji: '👶', count: filteredChildren.length, label: tr(t.teacherDash.statChildren), color: '#E1F5EE', href: '/teacher/children' },
+            { emoji: '👁️', count: filteredObs.length, label: tr(t.teacherDash.statObservations), color: '#FFF8E7', href: '/teacher/observations' },
+            { emoji: '📖', count: filteredStories.length, label: tr(t.teacherDash.statStories), color: '#FFF0F5', href: '/teacher/stories' },
           ].map(s => (
             <a key={s.label} href={s.href} className="kc-card p-5 flex flex-col items-center gap-2 hover:scale-105 transition-transform" style={{ background: s.color }}>
               <span className="text-4xl">{s.emoji}</span>
@@ -116,12 +124,12 @@ export default function TeacherDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="kc-card overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b-2 border-[#EDE8DF]">
-              <div className="flex items-center gap-2"><span className="text-xl">👁️</span><h2 className="font-black text-gray-800">Letzte Beobachtungen</h2></div>
-              <a href="/teacher/observations" className="text-teal-600 text-sm font-bold flex items-center gap-0.5 hover:underline">Alle <ChevronRight size={14} /></a>
+              <div className="flex items-center gap-2"><span className="text-xl">👁️</span><h2 className="font-black text-gray-800">{tr(t.teacherDash.latestObservations)}</h2></div>
+              <a href="/teacher/observations" className="text-teal-600 text-sm font-bold flex items-center gap-0.5 hover:underline">{tr(t.common.all)} <ChevronRight size={14} /></a>
             </div>
             <div className="divide-y-2 divide-[#F5F0E8]">
               {filteredObs.length === 0
-                ? <p className="px-5 py-4 text-sm text-gray-400 font-semibold">Noch keine Beobachtungen.</p>
+                ? <p className="px-5 py-4 text-sm text-gray-400 font-semibold">{tr(t.teacherDash.noObservations)}</p>
                 : filteredObs.map(o => (
                   <div key={o.id} className="px-5 py-3">
                     <div className="flex items-center justify-between mb-1">
@@ -137,17 +145,17 @@ export default function TeacherDashboard() {
 
           <div className="kc-card overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b-2 border-[#EDE8DF]">
-              <div className="flex items-center gap-2"><span className="text-xl">📖</span><h2 className="font-black text-gray-800">Lerngeschichten</h2></div>
-              <a href="/teacher/stories" className="text-teal-600 text-sm font-bold flex items-center gap-0.5 hover:underline">Alle <ChevronRight size={14} /></a>
+              <div className="flex items-center gap-2"><span className="text-xl">📖</span><h2 className="font-black text-gray-800">{tr(t.teacherDash.latestStories)}</h2></div>
+              <a href="/teacher/stories" className="text-teal-600 text-sm font-bold flex items-center gap-0.5 hover:underline">{tr(t.common.all)} <ChevronRight size={14} /></a>
             </div>
             <div className="divide-y-2 divide-[#F5F0E8]">
               {filteredStories.length === 0
-                ? <p className="px-5 py-4 text-sm text-gray-400 font-semibold">Noch keine Lerngeschichten.</p>
+                ? <p className="px-5 py-4 text-sm text-gray-400 font-semibold">{tr(t.teacherDash.noStories)}</p>
                 : filteredStories.map(s => (
                   <a key={s.id} href={`/teacher/stories/${s.id}`} className="px-5 py-3 flex items-center justify-between hover:bg-[#F5F0E8] transition-colors">
                     <p className="text-sm font-bold text-gray-800">{s.title}</p>
                     <span className={`kc-badge text-xs flex-shrink-0 ml-2 ${s.status === 'published' ? 'bg-teal-100 text-teal-700' : s.status === 'review' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
-                      {s.status === 'published' ? '✅ Veröffentlicht' : s.status === 'review' ? '🔍 Überprüfung' : '✏️ Entwurf'}
+                      {s.status === 'published' ? tr(t.status.published) : s.status === 'review' ? tr(t.status.inReview) : tr(t.status.draft)}
                     </span>
                   </a>
                 ))
@@ -158,13 +166,13 @@ export default function TeacherDashboard() {
 
         <div className="grid grid-cols-3 gap-4 mt-6">
           <a href="/teacher/children" className="kc-card p-5 flex items-center gap-4 hover:scale-105 transition-transform" style={{ background: '#E1F5EE' }}>
-            <span className="text-4xl">👶</span><div><p className="font-black text-gray-800">Kinder</p><p className="text-xs text-gray-500 font-semibold">Alle Kinder anzeigen</p></div>
+            <span className="text-4xl">👶</span><div><p className="font-black text-gray-800">{tr(t.teacherDash.cardChildren)}</p><p className="text-xs text-gray-500 font-semibold">{tr(t.teacherDash.cardChildrenSub)}</p></div>
           </a>
           <a href="/teacher/observations/new" className="kc-card p-5 flex items-center gap-4 hover:scale-105 transition-transform" style={{ background: '#FFF8E7' }}>
-            <span className="text-4xl">👁️</span><div><p className="font-black text-gray-800">Beobachten</p><p className="text-xs text-gray-500 font-semibold">Neue Beobachtung</p></div>
+            <span className="text-4xl">👁️</span><div><p className="font-black text-gray-800">{tr(t.teacherDash.cardObserve)}</p><p className="text-xs text-gray-500 font-semibold">{tr(t.teacherDash.cardObserveSub)}</p></div>
           </a>
           <a href="/teacher/stories" className="kc-card p-5 flex items-center gap-4 hover:scale-105 transition-transform" style={{ background: '#FFF0F5' }}>
-            <span className="text-4xl">📖</span><div><p className="font-black text-gray-800">Geschichten</p><p className="text-xs text-gray-500 font-semibold">Lerngeschichten</p></div>
+            <span className="text-4xl">📖</span><div><p className="font-black text-gray-800">{tr(t.teacherDash.cardStories)}</p><p className="text-xs text-gray-500 font-semibold">{tr(t.teacherDash.cardStoriesSub)}</p></div>
           </a>
         </div>
 

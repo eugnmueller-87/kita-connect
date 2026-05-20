@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/navbar'
+import { useProfileSettings } from '@/lib/useProfileSettings'
+import { useTranslation } from '@/lib/useTranslation'
+import { t } from '@/lib/translations'
 import type { Profile } from '@/types'
 
 const mockProfile: Profile = {
@@ -11,11 +14,10 @@ const mockProfile: Profile = {
   onboarding_status: 'active', created_at: new Date().toISOString(),
 }
 
-// ── Developmental benchmarks: Layer 1 (German) + Layer 2 (global insight) ──
 const benchmarks: Record<string, {
-  de: string        // German Bildungsplan description for age 4-5
-  global: string    // Global framework insight
-  framework: string // Which framework
+  de: string
+  global: string
+  framework: string
   indicators: string[]
 }> = {
   sozial: {
@@ -56,13 +58,6 @@ const benchmarks: Record<string, {
   },
 }
 
-const categoryLabel: Record<string, string> = {
-  sprache: '🗣️ Sprache', motorik: '🏃 Motorik', sozial: '🤝 Sozial',
-  kreativitaet: '🎨 Kreativität', mathematik: '🔢 Mathe & Natur', selbstaendigkeit: '⭐ Selbständigkeit',
-}
-
-const CATEGORIES = Object.entries(categoryLabel).map(([key, label]) => ({ key, label }))
-
 const childData: Record<string, {
   name: string; birth_date: string; group_name: string; gender: string;
   strengths: string[]; focus: string; mood: string;
@@ -96,7 +91,7 @@ const childData: Record<string, {
   '3': {
     name: 'Mia Fischer', birth_date: '2020-07-08', group_name: 'Schmetterlinge', gender: 'f',
     strengths: ['Kreativität', 'Farbgefühl', 'Fantasie'],
-    focus: 'Mia hat eine außergewöhnliche Verbindung zur bildenden Kunst. Sie mischt Farben intuitiv und erzählt zu jedem Bild eine vollständige Geschichte — Reggio Emilia würde sagen, sie spricht ihre "hundertste Sprache" durch Farbe.',
+    focus: 'Mia hat eine außergewöhnliche Verbindung zur bildenden Kunst. Sie mischt Farben intuitiv und erzählt zu jedem Bild eine vollständige Geschichte.',
     mood: '🎨',
     observations: [
       { id: 'o1', category: 'kreativitaet', text: 'Hat eigenständig Wasserfarben gemischt und dabei Komplementärfarben entdeckt.', date: '18.05.2026' },
@@ -107,10 +102,10 @@ const childData: Record<string, {
   '4': {
     name: 'Noah Klein', birth_date: '2019-09-14', group_name: 'Schmetterlinge', gender: 'm',
     strengths: ['Bewegungsfreude', 'Ausdauer', 'Naturbegeisterung'],
-    focus: 'Noah ist ein geborener Entdecker der Natur. Er verbringt jede freie Minute im Außenbereich, beobachtet Tiere und Pflanzen mit großer Konzentration und erklärt seine Entdeckungen anderen Kindern.',
+    focus: 'Noah ist ein geborener Entdecker der Natur. Er verbringt jede freie Minute im Außenbereich, beobachtet Tiere und Pflanzen mit großer Konzentration.',
     mood: '🌿',
     observations: [
-      { id: 'o1', category: 'motorik', text: 'Zeigt ausgezeichnete Grobmotorik beim Klettern und Balancieren — schätzt Risiken sicher ein.', date: '16.05.2026' },
+      { id: 'o1', category: 'motorik', text: 'Zeigt ausgezeichnete Grobmotorik beim Klettern und Balancieren.', date: '16.05.2026' },
       { id: 'o2', category: 'mathematik', text: 'Hat Regenwürmer beobachtet, gezählt und mit eigenen Worten ihre Bewegung erklärt.', date: '11.05.2026' },
     ],
     stories: [],
@@ -118,7 +113,7 @@ const childData: Record<string, {
   '5': {
     name: 'Lea Wagner', birth_date: '2020-01-30', group_name: 'Bienen', gender: 'f',
     strengths: ['Musikalität', 'Rhythmusgefühl', 'Ausdrucksstärke'],
-    focus: 'Lea verbindet Musik und Bewegung mit einer natürlichen Leichtigkeit. Sie lernt Lieder nach einmaligem Hören und setzt Rhythmen sofort körperlich um — ein starkes Zeichen für auditive Intelligenz.',
+    focus: 'Lea verbindet Musik und Bewegung mit einer natürlichen Leichtigkeit. Sie lernt Lieder nach einmaligem Hören und setzt Rhythmen sofort körperlich um.',
     mood: '🎵',
     observations: [
       { id: 'o1', category: 'kreativitaet', text: 'Hat beim Morgenkreis spontan ein eigenes Lied gesungen und andere zum Mitmachen animiert.', date: '15.05.2026' },
@@ -129,7 +124,7 @@ const childData: Record<string, {
   '6': {
     name: 'Ben Schulz', birth_date: '2019-12-05', group_name: 'Bienen', gender: 'm',
     strengths: ['Sprachgewandtheit', 'Geschichtenerzählen', 'Merkfähigkeit'],
-    focus: 'Ben hat einen außergewöhnlich großen Wortschatz für sein Alter. Er erfindet Geschichten mit vollständiger Dramaturgie und hilft anderen Kindern intuitiv dabei, sich sprachlich auszudrücken.',
+    focus: 'Ben hat einen außergewöhnlich großen Wortschatz für sein Alter. Er erfindet Geschichten mit vollständiger Dramaturgie.',
     mood: '📚',
     observations: [
       { id: 'o1', category: 'sprache', text: 'Hat der Gruppe eine fünfminütige Geschichte über einen Drachen erzählt — mit Dialogen, Spannungsbogen und Auflösung.', date: '17.05.2026' },
@@ -191,10 +186,10 @@ function getAge(birthDate: string) {
   return { years: y, months: m, label: `${y} Jahre${m > 0 ? `, ${m} Monate` : ''}` }
 }
 
-const statusLabel: Record<string, string> = { published: '✅ Veröffentlicht', review: '🔍 Überprüfung', draft: '✏️ Entwurf' }
-const statusColor: Record<string, string> = { published: 'bg-teal-100 text-teal-700', review: 'bg-yellow-100 text-yellow-700', draft: 'bg-gray-100 text-gray-500' }
-
 export default function ChildDetailPage({ params }: { params: { id: string } }) {
+  const { settings } = useProfileSettings(mockProfile.id)
+  const { tr } = useTranslation(settings.lang)
+
   const child = childData[params.id]
   const [activeTab, setActiveTab] = useState<'overview' | 'observe' | 'story'>('overview')
   const [obsCategory, setObsCategory] = useState('')
@@ -205,6 +200,28 @@ export default function ChildDetailPage({ params }: { params: { id: string } }) 
   const [storyText, setStoryText] = useState('')
   const [storySaved, setStorySaved] = useState(false)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+
+  const CATEGORIES = [
+    { key: 'sprache',          label: tr(t.obsCategories.language) },
+    { key: 'motorik',          label: tr(t.obsCategories.motor) },
+    { key: 'sozial',           label: tr(t.obsCategories.social) },
+    { key: 'kreativitaet',     label: tr(t.obsCategories.creative) },
+    { key: 'mathematik',       label: tr(t.obsCategories.mathNature) },
+    { key: 'selbstaendigkeit', label: tr(t.obsCategories.independence) },
+  ]
+
+  const categoryLabel: Record<string, string> = Object.fromEntries(CATEGORIES.map(c => [c.key, c.label]))
+
+  const statusLabel: Record<string, string> = {
+    published: tr(t.status.published),
+    review:    tr(t.status.inReview),
+    draft:     tr(t.status.draft),
+  }
+  const statusColor: Record<string, string> = {
+    published: 'bg-teal-100 text-teal-700',
+    review:    'bg-yellow-100 text-yellow-700',
+    draft:     'bg-gray-100 text-gray-500',
+  }
 
   if (!child) return <div className="p-8 text-center text-gray-400">Kind nicht gefunden.</div>
 
@@ -240,21 +257,20 @@ export default function ChildDetailPage({ params }: { params: { id: string } }) 
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={mockProfile} unreadCount={0} />
+      <Navbar profile={mockProfile} unreadCount={0} lang={settings.lang} />
 
       <div className="max-w-3xl mx-auto px-4 py-8">
 
         <Link href="/teacher/children" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">
-          ← Alle Kinder
+          {tr(t.common.backChildren)}
         </Link>
 
-        {/* Hero */}
         <div className="kc-card p-6 mb-5 flex items-center gap-5" style={{ background: bgHero }}>
           <ChildAvatar gender={child.gender} size={72} />
           <div className="flex-1">
             <h1 className="text-2xl font-black text-white">{child.name}</h1>
             <p className="text-white/80 font-semibold text-sm mt-0.5">
-              Gruppe {child.group_name} · {age.label} · Geb. {new Date(child.birth_date).toLocaleDateString('de-DE')}
+              {child.group_name} · {age.label} · {new Date(child.birth_date).toLocaleDateString('de-DE')}
             </p>
             <div className="flex flex-wrap gap-2 mt-2">
               {child.strengths.map(s => (
@@ -265,12 +281,11 @@ export default function ChildDetailPage({ params }: { params: { id: string } }) 
           <div className="text-4xl flex-shrink-0">{child.mood}</div>
         </div>
 
-        {/* Tabs */}
         <div className="flex gap-2 mb-5">
           {([
-            { key: 'overview', label: '📋 Übersicht' },
-            { key: 'observe',  label: '👁️ Beobachtung erfassen' },
-            { key: 'story',    label: '📖 Geschichte schreiben' },
+            { key: 'overview', label: tr(t.teacherChild.tabOverview) },
+            { key: 'observe',  label: tr(t.teacherChild.tabObserve) },
+            { key: 'story',    label: tr(t.teacherChild.tabStory) },
           ] as const).map(tab => (
             <button
               key={tab.key}
@@ -286,30 +301,27 @@ export default function ChildDetailPage({ params }: { params: { id: string } }) 
           ))}
         </div>
 
-        {/* ── TAB: OVERVIEW ── */}
         {activeTab === 'overview' && (
           <>
-            {/* Development focus */}
             <div className="kc-card p-5 mb-4" style={{ background: bgCard }}>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xl">🔍</span>
-                <h2 className="font-black text-gray-800">Entwicklungsprofil</h2>
-                <span className="ml-auto text-xs text-gray-400 font-semibold">Alter: {age.label}</span>
+                <h2 className="font-black text-gray-800">{tr(t.teacherChild.devProfile)}</h2>
+                <span className="ml-auto text-xs text-gray-400 font-semibold">{tr(t.teacherChild.age).replace('{age}', age.label)}</span>
               </div>
               <p className="text-sm text-gray-700 leading-relaxed">{child.focus}</p>
             </div>
 
-            {/* Observations */}
             <div className="kc-card overflow-hidden mb-4">
               <div className="px-5 py-4 border-b-2 border-[#EDE8DF] flex items-center gap-2">
                 <span className="text-xl">👁️</span>
-                <h2 className="font-black text-gray-800">Beobachtungen</h2>
-                <span className="ml-auto text-xs text-gray-400 font-semibold">{child.observations.length} gesamt</span>
+                <h2 className="font-black text-gray-800">{tr(t.teacherChild.observationsSection)}</h2>
+                <span className="ml-auto text-xs text-gray-400 font-semibold">{tr(t.teacherChild.observationsTotal).replace('{n}', String(child.observations.length))}</span>
               </div>
               <div className="divide-y-2 divide-[#F5F0E8]">
                 {child.observations.length === 0 ? (
                   <div className="px-5 py-8 text-center">
-                    <p className="text-gray-400 font-semibold text-sm">Noch keine Beobachtungen</p>
+                    <p className="text-gray-400 font-semibold text-sm">{tr(t.teacherChild.noObservations)}</p>
                   </div>
                 ) : child.observations.map(o => (
                   <div key={o.id} className="px-5 py-4">
@@ -322,25 +334,24 @@ export default function ChildDetailPage({ params }: { params: { id: string } }) 
                       onClick={() => setActiveTab('observe')}
                       className="mt-2 text-xs text-teal-600 font-bold hover:underline"
                     >
-                      + Neue Beobachtung dazu erfassen
+                      {tr(t.teacherChild.addObservation)}
                     </button>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Stories */}
             <div className="kc-card overflow-hidden">
               <div className="px-5 py-4 border-b-2 border-[#EDE8DF] flex items-center gap-2">
                 <span className="text-xl">📖</span>
-                <h2 className="font-black text-gray-800">Lerngeschichten</h2>
+                <h2 className="font-black text-gray-800">{tr(t.teacherChild.storiesSection)}</h2>
               </div>
               <div className="divide-y-2 divide-[#F5F0E8]">
                 {child.stories.length === 0 ? (
                   <div className="px-5 py-8 text-center">
-                    <p className="text-gray-400 font-semibold text-sm mb-2">Noch keine Lerngeschichten</p>
+                    <p className="text-gray-400 font-semibold text-sm mb-2">{tr(t.teacherChild.noStories)}</p>
                     <button onClick={() => setActiveTab('story')} className="text-teal-600 text-sm font-bold hover:underline">
-                      Jetzt eine schreiben →
+                      {tr(t.teacherChild.writeStory)}
                     </button>
                   </div>
                 ) : child.stories.map(s => (
@@ -357,25 +368,22 @@ export default function ChildDetailPage({ params }: { params: { id: string } }) 
           </>
         )}
 
-        {/* ── TAB: NEW OBSERVATION ── */}
         {activeTab === 'observe' && (
           <div className="kc-card p-6">
             <div className="flex items-center gap-2 mb-5">
               <span className="text-2xl">👁️</span>
-              <h2 className="font-black text-gray-800">Neue Beobachtung — {child.name}</h2>
+              <h2 className="font-black text-gray-800">{tr(t.teacherChild.newObsHeading).replace('{name}', child.name)}</h2>
             </div>
 
             {obsSaved ? (
               <div className="py-8 text-center">
                 <p className="text-5xl mb-3">✅</p>
-                <p className="font-black text-teal-700 text-lg">Beobachtung gespeichert!</p>
+                <p className="font-black text-teal-700 text-lg">{tr(t.teacherChild.obsSaved)}</p>
               </div>
             ) : (
               <form onSubmit={saveObservation} className="space-y-5">
-
-                {/* Category */}
                 <div>
-                  <label className="block text-xs font-black text-gray-600 mb-1">Bildungsbereich (Bildungsplan)</label>
+                  <label className="block text-xs font-black text-gray-600 mb-1">{tr(t.teacherChild.eduArea)}</label>
                   <div className="grid grid-cols-3 gap-2">
                     {CATEGORIES.map(c => (
                       <button
@@ -392,25 +400,24 @@ export default function ChildDetailPage({ params }: { params: { id: string } }) 
                   </div>
                 </div>
 
-                {/* Layer 2: Developmental context appears when category selected */}
                 {activeBenchmark && (
                   <div className="rounded-2xl border-2 border-purple-200 overflow-hidden">
                     <div className="px-4 py-2 flex items-center gap-2" style={{ background: 'linear-gradient(135deg, #667EEA, #764BA2)' }}>
                       <span className="text-sm">🌍</span>
-                      <span className="text-xs font-black text-white">Weltweiter Entwicklungskontext · {age.label}</span>
+                      <span className="text-xs font-black text-white">{tr(t.teacherChild.globalCtx).replace('{age}', age.label)}</span>
                       <span className="ml-auto text-xs text-purple-200 font-semibold">{activeBenchmark.framework}</span>
                     </div>
                     <div className="p-4 bg-purple-50 space-y-3">
                       <div>
-                        <p className="text-xs font-black text-gray-500 mb-1">📋 Bildungsplan (DE) — Typisch für {age.years}-Jährige:</p>
+                        <p className="text-xs font-black text-gray-500 mb-1">{tr(t.teacherChild.deCtx).replace('{age}', String(age.years))}</p>
                         <p className="text-sm text-gray-700">{activeBenchmark.de}</p>
                       </div>
                       <div>
-                        <p className="text-xs font-black text-gray-500 mb-1">🌍 Internationale Perspektive:</p>
+                        <p className="text-xs font-black text-gray-500 mb-1">{tr(t.teacherChild.intlPerspective)}</p>
                         <p className="text-sm text-gray-600 italic">{activeBenchmark.global}</p>
                       </div>
                       <div>
-                        <p className="text-xs font-black text-gray-500 mb-1.5">✓ Beobachtungsindikatoren:</p>
+                        <p className="text-xs font-black text-gray-500 mb-1.5">{tr(t.teacherChild.indicators)}</p>
                         <div className="flex flex-wrap gap-1.5">
                           {activeBenchmark.indicators.map(ind => (
                             <span key={ind} className="text-xs bg-purple-100 text-purple-700 font-semibold px-2.5 py-1 rounded-full">{ind}</span>
@@ -421,22 +428,20 @@ export default function ChildDetailPage({ params }: { params: { id: string } }) 
                   </div>
                 )}
 
-                {/* Situation text */}
                 <div>
-                  <label className="block text-xs font-black text-gray-600 mb-1">Situation / Beobachtung</label>
+                  <label className="block text-xs font-black text-gray-600 mb-1">{tr(t.teacherChild.situationLabel)}</label>
                   <textarea
                     required
                     rows={4}
                     value={obsSituation}
                     onChange={e => setObsSituation(e.target.value)}
-                    placeholder="Was haben Sie beobachtet? Beschreiben Sie die Situation konkret…"
+                    placeholder={tr(t.teacherChild.situationPlaceholder)}
                     className="kc-input w-full px-4 py-3 text-sm resize-none"
                   />
                 </div>
 
-                {/* Photo upload */}
                 <div>
-                  <label className="block text-xs font-black text-gray-600 mb-1">Foto hinzufügen (optional)</label>
+                  <label className="block text-xs font-black text-gray-600 mb-1">{tr(t.teacherChild.photoLabel)}</label>
                   <label className="flex items-center gap-3 cursor-pointer kc-card p-4 hover:bg-teal-50 transition-colors border-dashed" style={{ borderStyle: 'dashed' }}>
                     <input type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
                     {photoPreview ? (
@@ -447,8 +452,8 @@ export default function ChildDetailPage({ params }: { params: { id: string } }) 
                       </div>
                     )}
                     <div>
-                      <p className="font-black text-gray-700 text-sm">{photoPreview ? 'Foto ausgewählt' : 'Foto auswählen'}</p>
-                      <p className="text-xs text-gray-400 font-semibold mt-0.5">JPG, PNG · max. 10 MB</p>
+                      <p className="font-black text-gray-700 text-sm">{photoPreview ? tr(t.teacherChild.photoSelected) : tr(t.teacherChild.photoSelect)}</p>
+                      <p className="text-xs text-gray-400 font-semibold mt-0.5">{tr(t.teacherChild.photoInfo)}</p>
                     </div>
                   </label>
                 </div>
@@ -458,38 +463,35 @@ export default function ChildDetailPage({ params }: { params: { id: string } }) 
                   disabled={obsLoading || !obsCategory || !obsSituation.trim()}
                   className="kc-btn w-full bg-teal-600 disabled:opacity-40 text-white font-black py-3.5 text-sm hover:bg-teal-700 transition-colors"
                 >
-                  {obsLoading ? '⏳ Wird gespeichert…' : '💾 Beobachtung speichern'}
+                  {obsLoading ? tr(t.common.saving) : tr(t.teacherChild.saveObs)}
                 </button>
               </form>
             )}
           </div>
         )}
 
-        {/* ── TAB: NEW STORY ── */}
         {activeTab === 'story' && (
           <div className="kc-card p-6">
             <div className="flex items-center gap-2 mb-5">
               <span className="text-2xl">📖</span>
-              <h2 className="font-black text-gray-800">Lerngeschichte — {child.name}</h2>
+              <h2 className="font-black text-gray-800">{tr(t.teacherChild.storyHeading).replace('{name}', child.name)}</h2>
             </div>
 
             {storySaved ? (
               <div className="py-8 text-center">
                 <p className="text-5xl mb-3">🎉</p>
-                <p className="font-black text-teal-700 text-lg">Lerngeschichte gespeichert!</p>
-                <p className="text-sm text-gray-500 mt-1">Sie liegt jetzt im Entwurfsmodus — die Leitung kann sie freigeben.</p>
+                <p className="font-black text-teal-700 text-lg">{tr(t.teacherChild.storySaved)}</p>
+                <p className="text-sm text-gray-500 mt-1">{tr(t.teacherChild.storyDraftInfo)}</p>
               </div>
             ) : (
               <form onSubmit={saveStory} className="space-y-4">
-
-                {/* Context from child */}
                 <div className="rounded-2xl p-4 text-sm" style={{ background: bgCard }}>
-                  <p className="font-black text-gray-700 mb-1">Entwicklungsprofil als Ausgangspunkt:</p>
+                  <p className="font-black text-gray-700 mb-1">{tr(t.teacherChild.storyDevBase)}</p>
                   <p className="text-gray-600 leading-relaxed text-xs">{child.focus}</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black text-gray-600 mb-1">Titel der Lerngeschichte</label>
+                  <label className="block text-xs font-black text-gray-600 mb-1">{tr(t.teacherChild.storyTitleLabel)}</label>
                   <input
                     type="text"
                     required
@@ -501,24 +503,20 @@ export default function ChildDetailPage({ params }: { params: { id: string } }) 
                 </div>
 
                 <div>
-                  <label className="block text-xs font-black text-gray-600 mb-1">Geschichte</label>
+                  <label className="block text-xs font-black text-gray-600 mb-1">{tr(t.teacherChild.storyTextLabel)}</label>
                   <textarea
                     required
                     rows={8}
                     value={storyText}
                     onChange={e => setStoryText(e.target.value)}
-                    placeholder={`Beschreiben Sie ${child.name.split(' ')[0]}s Lernerlebnis in eigenen Worten. Was hat sie/er getan? Was hat Sie überrascht? Was hat das über ihre/seine Entwicklung gezeigt?`}
+                    placeholder={`Beschreiben Sie ${child.name.split(' ')[0]}s Lernerlebnis in eigenen Worten…`}
                     className="kc-input w-full px-4 py-3 text-sm resize-none"
                   />
                 </div>
 
-                {/* Tip */}
                 <div className="rounded-2xl px-4 py-3 bg-purple-50 border-2 border-purple-100">
-                  <p className="text-xs font-black text-purple-700 mb-1">💡 Tipp — Was macht eine gute Lerngeschichte?</p>
-                  <p className="text-xs text-purple-600 leading-relaxed">
-                    Beschreiben Sie eine konkrete Situation. Zeigen Sie, was das Kind <em>getan</em> hat — nicht nur was es "kann".
-                    Reggio Emilia: jede Geschichte ist ein Fenster in die hundert Sprachen des Kindes.
-                  </p>
+                  <p className="text-xs font-black text-purple-700 mb-1">{tr(t.teacherChild.storyTip)}</p>
+                  <p className="text-xs text-purple-600 leading-relaxed">{tr(t.teacherChild.storyReggio)}</p>
                 </div>
 
                 <button
@@ -526,7 +524,7 @@ export default function ChildDetailPage({ params }: { params: { id: string } }) 
                   disabled={!storyTitle.trim() || !storyText.trim()}
                   className="kc-btn w-full bg-teal-600 disabled:opacity-40 text-white font-black py-3.5 text-sm hover:bg-teal-700 transition-colors"
                 >
-                  💾 Als Entwurf speichern
+                  {tr(t.teacherChild.saveDraft)}
                 </button>
               </form>
             )}

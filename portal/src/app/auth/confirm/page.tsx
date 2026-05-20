@@ -3,10 +3,19 @@
 import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useTranslation } from '@/lib/useTranslation'
+import { t } from '@/lib/translations'
+
+function getLangFromCookie(): string {
+  if (typeof document === 'undefined') return 'de'
+  const match = document.cookie.match(/kc_lang=([^;]+)/)
+  return match?.[1] ?? 'de'
+}
 
 function ConfirmHandler() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { tr } = useTranslation(getLangFromCookie())
 
   useEffect(() => {
     const supabase = createClient()
@@ -38,7 +47,6 @@ function ConfirmHandler() {
     }
 
     async function redirect(supabase: ReturnType<typeof createClient>, userId: string) {
-      // Check if this is a new registration — complete profile from pending_registrations
       const { data: { user } } = await supabase.auth.getUser()
       if (user?.email) {
         const { data: pending } = await supabase
@@ -71,13 +79,14 @@ function ConfirmHandler() {
     }
 
     handle()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
       <div className="text-center">
         <div className="text-6xl mb-4">⏳</div>
-        <p className="text-gray-600 font-bold text-lg">Anmeldung wird verarbeitet…</p>
+        <p className="text-gray-600 font-bold text-lg">{tr(t.auth.processing)}</p>
       </div>
     </div>
   )

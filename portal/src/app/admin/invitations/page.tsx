@@ -2,10 +2,14 @@ import Navbar from '@/components/navbar'
 import InviteForm from './invite-form'
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth'
+import { getLang } from '@/lib/getLang'
+import { t } from '@/lib/translations'
 
 export default async function AdminInvitationsPage() {
   const { profile } = await requireRole('admin')
   const supabase = await createClient()
+  const lang = await getLang()
+  const tr = (node: { de: string; en: string; tr: string; ru: string }) => node[lang] ?? node.de
 
   const { data } = await supabase
     .from('invitations')
@@ -16,35 +20,35 @@ export default async function AdminInvitationsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={profile} unreadCount={0} />
+      <Navbar profile={profile} unreadCount={0} lang={lang} />
 
       <div className="max-w-3xl mx-auto px-4 py-8">
 
-        <a href="/admin" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">← Zurück zum Dashboard</a>
+        <a href="/admin" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">{tr(t.common.back)}</a>
 
         <div className="kc-card p-6 mb-6 flex items-center gap-5" style={{ background: 'linear-gradient(135deg, #667EEA, #764BA2)' }}>
           <div className="text-6xl flex-shrink-0">✉️</div>
           <div>
-            <h1 className="text-2xl font-black text-white">Einladungen</h1>
-            <p className="text-purple-200 font-semibold text-sm mt-1">{invitations.length} Einladungen gesendet</p>
+            <h1 className="text-2xl font-black text-white">{tr(t.adminInvitations.heading)}</h1>
+            <p className="text-purple-200 font-semibold text-sm mt-1">{invitations.length} {tr(t.adminInvitations.sentInvites).toLowerCase()}</p>
           </div>
         </div>
 
         <div className="kc-card p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">📨</span>
-            <h2 className="font-black text-gray-800">Neue Einladung senden</h2>
+            <h2 className="font-black text-gray-800">{tr(t.adminInvitations.newInvite)}</h2>
           </div>
-          <InviteForm />
+          <InviteForm lang={lang} />
         </div>
 
         <div className="kc-card overflow-hidden">
           <div className="px-5 py-4 border-b-2 border-[#EDE8DF] flex items-center gap-2">
             <span className="text-xl">📋</span>
-            <h2 className="font-black text-gray-800">Gesendete Einladungen</h2>
+            <h2 className="font-black text-gray-800">{tr(t.adminInvitations.sentInvites)}</h2>
           </div>
           {invitations.length === 0 ? (
-            <p className="px-5 py-6 text-sm text-gray-400 font-semibold text-center">Noch keine Einladungen gesendet</p>
+            <p className="px-5 py-6 text-sm text-gray-400 font-semibold text-center">{tr(t.adminInvitations.noInvites)}</p>
           ) : (
             <div className="divide-y-2 divide-[#F5F0E8]">
               {invitations.map(inv => (
@@ -55,10 +59,10 @@ export default async function AdminInvitationsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="kc-badge bg-teal-100 text-teal-700 text-xs">
-                      {inv.role === 'parent' ? '👨‍👩‍👧 Elternteil' : '👩‍🏫 Erzieher/in'}
+                      {inv.role === 'parent' ? `👨‍👩‍👧 ${tr(t.common.role_parent)}` : `👩‍🏫 ${tr(t.common.role_teacher)}`}
                     </span>
                     <span className={`kc-badge text-xs ${inv.used_at ? 'bg-gray-100 text-gray-500' : 'bg-yellow-100 text-yellow-700'}`}>
-                      {inv.used_at ? '✅ Angenommen' : '⏳ Ausstehend'}
+                      {inv.used_at ? tr(t.status.approved) : tr(t.status.pending)}
                     </span>
                   </div>
                 </div>

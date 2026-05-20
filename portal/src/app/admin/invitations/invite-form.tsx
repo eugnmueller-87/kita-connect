@@ -1,8 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { t } from '@/lib/translations'
+import type { Lang } from '@/lib/translations'
 
-export default function InviteForm() {
+export default function InviteForm({ lang = 'de' }: { lang?: Lang }) {
+  const tr = (node: { de: string; en: string; tr: string; ru: string }) => node[lang] ?? node.de
+
   const [email, setEmail] = useState('')
   const [role, setRole] = useState<'parent' | 'teacher'>('parent')
   const [loading, setLoading] = useState(false)
@@ -33,9 +37,9 @@ export default function InviteForm() {
     return (
       <div className="text-center py-4">
         <p className="text-3xl mb-2">🎉</p>
-        <p className="font-black text-gray-800 mb-1">Einladung gesendet!</p>
+        <p className="font-black text-gray-800 mb-1">{tr(t.adminInvitations.sentSuccess)}</p>
         <button onClick={() => setSent(false)} className="text-teal-600 text-sm font-bold hover:underline mt-2">
-          Weitere Einladung senden
+          {tr(t.adminInvitations.sendAnother)}
         </button>
       </div>
     )
@@ -51,7 +55,7 @@ export default function InviteForm() {
             role === 'parent' ? 'bg-teal-600 text-white border-teal-700' : 'text-gray-600 hover:bg-teal-50'
           }`}
         >
-          <span className="text-xl">👨‍👩‍👧</span> Elternteil
+          <span className="text-xl">👨‍👩‍👧</span> {tr(t.common.role_parent)}
         </button>
         <button
           type="button"
@@ -60,7 +64,7 @@ export default function InviteForm() {
             role === 'teacher' ? 'bg-teal-600 text-white border-teal-700' : 'text-gray-600 hover:bg-teal-50'
           }`}
         >
-          <span className="text-xl">👩‍🏫</span> Erzieher/in
+          <span className="text-xl">👩‍🏫</span> {tr(t.common.role_teacher)}
         </button>
       </div>
 
@@ -70,7 +74,7 @@ export default function InviteForm() {
           required
           value={email}
           onChange={e => setEmail(e.target.value)}
-          placeholder="E-Mail-Adresse"
+          placeholder={tr(t.adminInvitations.emailPlaceholder)}
           className="kc-input flex-1 px-4 py-3 text-sm"
         />
         <button
@@ -78,7 +82,7 @@ export default function InviteForm() {
           disabled={loading || !email.trim()}
           className="kc-btn bg-teal-600 disabled:opacity-50 text-white font-black px-5 py-3 text-sm hover:bg-teal-700 transition-colors"
         >
-          {loading ? '⏳' : '📨 Senden'}
+          {loading ? '⏳' : tr(t.adminInvitations.sendBtn)}
         </button>
       </div>
 

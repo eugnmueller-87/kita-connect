@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { publishEvent } from '@/lib/kafka'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -9,6 +10,29 @@ export async function POST(request: Request) {
   const { subject, category, message } = await request.json()
   if (!subject?.trim() || !message?.trim()) {
     return NextResponse.json({ error: 'Betreff und Nachricht sind erforderlich' }, { status: 400 })
+  }
+
+  // Content moderation — block toxic/bullying language before saving
+  try {
+    const modRes = await fetch(`${process.env.N8N_BASE_URL}/content-moderation`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: message.trim(),
+        user_id: user.id,
+        context: 'ticket',
+        context_id: null,
+      }),
+    })
+    if (modRes.status === 422) {
+      const modData = await modRes.json()
+      return NextResponse.json(
+        { error: modData.reason ?? 'Nachricht nicht zulässig.' },
+        { status: 422 }
+      )
+    }
+  } catch {
+    // Moderation service unavailable — fail open, ticket goes through
   }
 
   const { data: ticket, error: ticketError } = await supabase
@@ -25,13 +49,7 @@ export async function POST(request: Request) {
     body: message.trim(),
   })
 
-  try {
-    await fetch(`${process.env.N8N_BASE_URL}/ticket-created`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ticket_id: ticket.id, parent_id: user.id, subject, category }),
-    })
-  } catch { /* non-critical */ }
+  await publishEvent('ticket.created', { ticket_id: ticket.id, parent_id: user.id, subject, category })
 
   return NextResponse.json({ id: ticket.id })
 }
