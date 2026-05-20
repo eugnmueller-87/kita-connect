@@ -296,7 +296,7 @@ tr:nth-child(even) td { background: #fafafa; }
       <ul class="checklist">
         <li><span class="icon">✅</span>Row Level Security (RLS) on all database tables</li>
         <li><span class="icon">✅</span>Pseudonymization — real child names never reach Claude API</li>
-        <li><span class="icon">✅</span>Audit logging on sensitive tables (children, profiles)</li>
+        <li><span class="icon">✅</span>Audit logging via <code>audit_log</code> table — approve, invite, broadcast, observation (IDs only, no PII)</li>
         <li><span class="icon">✅</span>EU-only infrastructure (except Anthropic & Telegram — mitigated)</li>
         <li><span class="icon">✅</span>HTTPS / TLS everywhere</li>
       </ul>
@@ -344,6 +344,18 @@ tr:nth-child(even) td { background: #fafafa; }
         <div class="arch-chip">/teacher — Educator Dashboard</div>
         <div class="arch-chip">/admin — Management</div>
         <div class="arch-chip">Supabase Auth (Magic Link · JWT)</div>
+      </div>
+    </div>
+    <div style="text-align:center; font-size:22px; color:var(--teal);">↓ Next.js API Routes (/api/*) · writes audit_log</div>
+    <div class="arch-box">
+      <div class="arch-box-header" style="background:var(--teal-dark);">API Layer — /api/* (audited)</div>
+      <div class="arch-box-body">
+        <div class="arch-chip">admin/approve</div>
+        <div class="arch-chip">admin/invite</div>
+        <div class="arch-chip">admin/broadcast</div>
+        <div class="arch-chip">teacher/observations</div>
+        <div class="arch-chip">faq → n8n webhook</div>
+        <div class="arch-chip">tickets + replies</div>
       </div>
     </div>
     <div style="text-align:center; font-size:22px; color:var(--teal);">↓ POST Webhooks on every action</div>
@@ -551,7 +563,7 @@ tr:nth-child(even) td { background: #fafafa; }
       </div>
       <div class="card orange" style="margin-top:16px;">
         <h3>Meal Plan Editor</h3>
-        <p style="margin-top:6px; font-size:13px;">Admin edits the weekly meal plan (dish name, kcal, protein, carbs, fat, vitamins, allergens) per day. The same data is read by the parent and teacher meal plan views. Nutrition score calculated per DGE children's reference values (Richtwerte für Kinder 4–6 Jahre).</p>
+        <p style="margin-top:6px; font-size:13px;">Admin edits the weekly meal plan (dish name, kcal, protein, carbs, fat, vitamins, allergens) per day. The same data is read by the parent and teacher views. A DGE-Ampel (green/yellow/red per nutrient) is shown on all three views — Richtwerte Mittagessen Kinder 4–6 Jahre (DGE 2023).</p>
       </div>
     </div>
   </div>
@@ -563,7 +575,7 @@ tr:nth-child(even) td { background: #fafafa; }
 ═══════════════════════════════════════════════════════════════ -->
 <div class="slide">
   <div class="slide-header">
-    <div><h1>Meals & Nutrition Module</h1><div class="sub">DGE-based nutrition guidance · Eating feedback · Allergen tracking</div></div>
+    <div><h1>Meals & Nutrition Module</h1><div class="sub">DGE-Ampel traffic light · Eating feedback · Allergen tracking</div></div>
     <span class="slide-num">09 / 15</span>
   </div>
   <div class="slide-body cols-2">
@@ -593,16 +605,17 @@ tr:nth-child(even) td { background: #fafafa; }
       </div>
     </div>
     <div class="col">
-      <h2>Nutrition Score</h2>
-      <p>Based on <strong>DGE Qualitätsstandard für Verpflegung in Tageseinrichtungen für Kinder</strong> — the official German standard for Kita catering. Not the EU Nutriscore (designed for packaged products, not hot meals).</p>
+      <h2>DGE-Ampel — Nutrition Traffic Light</h2>
+      <p>Based on <strong>DGE Qualitätsstandard für Verpflegung in Tageseinrichtungen für Kinder (2023)</strong>. Each nutrient gets a green / yellow / red indicator — not a composite score.</p>
 
       <div class="card" style="margin-top:12px; background: #F0FFF8; border-left-color: var(--green);">
         <div class="label">DGE Reference Values · Mittagessen · Kinder 4–6 Jahre</div>
         <table style="margin-top:8px;">
-          <tr><th>Nutrient</th><th>DGE Target</th><th>Score Weight</th></tr>
-          <tr><td>Energy (kcal)</td><td>530–600 kcal</td><td>30 pts (in range) / 10 pts (out)</td></tr>
-          <tr><td>Protein</td><td>≥ 15g (ideal 40g)</td><td>up to 35 pts</td></tr>
-          <tr><td>Vitamins / nutrients</td><td>3–4 listed</td><td>up to 35 pts</td></tr>
+          <tr><th>Nutrient</th><th>Green</th><th>Yellow</th><th>Red</th></tr>
+          <tr><td>Energie (kcal)</td><td>530–600</td><td>±10 %</td><td>&gt;±10 %</td></tr>
+          <tr><td>Eiweiß (g)</td><td>≥ 15g</td><td>10–15g</td><td>&lt; 10g</td></tr>
+          <tr><td>Fett (g)</td><td>17–22g</td><td>±20 %</td><td>&gt;±20 %</td></tr>
+          <tr><td>Kohlenhydrate (g)</td><td>70–90g</td><td>±15 %</td><td>&gt;±15 %</td></tr>
         </table>
       </div>
 
@@ -786,8 +799,12 @@ tr:nth-child(even) td { background: #fafafa; }
       </div>
     </div>
     <div class="col">
-      <h2>GDPR Pseudonymization</h2>
+      <h2>GDPR Pseudonymization & No-Rating Policy</h2>
       <p>Real child names <strong>never leave the EU database.</strong> Only the pseudonym is sent to the Anthropic API.</p>
+      <div class="card red" style="margin-top:8px;">
+        <h3>⛔ AI will never rate or assess children</h3>
+        <p style="font-size:13px; margin-top:6px;">Kita Connect is a documentation and communication tool — not an assessment tool. The system prompt explicitly prohibits any rating, grading, developmental comparison, or diagnosis. If asked, the AI refuses and redirects to the educator. This is enforced at the prompt level in both the learning story and FAQ workflows.</p>
+      </div>
       <div class="card" style="margin-top:12px; background:var(--teal-light);">
         <div class="label">How it works</div>
         <ul class="checklist" style="margin-top:8px; font-size:13px;">
@@ -948,8 +965,8 @@ tr:nth-child(even) td { background: #fafafa; }
         <tr><th>Phase</th><th>Description</th><th>Status</th></tr>
         <tr><td>0</td><td>DB Schema, RLS, Prototypes</td><td><span class="badge green">Complete</span></td></tr>
         <tr><td>1</td><td>n8n Automation (8 workflows)</td><td><span class="badge green">Complete</span></td></tr>
-        <tr><td>2</td><td>Next.js Frontend — all role portals</td><td><span class="badge orange">In Progress</span></td></tr>
-        <tr><td>3</td><td>Supabase integration (live data)</td><td><span class="badge grey">Planned</span></td></tr>
+        <tr><td>2</td><td>Next.js Frontend — all role portals</td><td><span class="badge green">Complete</span></td></tr>
+        <tr><td>3</td><td>Supabase integration (live data)</td><td><span class="badge orange">Next Up</span></td></tr>
         <tr><td>4</td><td>i18n DE / EN / RU, Polish & Pilot</td><td><span class="badge grey">Planned</span></td></tr>
         <tr><td>5</td><td>Mobile App (React Native / PWA)</td><td><span class="badge grey">Planned</span></td></tr>
       </table>
@@ -965,6 +982,8 @@ tr:nth-child(even) td { background: #fafafa; }
         <li><span class="icon">✅</span>FAQ chatbot UI — connected to n8n webhook</li>
         <li><span class="icon">✅</span>Settings pages — notification preferences per role</li>
         <li><span class="icon">✅</span>Broadcast — admin + teacher send, 4 channels</li>
+        <li><span class="icon">✅</span>Audit log — sensitive actions (approve, invite, broadcast, observation) written to <code>audit_log</code> — no PII, only IDs</li>
+        <li><span class="icon">✅</span>DGE-Ampel — per-nutrient traffic light in all 3 meal views (replaces custom score)</li>
       </ul>
     </div>
     <div class="col">
@@ -985,9 +1004,9 @@ tr:nth-child(even) td { background: #fafafa; }
         <ul class="checklist" style="margin-top:8px; font-size:13px;">
           <li><span class="icon">1️⃣</span>Enter n8n credentials (Supabase, Resend, Telegram, seven.io, Anthropic)</li>
           <li><span class="icon">2️⃣</span>Activate + test all 8 n8n workflows end-to-end</li>
-          <li><span class="icon">3️⃣</span>Replace mock data with live Supabase queries</li>
+          <li><span class="icon">3️⃣</span>Replace mock data with live Supabase queries (Phase 3)</li>
           <li><span class="icon">4️⃣</span>Generate VAPID keys for Web Push notifications</li>
-          <li><span class="icon">5️⃣</span>Replace custom nutrition score with DGE-Ampel system</li>
+          <li><span class="icon">5️⃣</span>i18n DE / EN / RU (Phase 4)</li>
         </ul>
       </div>
       <div class="stats" style="margin-top:16px;">

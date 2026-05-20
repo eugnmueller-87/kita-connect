@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react'
 import Navbar from '@/components/navbar'
 import { createClient } from '@/lib/supabase/client'
+import { useProfileSettings } from '@/lib/useProfileSettings'
+import { useTranslation } from '@/lib/useTranslation'
+import { t } from '@/lib/translations'
 import type { Profile } from '@/types'
 
 type ChildData = { id: string; name: string; birth_date: string; group_name: string; gender: string }
@@ -51,6 +54,9 @@ export default function ParentChildPage() {
   const [askText, setAskText] = useState('')
   const [askSent, setAskSent] = useState(false)
 
+  const { settings } = useProfileSettings(profile?.id ?? 'guest')
+  const { tr } = useTranslation(settings.lang)
+
   useEffect(() => {
     async function load() {
       const supabase = createClient()
@@ -88,11 +94,10 @@ export default function ParentChildPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={profile} unreadCount={0} />
+      <Navbar profile={profile} unreadCount={0} lang={settings.lang} />
 
       <div className="max-w-3xl mx-auto px-4 py-8">
 
-        {/* Hero */}
         <div className="kc-card p-6 mb-5 flex items-center gap-5" style={{ background: 'linear-gradient(135deg, #FF69B4, #FF8C69)' }}>
           <ChildAvatar size={72} />
           <div className="flex-1">
@@ -103,14 +108,11 @@ export default function ParentChildPage() {
           </div>
         </div>
 
-        {/* Opt-in awareness toggle */}
         <div className="kc-card p-4 mb-5 flex items-center justify-between gap-4" style={{ background: awarenessOn ? 'linear-gradient(135deg, #F0F4FF, #EDE8FF)' : 'white' }}>
           <div>
-            <p className="font-black text-gray-800 text-sm">🌍 Weltweite Entwicklungsperspektive</p>
+            <p className="font-black text-gray-800 text-sm">{tr(t.childPage.globalToggle)}</p>
             <p className="text-xs text-gray-500 font-semibold mt-0.5">
-              {awarenessOn
-                ? 'Eingeschaltet — Sie sehen Einblicke aus den weltbesten Bildungssystemen'
-                : 'Optional: Erfahren Sie, was Entwicklungsexperten weltweit dazu sagen'}
+              {awarenessOn ? tr(t.childPage.globalOn) : tr(t.childPage.globalOff)}
             </p>
           </div>
           <button
@@ -125,11 +127,10 @@ export default function ParentChildPage() {
           </button>
         </div>
 
-        {/* Observations */}
         <div className="kc-card overflow-hidden mb-5">
           <div className="px-5 py-4 border-b-2 border-[#EDE8DF] flex items-center gap-2">
             <span className="text-xl">👁️</span>
-            <h2 className="font-black text-gray-800">Beobachtungen der Erzieherin</h2>
+            <h2 className="font-black text-gray-800">{tr(t.childPage.observations)}</h2>
           </div>
           <div className="divide-y-2 divide-[#F5F0E8]">
             {observations.map(o => (
@@ -140,11 +141,10 @@ export default function ParentChildPage() {
                 </div>
                 <p className="text-sm text-gray-700 leading-relaxed">{o.situation}</p>
 
-                {/* Ask teacher button */}
                 {askOpen === o.id ? (
                   askSent ? (
                     <div className="mt-3 text-center py-2">
-                      <p className="text-sm font-black text-teal-600">✅ Nachricht gesendet!</p>
+                      <p className="text-sm font-black text-teal-600">{tr(t.common.sent)}</p>
                     </div>
                   ) : (
                     <form onSubmit={sendAsk} className="mt-3 space-y-2">
@@ -152,16 +152,16 @@ export default function ParentChildPage() {
                         rows={2}
                         value={askText}
                         onChange={e => setAskText(e.target.value)}
-                        placeholder="Ihre Frage an die Erzieherin…"
+                        placeholder={tr(t.childPage.questionPlaceholder)}
                         className="kc-input w-full px-3 py-2 text-sm resize-none"
                         required
                       />
                       <div className="flex gap-2">
                         <button type="submit" className="kc-btn bg-teal-600 text-white text-xs font-black px-4 py-2">
-                          📤 Senden
+                          {tr(t.common.send)}
                         </button>
                         <button type="button" onClick={() => setAskOpen(null)} className="kc-btn bg-gray-100 text-gray-600 text-xs font-black px-4 py-2">
-                          Abbrechen
+                          {tr(t.common.cancel)}
                         </button>
                       </div>
                     </form>
@@ -171,7 +171,7 @@ export default function ParentChildPage() {
                     onClick={() => setAskOpen(o.id)}
                     className="mt-2 text-xs text-teal-600 font-bold hover:underline"
                   >
-                    💬 Erzieherin dazu fragen
+                    {tr(t.childPage.askTeacher)}
                   </button>
                 )}
               </div>
@@ -179,11 +179,10 @@ export default function ParentChildPage() {
           </div>
         </div>
 
-        {/* Learning Stories */}
         <div className="kc-card overflow-hidden">
           <div className="px-5 py-4 border-b-2 border-[#EDE8DF] flex items-center gap-2">
             <span className="text-xl">📖</span>
-            <h2 className="font-black text-gray-800">Lerngeschichten</h2>
+            <h2 className="font-black text-gray-800">{tr(t.childPage.learningStories)}</h2>
           </div>
           <div className="divide-y-2 divide-[#F5F0E8]">
             {stories.map(s => (
@@ -197,7 +196,7 @@ export default function ParentChildPage() {
                 {askOpen === s.id ? (
                   askSent ? (
                     <div className="mt-3 text-center py-2">
-                      <p className="text-sm font-black text-teal-600">✅ Nachricht gesendet!</p>
+                      <p className="text-sm font-black text-teal-600">{tr(t.common.sent)}</p>
                     </div>
                   ) : (
                     <form onSubmit={sendAsk} className="mt-3 space-y-2">
@@ -205,19 +204,19 @@ export default function ParentChildPage() {
                         rows={2}
                         value={askText}
                         onChange={e => setAskText(e.target.value)}
-                        placeholder="Ihre Frage zur Lerngeschichte…"
+                        placeholder={tr(t.childPage.storyQuestion)}
                         className="kc-input w-full px-3 py-2 text-sm resize-none"
                         required
                       />
                       <div className="flex gap-2">
-                        <button type="submit" className="kc-btn bg-teal-600 text-white text-xs font-black px-4 py-2">📤 Senden</button>
-                        <button type="button" onClick={() => setAskOpen(null)} className="kc-btn bg-gray-100 text-gray-600 text-xs font-black px-4 py-2">Abbrechen</button>
+                        <button type="submit" className="kc-btn bg-teal-600 text-white text-xs font-black px-4 py-2">{tr(t.common.send)}</button>
+                        <button type="button" onClick={() => setAskOpen(null)} className="kc-btn bg-gray-100 text-gray-600 text-xs font-black px-4 py-2">{tr(t.common.cancel)}</button>
                       </div>
                     </form>
                   )
                 ) : (
                   <button onClick={() => setAskOpen(s.id)} className="mt-2 text-xs text-teal-600 font-bold hover:underline">
-                    💬 Erzieherin dazu fragen
+                    {tr(t.childPage.askTeacher)}
                   </button>
                 )}
               </div>

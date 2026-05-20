@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Navbar from '@/components/navbar'
 import { useProfileSettings } from '@/lib/useProfileSettings'
+import { useTranslation } from '@/lib/useTranslation'
+import { t } from '@/lib/translations'
 import type { Profile } from '@/types'
 
 const mockProfile: Profile = {
@@ -21,6 +23,7 @@ const LANGUAGES = [
 
 export default function TeacherSettingsPage() {
   const { settings, update } = useProfileSettings(mockProfile.id)
+  const { tr } = useTranslation(settings.lang)
   const [saved, setSaved] = useState(false)
   const [defaultGroup, setDefaultGroup] = useState('Schmetterlinge')
   const [aiAssist, setAiAssist] = useState(true)
@@ -33,26 +36,24 @@ export default function TeacherSettingsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={mockProfile} unreadCount={0} />
+      <Navbar profile={mockProfile} unreadCount={0} lang={settings.lang} />
 
       <div className="max-w-2xl mx-auto px-4 py-8">
 
-        <a href="/teacher" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">← Zurück</a>
+        <a href="/teacher" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">{tr(t.common.back)}</a>
 
-        {/* Header */}
         <div className="kc-card p-6 mb-6 flex items-center gap-4" style={{ background: 'linear-gradient(135deg, #2EA89A, #1D7A6F)' }}>
           <span className="text-5xl">⚙️</span>
           <div>
-            <h1 className="text-2xl font-black text-white">Erzieher-Einstellungen</h1>
+            <h1 className="text-2xl font-black text-white">{tr(t.settings.teacherHeading)}</h1>
             <p className="text-teal-200 text-sm font-semibold mt-0.5">{mockProfile.full_name} · {mockProfile.email}</p>
           </div>
         </div>
 
-        {/* Language */}
         <div className="kc-card p-5 mb-4">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">🌐</span>
-            <h2 className="font-black text-gray-800">Sprache</h2>
+            <h2 className="font-black text-gray-800">{tr(t.common.language)}</h2>
           </div>
           <div className="flex gap-3 flex-wrap">
             {LANGUAGES.map(l => (
@@ -72,15 +73,14 @@ export default function TeacherSettingsPage() {
           </div>
         </div>
 
-        {/* Default group */}
         <div className="kc-card p-5 mb-4">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">👥</span>
-            <h2 className="font-black text-gray-800">Standard-Gruppe</h2>
+            <h2 className="font-black text-gray-800">{tr(t.settings.defaultGroup)}</h2>
           </div>
-          <p className="text-xs text-gray-500 font-semibold mb-3">Welche Gruppe soll beim Öffnen des Dashboards vorausgewählt sein?</p>
+          <p className="text-xs text-gray-500 font-semibold mb-3">{tr(t.settings.defaultGroupHelp)}</p>
           <div className="flex gap-2 flex-wrap">
-            {['Alle Gruppen', 'Schmetterlinge', 'Bienen', 'Sonnenkäfer'].map(g => (
+            {[tr(t.teacherDash.allGroups), 'Schmetterlinge', 'Bienen', 'Sonnenkäfer'].map(g => (
               <button
                 key={g}
                 onClick={() => setDefaultGroup(g)}
@@ -90,22 +90,21 @@ export default function TeacherSettingsPage() {
                     : 'bg-white text-gray-600 border-[#EDE8DF] hover:border-teal-300 hover:bg-teal-50'
                 }`}
               >
-                {{ 'Schmetterlinge': '🦋 ', 'Bienen': '🐝 ', 'Sonnenkäfer': '🐞 ', 'Alle Gruppen': '👥 ' }[g]}{g}
+                {{ 'Schmetterlinge': '🦋 ', 'Bienen': '🐝 ', 'Sonnenkäfer': '🐞 ' }[g] ?? '👥 '}{g}
               </button>
             ))}
           </div>
         </div>
 
-        {/* AI & Intelligence */}
         <div className="kc-card p-5 mb-4">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">🤖</span>
-            <h2 className="font-black text-gray-800">KI & Entwicklungsintelligenz</h2>
+            <h2 className="font-black text-gray-800">{tr(t.settings.aiSection)}</h2>
           </div>
           <div className="space-y-4">
             {[
-              { label: 'KI-Unterstützung beim Schreiben', desc: 'Claude Haiku schlägt beim Erfassen Formulierungen vor', value: aiAssist, set: setAiAssist },
-              { label: 'Layer 2 — Globale Bildungsrahmen', desc: 'Zeigt HighScope, Reggio, Te Whāriki etc. beim Beobachten', value: layer2, set: setLayer2 },
+              { label: tr(t.settings.aiWriting), desc: tr(t.settings.aiWritingDesc), value: aiAssist, set: setAiAssist },
+              { label: tr(t.settings.globalFrameworks), desc: tr(t.settings.globalFrameworksDesc), value: layer2, set: setLayer2 },
             ].map(row => (
               <div key={row.label} className="flex items-center justify-between gap-4">
                 <div>
@@ -125,17 +124,16 @@ export default function TeacherSettingsPage() {
           </div>
         </div>
 
-        {/* Notifications */}
         <div className="kc-card p-5 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">🔔</span>
-            <h2 className="font-black text-gray-800">Benachrichtigungen</h2>
+            <h2 className="font-black text-gray-800">{tr(t.common.notifications)}</h2>
           </div>
           <div className="space-y-4">
             {[
-              { label: 'E-Mail', desc: 'Neue Tickets und Nachrichten per E-Mail', key: 'notifyEmail' as const },
-              { label: 'Push', desc: 'Browser-Benachrichtigungen aktivieren', key: 'notifyPush' as const },
-              { label: 'SMS', desc: 'Dringende Meldungen per SMS', key: 'notifySms' as const },
+              { label: tr(t.settings.notifEmail), desc: tr(t.settings.notifEmailDesc), key: 'notifyEmail' as const },
+              { label: tr(t.settings.notifPush),  desc: tr(t.settings.notifPushDesc),  key: 'notifyPush' as const },
+              { label: tr(t.settings.notifSms),   desc: tr(t.settings.notifSmsDesc),   key: 'notifySms' as const },
             ].map(row => (
               <div key={row.key} className="flex items-center justify-between gap-4">
                 <div>
@@ -160,7 +158,7 @@ export default function TeacherSettingsPage() {
           className="kc-btn w-full py-3 font-black text-white text-base"
           style={{ background: 'linear-gradient(135deg, #2EA89A, #1D7A6F)' }}
         >
-          {saved ? '✅ Gespeichert!' : '💾 Einstellungen speichern'}
+          {saved ? tr(t.common.saved) : tr(t.common.save)}
         </button>
 
       </div>

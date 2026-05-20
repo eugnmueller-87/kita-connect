@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import Navbar from '@/components/navbar'
+import { useProfileSettings } from '@/lib/useProfileSettings'
+import { useTranslation } from '@/lib/useTranslation'
+import { t } from '@/lib/translations'
 import type { Profile } from '@/types'
 
 const mockProfile: Profile = {
@@ -10,7 +13,7 @@ const mockProfile: Profile = {
   onboarding_status: 'active', created_at: new Date().toISOString(),
 }
 
-const DAYS = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']
+const DAY_KEYS = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']
 const DATES = ['19.05.', '20.05.', '21.05.', '22.05.', '23.05.']
 
 const CHILDREN = [
@@ -18,13 +21,6 @@ const CHILDREN = [
   { id: '2', name: 'Luca Becker',  gender: 'm' },
   { id: '3', name: 'Mia Fischer',  gender: 'f' },
   { id: '4', name: 'Noah Klein',   gender: 'm' },
-]
-
-const FEEDBACK_OPTIONS = [
-  { value: 'great',   label: '😄 Alles aufgegessen',    color: '#E1F5EE', text: '#1D7A6F' },
-  { value: 'good',    label: '🙂 Gut gegessen',          color: '#F0FFF4', text: '#166534' },
-  { value: 'little',  label: '😐 Wenig gegessen',        color: '#FFF8E7', text: '#92400E' },
-  { value: 'refused', label: '😕 Nicht gemocht',         color: '#FFF0F5', text: '#9D174D' },
 ]
 
 interface Meal {
@@ -70,6 +66,24 @@ function NutritionBar({ label, value, max, color }: { label: string; value: numb
 }
 
 export default function TeacherMealsPage() {
+  const { settings } = useProfileSettings(mockProfile.id)
+  const { tr } = useTranslation(settings.lang)
+
+  const DAYS = [
+    tr(t.meals.days.monday),
+    tr(t.meals.days.tuesday),
+    tr(t.meals.days.wednesday),
+    tr(t.meals.days.thursday),
+    tr(t.meals.days.friday),
+  ]
+
+  const FEEDBACK_OPTIONS = [
+    { value: 'great',   label: tr(t.meals.feedbackOptions.all),      color: '#E1F5EE', text: '#1D7A6F' },
+    { value: 'good',    label: tr(t.meals.feedbackOptions.good),     color: '#F0FFF4', text: '#166534' },
+    { value: 'little',  label: tr(t.meals.feedbackOptions.little),   color: '#FFF8E7', text: '#92400E' },
+    { value: 'refused', label: tr(t.meals.feedbackOptions.disliked), color: '#FFF0F5', text: '#9D174D' },
+  ]
+
   const [selectedDay, setSelectedDay] = useState('Montag')
   const [meals, setMeals] = useState<Record<string, Meal>>(initialMeals)
   const [feedback, setFeedback] = useState<FeedbackMap>(initialFeedback)
@@ -105,7 +119,6 @@ export default function TeacherMealsPage() {
     setTimeout(() => setSaved(false), 2000)
   }
 
-  // DGE-Ampel: Qualitätsstandard für Verpflegung in Tageseinrichtungen für Kinder (2023)
   const dge = {
     kcal:    meal.kcal >= 530 && meal.kcal <= 600  ? 'green' : meal.kcal >= 450 && meal.kcal <= 680  ? 'yellow' : 'red',
     protein: meal.protein >= 15                     ? 'green' : meal.protein >= 10                    ? 'yellow' : 'red',
@@ -119,28 +132,26 @@ export default function TeacherMealsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={mockProfile} unreadCount={0} />
+      <Navbar profile={mockProfile} unreadCount={0} lang={settings.lang} />
 
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <a href="/teacher" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">← Zurück</a>
+        <a href="/teacher" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">{tr(t.common.back)}</a>
 
-        {/* Header */}
         <div className="kc-card p-5 mb-5 flex items-center gap-4" style={{ background: 'linear-gradient(135deg, #2EA89A, #1D7A6F)' }}>
           <span className="text-5xl">🍽️</span>
           <div>
-            <h1 className="text-2xl font-black text-white">Speiseplan</h1>
+            <h1 className="text-2xl font-black text-white">{tr(t.meals.heading)}</h1>
             <p className="text-teal-200 text-sm font-semibold mt-0.5">KW 21 · 19.–23. Mai 2026</p>
           </div>
         </div>
 
-        {/* Day tabs */}
         <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
           {DAYS.map((day, i) => (
             <button
-              key={day}
-              onClick={() => setSelectedDay(day)}
+              key={DAY_KEYS[i]}
+              onClick={() => setSelectedDay(DAY_KEYS[i])}
               className={`flex-shrink-0 flex flex-col items-center px-4 py-2.5 rounded-2xl font-bold text-sm border-2 transition-all ${
-                selectedDay === day
+                selectedDay === DAY_KEYS[i]
                   ? 'bg-teal-600 text-white border-teal-700 shadow-md'
                   : 'bg-white text-gray-600 border-[#EDE8DF] hover:border-teal-300'
               }`}
@@ -153,27 +164,26 @@ export default function TeacherMealsPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-          {/* Meal card */}
           <div className="kc-card overflow-hidden">
             <div className="px-5 py-4 border-b-2 border-[#EDE8DF] flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-xl">🥘</span>
-                <h2 className="font-black text-gray-800">{selectedDay}</h2>
+                <h2 className="font-black text-gray-800">{DAYS[DAY_KEYS.indexOf(selectedDay)]}</h2>
               </div>
-              <button onClick={startEdit} className="text-xs text-teal-600 font-bold hover:underline">✏️ Bearbeiten</button>
+              <button onClick={startEdit} className="text-xs text-teal-600 font-bold hover:underline">{tr(t.common.edit)}</button>
             </div>
 
             {editing ? (
               <div className="p-5 space-y-3">
                 <div>
-                  <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">Gericht</label>
+                  <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">{tr(t.meals.dish)}</label>
                   <input value={editMeal.dish} onChange={e => setEditMeal(p => ({ ...p, dish: e.target.value }))} className="kc-input w-full px-3 py-2 text-sm" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   {(['kcal', 'protein', 'carbs', 'fat'] as const).map(f => (
                     <div key={f}>
                       <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">
-                        {f === 'kcal' ? 'Kalorien (kcal)' : f === 'protein' ? 'Eiweiß (g)' : f === 'carbs' ? 'Kohlenh. (g)' : 'Fett (g)'}
+                        {f === 'kcal' ? tr(t.meals.caloriesShort) : f === 'protein' ? tr(t.meals.proteinShort) : f === 'carbs' ? tr(t.meals.carbsShort) : tr(t.meals.fatShort)}
                       </label>
                       <input type="number" value={editMeal[f]}
                         onChange={e => setEditMeal(p => ({ ...p, [f]: Number(e.target.value) }))}
@@ -182,19 +192,23 @@ export default function TeacherMealsPage() {
                   ))}
                 </div>
                 <div className="flex gap-2 pt-1">
-                  <button onClick={saveEdit} className="kc-btn bg-teal-600 text-white text-sm font-black px-4 py-2">✅ Speichern</button>
-                  <button onClick={() => setEditing(false)} className="kc-btn bg-gray-100 text-gray-600 text-sm font-black px-4 py-2">Abbrechen</button>
+                  <button onClick={saveEdit} className="kc-btn bg-teal-600 text-white text-sm font-black px-4 py-2">{tr(t.common.saveMeal)}</button>
+                  <button onClick={() => setEditing(false)} className="kc-btn bg-gray-100 text-gray-600 text-sm font-black px-4 py-2">{tr(t.common.cancel)}</button>
                 </div>
               </div>
             ) : (
               <div className="p-5">
                 <p className="font-black text-gray-800 text-lg mb-4">{meal.dish}</p>
 
-                {/* DGE-Ampel */}
                 <div className="mb-4 p-3 rounded-2xl border-2 border-[#EDE8DF] bg-gray-50">
-                  <p className="text-xs font-black text-gray-500 uppercase tracking-wider mb-2">DGE-Richtwerte · Kinder 4–6 J.</p>
+                  <p className="text-xs font-black text-gray-500 uppercase tracking-wider mb-2">{tr(t.meals.dgeLabel)}</p>
                   <div className="grid grid-cols-2 gap-2">
-                    {([['kcal', 'Energie', `${meal.kcal} kcal`, '530–600'], ['protein', 'Eiweiß', `${meal.protein}g`, '≥15g'], ['fat', 'Fett', `${meal.fat}g`, '17–23g'], ['carbs', 'Kohlenh.', `${meal.carbs}g`, '70–80g']] as const).map(([key, label, val, ref]) => (
+                    {([
+                      ['kcal',    tr(t.meals.calories), `${meal.kcal} kcal`, '530–600'],
+                      ['protein', tr(t.meals.protein),  `${meal.protein}g`,  '≥15g'],
+                      ['fat',     tr(t.meals.fat),      `${meal.fat}g`,      '17–23g'],
+                      ['carbs',   tr(t.meals.carbs),    `${meal.carbs}g`,    '70–80g'],
+                    ] as const).map(([key, label, val, ref]) => (
                       <div key={key} className="flex items-center gap-2 p-2 rounded-xl border" style={{ background: dgeBg[dge[key]], borderColor: dgeBorder[dge[key]] }}>
                         <span>{dgeIcon[dge[key]]}</span>
                         <div>
@@ -204,20 +218,18 @@ export default function TeacherMealsPage() {
                       </div>
                     ))}
                   </div>
-                  <p className="text-[10px] text-gray-400 mt-2">Richtwerte: DGE-Qualitätsstandard für Kita-Verpflegung. Keine medizinische Beratung.</p>
+                  <p className="text-[10px] text-gray-400 mt-2">{tr(t.meals.dgeDisclaimer)}</p>
                 </div>
 
-                {/* Macros */}
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-xs font-black text-gray-500 mb-2">
-                    <span>Kalorien</span><span className="text-gray-800 font-black">{meal.kcal} kcal</span>
+                    <span>{tr(t.meals.calories)}</span><span className="text-gray-800 font-black">{meal.kcal} kcal</span>
                   </div>
-                  <NutritionBar label="Eiweiß" value={meal.protein} max={50} color="#2EA89A" />
-                  <NutritionBar label="Kohlenhydrate" value={meal.carbs} max={80} color="#FFD166" />
-                  <NutritionBar label="Fett" value={meal.fat} max={40} color="#FF9FB2" />
+                  <NutritionBar label={tr(t.meals.protein)} value={meal.protein} max={50} color="#2EA89A" />
+                  <NutritionBar label={tr(t.meals.carbs)} value={meal.carbs} max={80} color="#FFD166" />
+                  <NutritionBar label={tr(t.meals.fat)} value={meal.fat} max={40} color="#FF9FB2" />
                 </div>
 
-                {/* Vitamins & allergens */}
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {meal.vitamins.map(v => (
                     <span key={v} className="kc-badge bg-green-100 text-green-700 text-xs">✅ {v}</span>
@@ -234,15 +246,14 @@ export default function TeacherMealsPage() {
             )}
           </div>
 
-          {/* Child feedback */}
           <div className="kc-card overflow-hidden">
             <div className="px-5 py-4 border-b-2 border-[#EDE8DF] flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-xl">👶</span>
-                <h2 className="font-black text-gray-800">Ess-Feedback</h2>
+                <h2 className="font-black text-gray-800">{tr(t.meals.eatFeedback)}</h2>
               </div>
               <button onClick={saveFeedback} className={`text-xs font-black px-3 py-1.5 rounded-xl transition-all ${saved ? 'bg-teal-100 text-teal-700' : 'bg-teal-600 text-white'}`}>
-                {saved ? '✅ Gespeichert' : '💾 Speichern'}
+                {saved ? tr(t.common.mealSaved) : tr(t.common.saving).replace('⏳ ', '💾 ').replace('…', '')}
               </button>
             </div>
             <div className="divide-y-2 divide-[#F5F0E8]">
@@ -258,7 +269,6 @@ export default function TeacherMealsPage() {
                       <span className="font-black text-gray-800 text-sm">{child.name}</span>
                     </div>
 
-                    {/* Status buttons */}
                     <div className="grid grid-cols-2 gap-1.5 mb-2">
                       {FEEDBACK_OPTIONS.map(opt => (
                         <button
@@ -276,11 +286,10 @@ export default function TeacherMealsPage() {
                       ))}
                     </div>
 
-                    {/* Optional note */}
                     <input
                       value={fb.note}
                       onChange={e => setChildFeedback(child.id, 'note', e.target.value)}
-                      placeholder="Kurze Notiz (optional)…"
+                      placeholder={tr(t.common.note)}
                       className="kc-input w-full px-3 py-1.5 text-xs"
                     />
                   </div>

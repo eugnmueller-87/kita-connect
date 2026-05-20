@@ -34,6 +34,9 @@ export function useProfileSettings(profileId: string) {
     setSettings(prev => {
       const next = { ...prev, ...patch }
       try { localStorage.setItem(storageKey(profileId), JSON.stringify(next)) } catch {}
+      if (patch.lang) {
+        document.cookie = `kc_lang=${patch.lang};path=/;max-age=31536000;samesite=lax`
+      }
       return next
     })
   }

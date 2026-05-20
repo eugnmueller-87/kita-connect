@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Navbar from '@/components/navbar'
 import { useProfileSettings } from '@/lib/useProfileSettings'
+import { useTranslation } from '@/lib/useTranslation'
+import { t } from '@/lib/translations'
 import type { Profile } from '@/types'
 
 const mockProfile: Profile = {
@@ -21,6 +23,7 @@ const LANGUAGES = [
 
 export default function ParentSettingsPage() {
   const { settings, update } = useProfileSettings(mockProfile.id)
+  const { tr } = useTranslation(settings.lang)
   const [saved, setSaved] = useState(false)
 
   function save() {
@@ -30,26 +33,24 @@ export default function ParentSettingsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={mockProfile} unreadCount={0} />
+      <Navbar profile={mockProfile} unreadCount={0} lang={settings.lang} />
 
       <div className="max-w-2xl mx-auto px-4 py-8">
 
-        <a href="/parent" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">← Zurück</a>
+        <a href="/parent" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">{tr(t.common.back)}</a>
 
-        {/* Header */}
         <div className="kc-card p-6 mb-6 flex items-center gap-4" style={{ background: 'linear-gradient(135deg, #2EA89A, #1D7A6F)' }}>
           <span className="text-5xl">⚙️</span>
           <div>
-            <h1 className="text-2xl font-black text-white">Einstellungen</h1>
+            <h1 className="text-2xl font-black text-white">{tr(t.settings.parentHeading)}</h1>
             <p className="text-teal-200 text-sm font-semibold mt-0.5">{mockProfile.full_name} · {mockProfile.email}</p>
           </div>
         </div>
 
-        {/* Language */}
         <div className="kc-card p-5 mb-4">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">🌐</span>
-            <h2 className="font-black text-gray-800">Sprache</h2>
+            <h2 className="font-black text-gray-800">{tr(t.common.language)}</h2>
           </div>
           <div className="flex gap-3 flex-wrap">
             {LANGUAGES.map(l => (
@@ -67,24 +68,18 @@ export default function ParentSettingsPage() {
               </button>
             ))}
           </div>
-          {settings.lang !== 'de' && (
-            <p className="text-xs text-gray-400 font-semibold mt-3">
-              Der KI-Assistent antwortet bereits in Ihrer Sprache. Vollständige App-Übersetzung kommt in Phase 4.
-            </p>
-          )}
         </div>
 
-        {/* Notifications */}
         <div className="kc-card p-5 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">🔔</span>
-            <h2 className="font-black text-gray-800">Benachrichtigungen</h2>
+            <h2 className="font-black text-gray-800">{tr(t.common.notifications)}</h2>
           </div>
           <div className="space-y-4">
             {[
-              { label: 'E-Mail', desc: 'Wichtige Meldungen per E-Mail erhalten', key: 'notifyEmail' as const },
-              { label: 'Push', desc: 'Browser-Benachrichtigungen aktivieren', key: 'notifyPush' as const },
-              { label: 'SMS', desc: 'Benachrichtigungen per SMS (kostenpflichtig)', key: 'notifySms' as const },
+              { label: tr(t.settings.notifEmail), desc: tr(t.settings.notifEmailDesc), key: 'notifyEmail' as const },
+              { label: tr(t.settings.notifPush),  desc: tr(t.settings.notifPushDesc),  key: 'notifyPush' as const },
+              { label: tr(t.settings.notifSms),   desc: tr(t.settings.notifSmsDesc),   key: 'notifySms' as const },
             ].map(row => (
               <div key={row.key} className="flex items-center justify-between gap-4">
                 <div>
@@ -106,13 +101,12 @@ export default function ParentSettingsPage() {
           </div>
         </div>
 
-        {/* Save */}
         <button
           onClick={save}
           className="kc-btn w-full py-3 font-black text-white text-base"
           style={{ background: 'linear-gradient(135deg, #2EA89A, #1D7A6F)' }}
         >
-          {saved ? '✅ Gespeichert!' : '💾 Einstellungen speichern'}
+          {saved ? tr(t.common.saved) : tr(t.common.save)}
         </button>
 
       </div>

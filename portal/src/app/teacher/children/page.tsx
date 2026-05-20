@@ -5,6 +5,9 @@ import Link from 'next/link'
 import Navbar from '@/components/navbar'
 import { ChevronDown } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useProfileSettings } from '@/lib/useProfileSettings'
+import { useTranslation } from '@/lib/useTranslation'
+import { t } from '@/lib/translations'
 import type { Profile } from '@/types'
 
 type Child = { id: string; name: string; birth_date: string; group_name: string; gender: string }
@@ -54,6 +57,9 @@ export default function TeacherChildrenPage() {
   const [selectedGroup, setSelectedGroup] = useState<string>('all')
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
+  const { settings } = useProfileSettings(profile?.id ?? 'guest')
+  const { tr } = useTranslation(settings.lang)
+
   useEffect(() => {
     async function load() {
       const supabase = createClient()
@@ -76,18 +82,18 @@ export default function TeacherChildrenPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={profile} unreadCount={0} />
+      <Navbar profile={profile} unreadCount={0} lang={settings.lang} />
 
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <a href="/teacher" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">← Zurück</a>
+        <a href="/teacher" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">{tr(t.common.back)}</a>
 
         <div className="kc-card p-5 mb-6 flex items-center justify-between gap-4" style={{ background: 'linear-gradient(135deg, #2EA89A, #1D7A6F)' }}>
           <div className="flex items-center gap-4">
             <ChildAvatar gender="f" size={56} />
             <div>
-              <h1 className="text-2xl font-black text-white">Kinder</h1>
+              <h1 className="text-2xl font-black text-white">{tr(t.teacherChildren.heading)}</h1>
               <p className="text-teal-200 font-semibold text-sm mt-0.5">
-                {filteredChildren.length} Kinder · {selectedGroup === 'all' ? `${allGroups.length} Gruppen` : selectedGroup}
+                {tr(t.teacherDash.childrenCount).replace('{n}', String(filteredChildren.length))} · {selectedGroup === 'all' ? `${allGroups.length} Gruppen` : selectedGroup}
               </p>
             </div>
           </div>
@@ -95,7 +101,7 @@ export default function TeacherChildrenPage() {
           <div className="relative">
             <button onClick={() => setDropdownOpen(!dropdownOpen)}
               className="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white font-bold text-sm px-4 py-2.5 rounded-2xl transition-colors border-2 border-white/30">
-              <span>{selectedGroup === 'all' ? '👥 Alle Gruppen' : `${GROUP_EMOJI[selectedGroup] ?? '📍'} ${selectedGroup}`}</span>
+              <span>{selectedGroup === 'all' ? `👥 ${tr(t.teacherChildren.allGroups)}` : `${GROUP_EMOJI[selectedGroup] ?? '📍'} ${selectedGroup}`}</span>
               <ChevronDown size={16} className={`transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
@@ -103,7 +109,7 @@ export default function TeacherChildrenPage() {
               <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border-2 border-[#EDE8DF] overflow-hidden z-50 min-w-48">
                 <button onClick={() => { setSelectedGroup('all'); setDropdownOpen(false) }}
                   className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-bold transition-colors text-left hover:bg-teal-50 ${selectedGroup === 'all' ? 'bg-teal-50 text-teal-700' : 'text-gray-700'}`}>
-                  <span>👥</span><span>Alle Gruppen</span>
+                  <span>👥</span><span>{tr(t.teacherChildren.allGroups)}</span>
                   <span className="ml-auto text-xs text-gray-400">{allChildren.length}</span>
                 </button>
                 <div className="border-t border-[#F5F0E8]" />
@@ -124,7 +130,7 @@ export default function TeacherChildrenPage() {
             <div className="flex items-center gap-2 mb-3 px-1">
               <span className="text-lg">{GROUP_EMOJI[group] ?? '📍'}</span>
               <h2 className="font-black text-gray-700 text-sm uppercase tracking-wider">Gruppe {group}</h2>
-              <span className="kc-badge bg-gray-100 text-gray-500 text-xs">{allChildren.filter(c => c.group_name === group).length} Kinder</span>
+              <span className="kc-badge bg-gray-100 text-gray-500 text-xs">{allChildren.filter(c => c.group_name === group).length} {tr(t.teacherDash.statChildren)}</span>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {allChildren.filter(c => c.group_name === group).map(child => (
@@ -146,7 +152,7 @@ export default function TeacherChildrenPage() {
         {allChildren.length === 0 && (
           <div className="kc-card p-8 text-center">
             <p className="text-4xl mb-3">👶</p>
-            <p className="text-gray-500 font-semibold">Noch keine Kinder angelegt.</p>
+            <p className="text-gray-500 font-semibold">{tr(t.teacherChildren.noChildren)}</p>
           </div>
         )}
       </div>

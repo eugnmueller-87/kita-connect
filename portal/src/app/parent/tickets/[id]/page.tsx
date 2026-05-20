@@ -1,5 +1,7 @@
 import Navbar from '@/components/navbar'
 import { ArrowLeft } from 'lucide-react'
+import { getLang } from '@/lib/getLang'
+import { t } from '@/lib/translations'
 import type { Profile } from '@/types'
 
 const mockProfile: Profile = {
@@ -21,18 +23,21 @@ const mockMessages = [
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  const lang = await getLang()
+  const tr = (node: { de: string; en: string; tr: string; ru: string }) => node[lang] ?? node.de
+
   const profile = mockProfile
   const ticket = mockTickets[id] ?? { subject: 'Unbekanntes Ticket', status: 'closed' }
   const messages = mockMessages.filter(m => m.ticket_id === id)
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={profile} unreadCount={0} />
+      <Navbar profile={profile} unreadCount={0} lang={lang} />
 
       <div className="max-w-3xl mx-auto px-4 py-8">
 
         <a href="/parent/tickets" className="flex items-center gap-1 text-teal-600 text-sm font-bold hover:underline mb-4">
-          <ArrowLeft size={14} /> Zurück zu Nachrichten
+          <ArrowLeft size={14} /> {tr(t.common.backMessages)}
         </a>
 
         <div className="kc-card px-5 py-4 mb-4 flex items-center justify-between gap-3">
@@ -42,7 +47,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
             ticket.status === 'in_progress' ? 'bg-yellow-100 text-yellow-700' :
             'bg-gray-100 text-gray-500'
           }`}>
-            {ticket.status === 'open' ? '🟢 Offen' : ticket.status === 'in_progress' ? '🟡 Aktiv' : '⚫ Geschlossen'}
+            {ticket.status === 'open' ? tr(t.status.open) : ticket.status === 'in_progress' ? tr(t.status.active) : tr(t.status.closed)}
           </span>
         </div>
 
@@ -50,7 +55,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
           {messages.length === 0 && (
             <div className="kc-card px-5 py-8 text-center">
               <p className="text-3xl mb-2">💬</p>
-              <p className="text-gray-400 font-semibold text-sm">Noch keine Nachrichten in diesem Ticket</p>
+              <p className="text-gray-400 font-semibold text-sm">{tr(t.tickets.noMessages)}</p>
             </div>
           )}
           {messages.map(m => {
@@ -80,13 +85,13 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
             <textarea
               name="body"
               rows={3}
-              placeholder="Ihre Nachricht..."
+              placeholder={tr(t.tickets.placeholder)}
               className="kc-input w-full px-4 py-3 text-sm resize-none"
               required
             />
             <div className="flex justify-end mt-3">
               <button type="submit" className="kc-btn bg-teal-600 text-white font-black text-sm px-5 py-2.5 hover:bg-teal-700 transition-colors">
-                📤 Senden
+                {tr(t.common.send)}
               </button>
             </div>
           </form>
@@ -94,7 +99,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
 
         {ticket.status === 'closed' && (
           <div className="kc-card px-5 py-4 text-center" style={{ background: '#F5F0E8' }}>
-            <p className="text-gray-500 font-semibold text-sm">⚫ Dieses Ticket ist geschlossen.</p>
+            <p className="text-gray-500 font-semibold text-sm">{tr(t.status.ticketClosed)}</p>
           </div>
         )}
 

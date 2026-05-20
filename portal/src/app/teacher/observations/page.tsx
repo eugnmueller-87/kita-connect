@@ -2,6 +2,8 @@ import Navbar from '@/components/navbar'
 import NewObservationForm from './new-observation-form'
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth'
+import { getLang } from '@/lib/getLang'
+import { t } from '@/lib/translations'
 
 const categoryLabel: Record<string, string> = {
   sprache: '🗣️ Sprache',
@@ -15,6 +17,8 @@ const categoryLabel: Record<string, string> = {
 export default async function TeacherObservationsPage() {
   const { profile, userId } = await requireRole('teacher')
   const supabase = await createClient()
+  const lang = await getLang()
+  const tr = (node: { de: string; en: string; tr: string; ru: string }) => node[lang] ?? node.de
 
   const [{ data: childData }, { data: obsData }] = await Promise.all([
     supabase.from('children').select('id, name').order('name'),
@@ -29,35 +33,35 @@ export default async function TeacherObservationsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={profile} unreadCount={0} />
+      <Navbar profile={profile} unreadCount={0} lang={lang} />
 
       <div className="max-w-4xl mx-auto px-4 py-8">
 
-        <a href="/teacher" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">← Zurück</a>
+        <a href="/teacher" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">{tr(t.common.back)}</a>
 
         <div className="kc-card p-6 mb-6 flex items-center gap-5" style={{ background: 'linear-gradient(135deg, #FFD166, #FFB347)' }}>
           <div className="text-6xl flex-shrink-0">👁️</div>
           <div>
-            <h1 className="text-2xl font-black text-white">Beobachtungen</h1>
-            <p className="text-yellow-100 font-semibold text-sm mt-1">{observations.length} erfasste Beobachtungen</p>
+            <h1 className="text-2xl font-black text-white">{tr(t.obsPage.heading)}</h1>
+            <p className="text-yellow-100 font-semibold text-sm mt-1">{observations.length} {tr(t.obsPage.heading).toLowerCase()}</p>
           </div>
         </div>
 
         <div className="kc-card p-6 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">📝</span>
-            <h2 className="font-black text-gray-800">Neue Beobachtung erfassen</h2>
+            <h2 className="font-black text-gray-800">{tr(t.obsPage.newObs)}</h2>
           </div>
-          <NewObservationForm children={children} teacherId={userId} />
+          <NewObservationForm children={children} teacherId={userId} lang={lang} />
         </div>
 
         <div className="kc-card overflow-hidden">
           <div className="px-5 py-4 border-b-2 border-[#EDE8DF] flex items-center gap-2">
             <span className="text-xl">📋</span>
-            <h2 className="font-black text-gray-800">Meine Beobachtungen</h2>
+            <h2 className="font-black text-gray-800">{tr(t.obsPage.myObs)}</h2>
           </div>
           {observations.length === 0 ? (
-            <p className="px-5 py-6 text-sm text-gray-400 font-semibold text-center">Noch keine Beobachtungen erfasst.</p>
+            <p className="px-5 py-6 text-sm text-gray-400 font-semibold text-center">{tr(t.obsPage.noObs)}</p>
           ) : (
             <div className="divide-y-2 divide-[#F5F0E8]">
               {observations.map(o => {

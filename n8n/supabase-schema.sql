@@ -1469,5 +1469,22 @@ create policy "Anon kann eigene pending registration lesen"
   using (true);
 
 -- ================================================================
+-- Web Push Subscriptions
+-- ================================================================
+create table if not exists push_subscriptions (
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid not null references profiles(id) on delete cascade,
+  endpoint     text not null unique,
+  keys         jsonb not null,
+  created_at   timestamptz default now()
+);
+
+alter table push_subscriptions enable row level security;
+
+create policy "User manages own push subscriptions"
+  on push_subscriptions for all
+  using (auth.uid() = user_id);
+
+-- ================================================================
 -- Fertig! Alle Tabellen, RLS-Policies, Trigger und Realtime aktiv.
 -- ================================================================

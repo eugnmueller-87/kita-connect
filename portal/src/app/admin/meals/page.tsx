@@ -3,9 +3,12 @@
 import { useState, useEffect } from 'react'
 import Navbar from '@/components/navbar'
 import { createClient } from '@/lib/supabase/client'
+import { useProfileSettings } from '@/lib/useProfileSettings'
+import { useTranslation } from '@/lib/useTranslation'
+import { t } from '@/lib/translations'
 import type { Profile } from '@/types'
 
-const DAYS = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']
+const DAY_KEYS = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']
 const DATES = ['19.05.', '20.05.', '21.05.', '22.05.', '23.05.']
 
 interface Meal {
@@ -47,6 +50,17 @@ export default function AdminMealsPage() {
   const [saved, setSaved] = useState(false)
   const [editMeal, setEditMeal] = useState<Meal>({ ...initialMeals.Montag })
 
+  const { settings } = useProfileSettings(profile?.id ?? 'guest')
+  const { tr } = useTranslation(settings.lang)
+
+  const DAYS = [
+    tr(t.meals.days.monday),
+    tr(t.meals.days.tuesday),
+    tr(t.meals.days.wednesday),
+    tr(t.meals.days.thursday),
+    tr(t.meals.days.friday),
+  ]
+
   useEffect(() => {
     async function load() {
       const supabase = createClient()
@@ -55,7 +69,6 @@ export default function AdminMealsPage() {
       const { data: p } = await supabase.from('profiles').select('*').eq('id', user.id).single()
       if (p) setProfile(p as Profile)
 
-      // Load this week's meals from DB if they exist
       const monday = getMonday()
       const { data: mealData } = await supabase
         .from('meals')
@@ -67,8 +80,8 @@ export default function AdminMealsPage() {
         const mapped: Record<string, Meal> = {}
         mealData.forEach((m: { date: string; dish: string; kcal: number; protein: number; carbs: number; fat: number; vitamins: string[]; allergens: string[] }) => {
           const dayIndex = new Date(m.date).getDay() - 1
-          const dayName = DAYS[dayIndex]
-          if (dayName) mapped[dayName] = { dish: m.dish, kcal: m.kcal, protein: m.protein, carbs: m.carbs, fat: m.fat, vitamins: m.vitamins ?? [], allergens: m.allergens ?? [] }
+          const dayKey = DAY_KEYS[dayIndex]
+          if (dayKey) mapped[dayKey] = { dish: m.dish, kcal: m.kcal, protein: m.protein, carbs: m.carbs, fat: m.fat, vitamins: m.vitamins ?? [], allergens: m.allergens ?? [] }
         })
         setMeals(prev => ({ ...prev, ...mapped }))
       }
@@ -103,9 +116,8 @@ export default function AdminMealsPage() {
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
 
-    // Persist to DB
     const supabase = createClient()
-    const dayIndex = DAYS.indexOf(selectedDay)
+    const dayIndex = DAY_KEYS.indexOf(selectedDay)
     const monday = getMonday()
     const mealDate = addDays(monday, dayIndex)
     await supabase.from('meals').upsert({
@@ -120,8 +132,6 @@ export default function AdminMealsPage() {
     }, { onConflict: 'date' })
   }
 
-  // DGE-Ampel: Qualitätsstandard für Verpflegung in Tageseinrichtungen für Kinder (2023)
-  // Richtwerte Mittagessen, Kinder 4–6 Jahre
   const dge = {
     kcal:    meal.kcal >= 530 && meal.kcal <= 600   ? 'green' : meal.kcal >= 450 && meal.kcal < 530 || meal.kcal > 600 && meal.kcal <= 680 ? 'yellow' : 'red',
     protein: meal.protein >= 15                      ? 'green' : meal.protein >= 10                                                          ? 'yellow' : 'red',
@@ -132,40 +142,32 @@ export default function AdminMealsPage() {
   const dgeBg:      Record<string, string> = { green: '#f0fdf4', yellow: '#fffbeb', red: '#fff1f2' }
   const dgeBorder:  Record<string, string> = { green: '#bbf7d0', yellow: '#fde68a', red: '#fecdd3' }
   const dgeLabel:   Record<string, string> = { green: '✅', yellow: '⚠️', red: '❌' }
-  const dgeText = {
-    kcal:    { green: '530–600 kcal ✅', yellow: `${meal.kcal} kcal ⚠️`, red: `${meal.kcal} kcal ❌` },
-    protein: { green: `${meal.protein}g ✅`, yellow: `${meal.protein}g ⚠️`, red: `${meal.protein}g ❌` },
-    fat:     { green: `${meal.fat}g ✅`, yellow: `${meal.fat}g ⚠️`, red: `${meal.fat}g ❌` },
-    carbs:   { green: `${meal.carbs}g ✅`, yellow: `${meal.carbs}g ⚠️`, red: `${meal.carbs}g ❌` },
-  }
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      {profile && <Navbar profile={profile} unreadCount={0} />}
+      {profile && <Navbar profile={profile} unreadCount={0} lang={settings.lang} />}
 
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <a href="/admin" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">← Zurück</a>
+        <a href="/admin" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">{tr(t.common.back)}</a>
 
-        {/* Header */}
         <div className="kc-card p-5 mb-5 flex items-center gap-4" style={{ background: 'linear-gradient(135deg, #FF6B6B, #EE5A24)' }}>
           <span className="text-5xl">🍽️</span>
           <div>
-            <h1 className="text-2xl font-black text-white">Speiseplan verwalten</h1>
-            <p className="text-red-200 font-semibold text-sm mt-0.5">KW 21 · 19.–23. Mai 2026 · Alle Gruppen</p>
+            <h1 className="text-2xl font-black text-white">{tr(t.meals.manageHeading)}</h1>
+            <p className="text-red-200 font-semibold text-sm mt-0.5">KW 21 · 19.–23. Mai 2026 · {tr(t.teacherDash.allGroups)}</p>
           </div>
           {saved && (
-            <span className="ml-auto bg-white/20 text-white text-xs font-black px-3 py-1.5 rounded-xl">✅ Gespeichert</span>
+            <span className="ml-auto bg-white/20 text-white text-xs font-black px-3 py-1.5 rounded-xl">{tr(t.common.mealSaved)}</span>
           )}
         </div>
 
-        {/* Day tabs */}
         <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
           {DAYS.map((day, i) => (
             <button
-              key={day}
-              onClick={() => { setSelectedDay(day); setEditing(false) }}
+              key={DAY_KEYS[i]}
+              onClick={() => { setSelectedDay(DAY_KEYS[i]); setEditing(false) }}
               className={`flex-shrink-0 flex flex-col items-center px-4 py-2.5 rounded-2xl font-bold text-sm border-2 transition-all ${
-                selectedDay === day
+                selectedDay === DAY_KEYS[i]
                   ? 'bg-red-500 text-white border-red-600 shadow-md'
                   : 'bg-white text-gray-600 border-[#EDE8DF] hover:border-red-300'
               }`}
@@ -176,29 +178,28 @@ export default function AdminMealsPage() {
           ))}
         </div>
 
-        {/* Meal card */}
         <div className="kc-card overflow-hidden">
           <div className="px-5 py-4 border-b-2 border-[#EDE8DF] flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-xl">🥘</span>
-              <h2 className="font-black text-gray-800">{selectedDay}, {DATES[DAYS.indexOf(selectedDay)]}2026</h2>
+              <h2 className="font-black text-gray-800">{DAYS[DAY_KEYS.indexOf(selectedDay)]}, {DATES[DAY_KEYS.indexOf(selectedDay)]}2026</h2>
             </div>
             {!editing && (
-              <button onClick={startEdit} className="text-xs text-red-500 font-bold hover:underline">✏️ Bearbeiten</button>
+              <button onClick={startEdit} className="text-xs text-red-500 font-bold hover:underline">{tr(t.common.edit)}</button>
             )}
           </div>
 
           {editing ? (
             <div className="p-5 space-y-3">
               <div>
-                <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">Gericht</label>
+                <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">{tr(t.meals.dish)}</label>
                 <input value={editMeal.dish} onChange={e => setEditMeal(p => ({ ...p, dish: e.target.value }))} className="kc-input w-full px-3 py-2 text-sm" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {(['kcal', 'protein', 'carbs', 'fat'] as const).map(f => (
                   <div key={f}>
                     <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">
-                      {f === 'kcal' ? 'Kalorien (kcal)' : f === 'protein' ? 'Eiweiß (g)' : f === 'carbs' ? 'Kohlenh. (g)' : 'Fett (g)'}
+                      {f === 'kcal' ? tr(t.meals.caloriesShort) : f === 'protein' ? tr(t.meals.proteinShort) : f === 'carbs' ? tr(t.meals.carbsShort) : tr(t.meals.fatShort)}
                     </label>
                     <input type="number" value={editMeal[f]}
                       onChange={e => setEditMeal(p => ({ ...p, [f]: Number(e.target.value) }))}
@@ -207,31 +208,35 @@ export default function AdminMealsPage() {
                 ))}
               </div>
               <div>
-                <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">Vitamine (kommagetrennt)</label>
+                <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">{tr(t.meals.vitamins)}</label>
                 <input value={editMeal.vitamins.join(', ')}
                   onChange={e => setEditMeal(p => ({ ...p, vitamins: e.target.value.split(',').map(v => v.trim()).filter(Boolean) }))}
-                  className="kc-input w-full px-3 py-2 text-sm" placeholder="z.B. B12, C, Eisen" />
+                  className="kc-input w-full px-3 py-2 text-sm" placeholder={tr(t.meals.vitaminPlaceholder)} />
               </div>
               <div>
-                <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">Allergene (kommagetrennt)</label>
+                <label className="text-xs font-black text-gray-500 uppercase tracking-wider block mb-1">{tr(t.meals.allergens)}</label>
                 <input value={editMeal.allergens.join(', ')}
                   onChange={e => setEditMeal(p => ({ ...p, allergens: e.target.value.split(',').map(v => v.trim()).filter(Boolean) }))}
-                  className="kc-input w-full px-3 py-2 text-sm" placeholder="z.B. Gluten, Milch" />
+                  className="kc-input w-full px-3 py-2 text-sm" placeholder={tr(t.meals.allergenPlaceholder)} />
               </div>
               <div className="flex gap-2 pt-1">
-                <button onClick={saveEdit} className="kc-btn bg-red-500 text-white text-sm font-black px-4 py-2">✅ Speichern</button>
-                <button onClick={() => setEditing(false)} className="kc-btn bg-gray-100 text-gray-600 text-sm font-black px-4 py-2">Abbrechen</button>
+                <button onClick={saveEdit} className="kc-btn bg-red-500 text-white text-sm font-black px-4 py-2">{tr(t.common.saveMeal)}</button>
+                <button onClick={() => setEditing(false)} className="kc-btn bg-gray-100 text-gray-600 text-sm font-black px-4 py-2">{tr(t.common.cancel)}</button>
               </div>
             </div>
           ) : (
             <div className="p-5">
               <p className="font-black text-gray-800 text-xl mb-4">{meal.dish}</p>
 
-              {/* DGE-Ampel */}
               <div className="mb-4 p-3 rounded-2xl border-2 border-[#EDE8DF] bg-gray-50">
-                <p className="text-xs font-black text-gray-500 uppercase tracking-wider mb-2">DGE-Richtwerte · Kinder 4–6 J. · Mittagessen</p>
+                <p className="text-xs font-black text-gray-500 uppercase tracking-wider mb-2">{tr(t.meals.dgeLabel)}</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {([['kcal', 'Energie', `${meal.kcal} kcal`, '530–600'], ['protein', 'Eiweiß', `${meal.protein}g`, '≥ 15g'], ['fat', 'Fett', `${meal.fat}g`, '17–23g'], ['carbs', 'Kohlenhydrate', `${meal.carbs}g`, '70–80g']] as const).map(([key, label, val, ref]) => (
+                  {([
+                    ['kcal',    tr(t.meals.calories), `${meal.kcal} kcal`, '530–600'],
+                    ['protein', tr(t.meals.protein),  `${meal.protein}g`,  '≥ 15g'],
+                    ['fat',     tr(t.meals.fat),      `${meal.fat}g`,      '17–23g'],
+                    ['carbs',   tr(t.meals.carbs),    `${meal.carbs}g`,    '70–80g'],
+                  ] as const).map(([key, label, val, ref]) => (
                     <div key={key} className="flex items-center gap-2 p-2 rounded-xl border" style={{ background: dgeBg[dge[key]], borderColor: dgeBorder[dge[key]] }}>
                       <span className="text-base">{dgeLabel[dge[key]]}</span>
                       <div>
@@ -241,28 +246,25 @@ export default function AdminMealsPage() {
                     </div>
                   ))}
                 </div>
-                <p className="text-[10px] text-gray-400 mt-2">Richtwerte basieren auf dem DGE-Qualitätsstandard für Kita-Verpflegung. Keine medizinische Ernährungsberatung.</p>
+                <p className="text-[10px] text-gray-400 mt-2">{tr(t.meals.dgeDisclaimer)}</p>
               </div>
 
-              {/* Macros */}
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-xs font-black text-gray-500 mb-2">
-                  <span>Kalorien</span><span className="text-gray-800">{meal.kcal} kcal</span>
+                  <span>{tr(t.meals.calories)}</span><span className="text-gray-800">{meal.kcal} kcal</span>
                 </div>
-                <NutritionBar label="Eiweiß" value={meal.protein} max={50} color="#2EA89A" />
-                <NutritionBar label="Kohlenhydrate" value={meal.carbs} max={80} color="#FFD166" />
-                <NutritionBar label="Fett" value={meal.fat} max={40} color="#FF9FB2" />
+                <NutritionBar label={tr(t.meals.protein)} value={meal.protein} max={50} color="#2EA89A" />
+                <NutritionBar label={tr(t.meals.carbs)} value={meal.carbs} max={80} color="#FFD166" />
+                <NutritionBar label={tr(t.meals.fat)} value={meal.fat} max={40} color="#FF9FB2" />
               </div>
 
-              {/* Vitamins */}
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {meal.vitamins.map(v => (
                   <span key={v} className="kc-badge bg-green-100 text-green-700 text-xs">✅ {v}</span>
                 ))}
-                {meal.vitamins.length === 0 && <span className="text-xs text-gray-400 font-semibold">Keine Angaben</span>}
+                {meal.vitamins.length === 0 && <span className="text-xs text-gray-400 font-semibold">{tr(t.common.noEntries)}</span>}
               </div>
 
-              {/* Allergens */}
               {meal.allergens.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
                   {meal.allergens.map(a => (
@@ -274,20 +276,19 @@ export default function AdminMealsPage() {
           )}
         </div>
 
-        {/* Week overview */}
         <div className="kc-card p-5 mt-5">
-          <p className="text-xs font-black text-gray-500 uppercase tracking-wider mb-3">Wochenübersicht</p>
+          <p className="text-xs font-black text-gray-500 uppercase tracking-wider mb-3">{tr(t.meals.weekOverview)}</p>
           <div className="space-y-2">
-            {DAYS.map((day, i) => {
-              const m = meals[day]
+            {DAY_KEYS.map((dayKey, i) => {
+              const m = meals[dayKey]
               const kcalOk = m.kcal >= 530 && m.kcal <= 600
               const protOk = m.protein >= 15
               const ampel = kcalOk && protOk ? '✅' : (!kcalOk || !protOk) ? '⚠️' : '❌'
               return (
-                <button key={day} onClick={() => { setSelectedDay(day); setEditing(false) }}
-                  className={`w-full flex items-center gap-3 p-3 rounded-2xl border-2 text-left transition-all hover:border-red-300 ${selectedDay === day ? 'border-red-400 bg-red-50' : 'border-[#EDE8DF] bg-white'}`}>
+                <button key={dayKey} onClick={() => { setSelectedDay(dayKey); setEditing(false) }}
+                  className={`w-full flex items-center gap-3 p-3 rounded-2xl border-2 text-left transition-all hover:border-red-300 ${selectedDay === dayKey ? 'border-red-400 bg-red-50' : 'border-[#EDE8DF] bg-white'}`}>
                   <span className="text-xs font-black text-gray-400 w-6 text-center">{DATES[i]}</span>
-                  <span className="font-black text-gray-700 text-sm w-20">{day}</span>
+                  <span className="font-black text-gray-700 text-sm w-24">{DAYS[i]}</span>
                   <span className="flex-1 text-xs text-gray-500 font-semibold truncate">{m.dish}</span>
                   <span className="text-xs font-black flex-shrink-0">{ampel} {m.kcal} kcal</span>
                 </button>
