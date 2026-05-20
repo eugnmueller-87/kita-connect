@@ -34,11 +34,12 @@ export default async function AdminDashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-6 gap-4 mb-6">
           {[
             { emoji: '👨‍👩‍👧', count: allParents.length, label: tr(t.adminDash.totalParents), color: '#E1F5EE', href: '/admin/parents' },
             { emoji: '⏳', count: pending.length, label: tr(t.adminDash.pending), color: '#FFF8E7', href: '/admin/parents' },
             { emoji: '✉️', count: allInvitations.length, label: tr(t.adminDash.invitations), color: '#F0F4FF', href: '/admin/invitations' },
+            { emoji: '🏫', count: null, label: tr(t.adminKitas.heading), color: '#E8F5FF', href: '/admin/kitas' },
             { emoji: '🍽️', count: null, label: tr(t.adminDash.mealplan), color: '#FFF0E8', href: '/admin/meals' },
             { emoji: '📢', count: null, label: tr(t.adminDash.broadcastSend), color: '#FFF0F5', href: '/admin/broadcast' },
           ].map(s => (
