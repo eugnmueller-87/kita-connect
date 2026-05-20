@@ -1,23 +1,23 @@
 -- ================================================================
 -- Migration 001: Multi-Tenancy — Träger + Kitas + teacher_kitas
 -- Ausführen in: Supabase SQL Editor
--- Reihenfolge: exakt so einhalten (Foreign Key Abhängigkeiten)
+-- WICHTIG: Policies die profiles.traeger_id/kita_id referenzieren
+--          kommen erst NACH den ALTER TABLE Befehlen
 -- ================================================================
 
 -- ----------------------------------------------------------------
--- 1. TRAEGER (Betreiber/Träger — optional, z.B. AWO, DRK)
---    Eine Einzel-Kita hat keinen Träger (traeger_id = null)
+-- 1. TRAEGER
 -- ----------------------------------------------------------------
 create table if not exists traeger (
   id          uuid primary key default gen_random_uuid(),
-  name        text not null,              -- z.B. "AWO München e.V."
+  name        text not null,
   address     text,
   city        text,
   postal_code text,
   phone       text,
   email       text,
   logo_url    text,
-  status      text not null default 'active', -- 'active' | 'suspended'
+  status      text not null default 'active',
   created_by  uuid references auth.users(id),
   created_at  timestamptz default now()
 );
@@ -28,18 +28,8 @@ create policy "Super Admin verwaltet alle Träger"
   on traeger for all
   using (exists (select 1 from profiles where id = auth.uid() and role = 'super_admin'));
 
-create policy "Traeger Admin sieht eigenen Träger"
-  on traeger for select
-  using (
-    exists (
-      select 1 from profiles
-      where id = auth.uid() and role = 'traeger_admin' and traeger_id = traeger.id
-    )
-  );
-
 -- ----------------------------------------------------------------
 -- 2. KITAS
---    traeger_id nullable — Einzel-Kita hat keinen Träger
 -- ----------------------------------------------------------------
 create table if not exists kitas (
   id           uuid primary key default gen_random_uuid(),
@@ -52,7 +42,7 @@ create table if not exists kitas (
   email        text,
   logo_url     text,
   max_children integer default 50,
-  status       text not null default 'active', -- 'active' | 'suspended'
+  status       text not null default 'active',
   created_by   uuid references auth.users(id),
   created_at   timestamptz default now()
 );
@@ -62,6 +52,27 @@ alter table kitas enable row level security;
 create policy "Super Admin verwaltet alle Kitas"
   on kitas for all
   using (exists (select 1 from profiles where id = auth.uid() and role = 'super_admin'));
+
+-- ----------------------------------------------------------------
+-- 3. kita_id + traeger_id auf profiles (MUSS vor den Policies kommen)
+-- ----------------------------------------------------------------
+alter table profiles add column if not exists kita_id    uuid references kitas(id)   on delete set null;
+alter table profiles add column if not exists traeger_id uuid references traeger(id) on delete set null;
+
+create index if not exists profiles_kita_id_idx    on profiles(kita_id);
+create index if not exists profiles_traeger_id_idx on profiles(traeger_id);
+
+-- ----------------------------------------------------------------
+-- 4. Policies die profiles.traeger_id/kita_id brauchen — erst JETZT
+-- ----------------------------------------------------------------
+create policy "Traeger Admin sieht eigenen Träger"
+  on traeger for select
+  using (
+    exists (
+      select 1 from profiles
+      where id = auth.uid() and role = 'traeger_admin' and traeger_id = traeger.id
+    )
+  );
 
 create policy "Traeger Admin sieht Kitas seines Trägers"
   on kitas for select
@@ -82,25 +93,11 @@ create policy "Admin sieht eigene Kita"
   );
 
 -- ----------------------------------------------------------------
--- 3. kita_id + traeger_id auf profiles
---    - parent/teacher/admin: kita_id gesetzt (primäre Kita)
---    - traeger_admin: traeger_id gesetzt, kita_id null
---    - super_admin: beide null
--- ----------------------------------------------------------------
-alter table profiles add column if not exists kita_id    uuid references kitas(id)   on delete set null;
-alter table profiles add column if not exists traeger_id uuid references traeger(id) on delete set null;
-
-create index if not exists profiles_kita_id_idx    on profiles(kita_id);
-create index if not exists profiles_traeger_id_idx on profiles(traeger_id);
-
--- ----------------------------------------------------------------
--- 4. TEACHER_KITAS (JOIN — Erzieher können in mehreren Kitas arbeiten)
---    Primäre Kita bleibt profiles.kita_id
---    Zusätzliche Kitas über diese Tabelle
+-- 5. TEACHER_KITAS
 -- ----------------------------------------------------------------
 create table if not exists teacher_kitas (
-  teacher_id uuid not null references auth.users(id) on delete cascade,
-  kita_id    uuid not null references kitas(id)      on delete cascade,
+  teacher_id  uuid not null references auth.users(id) on delete cascade,
+  kita_id     uuid not null references kitas(id)      on delete cascade,
   assigned_at timestamptz default now(),
   primary key (teacher_id, kita_id)
 );
@@ -116,63 +113,31 @@ create policy "Admin verwaltet Zuordnungen seiner Kita"
   using (
     exists (
       select 1 from profiles
-      where id = auth.uid() and role in ('admin', 'super_admin', 'traeger_admin')
+      where id = auth.uid()
+        and role in ('admin', 'super_admin', 'traeger_admin')
         and (kita_id = teacher_kitas.kita_id or role in ('super_admin', 'traeger_admin'))
     )
   );
 
 -- ----------------------------------------------------------------
--- 5. kita_id auf invitations
+-- 6. kita_id auf alle anderen Tables
 -- ----------------------------------------------------------------
-alter table invitations add column if not exists kita_id uuid references kitas(id) on delete cascade;
-
--- ----------------------------------------------------------------
--- 6. kita_id auf children
--- ----------------------------------------------------------------
-alter table children add column if not exists kita_id uuid references kitas(id) on delete cascade;
-create index if not exists children_kita_id_idx on children(kita_id);
-
--- ----------------------------------------------------------------
--- 7. kita_id auf tickets
--- ----------------------------------------------------------------
-alter table tickets add column if not exists kita_id uuid references kitas(id) on delete cascade;
-create index if not exists tickets_kita_id_idx on tickets(kita_id);
-
--- ----------------------------------------------------------------
--- 8. kita_id auf observations
--- ----------------------------------------------------------------
-alter table observations add column if not exists kita_id uuid references kitas(id) on delete cascade;
-
--- ----------------------------------------------------------------
--- 9. kita_id auf broadcasts
--- ----------------------------------------------------------------
-alter table broadcasts add column if not exists kita_id uuid references kitas(id) on delete cascade;
-
--- ----------------------------------------------------------------
--- 10. kita_id auf notifications
--- ----------------------------------------------------------------
-alter table notifications add column if not exists kita_id uuid references kitas(id) on delete cascade;
-
--- ----------------------------------------------------------------
--- 11. kita_id auf learning_stories
--- ----------------------------------------------------------------
-alter table learning_stories add column if not exists kita_id uuid references kitas(id) on delete cascade;
-
--- ----------------------------------------------------------------
--- 12. kita_id auf messages
--- ----------------------------------------------------------------
-alter table messages add column if not exists kita_id uuid references kitas(id) on delete cascade;
-
--- ----------------------------------------------------------------
--- 13. kita_id auf pending_registrations
--- ----------------------------------------------------------------
+alter table invitations         add column if not exists kita_id uuid references kitas(id) on delete cascade;
+alter table children            add column if not exists kita_id uuid references kitas(id) on delete cascade;
+alter table tickets             add column if not exists kita_id uuid references kitas(id) on delete cascade;
+alter table observations        add column if not exists kita_id uuid references kitas(id) on delete cascade;
+alter table broadcasts          add column if not exists kita_id uuid references kitas(id) on delete cascade;
+alter table notifications       add column if not exists kita_id uuid references kitas(id) on delete cascade;
+alter table learning_stories    add column if not exists kita_id uuid references kitas(id) on delete cascade;
+alter table messages            add column if not exists kita_id uuid references kitas(id) on delete cascade;
 alter table pending_registrations add column if not exists kita_id uuid references kitas(id) on delete cascade;
 
--- ----------------------------------------------------------------
--- 14. RLS POLICIES — kita_id-scoped ersetzen
--- ----------------------------------------------------------------
+create index if not exists children_kita_id_idx on children(kita_id);
+create index if not exists tickets_kita_id_idx  on tickets(kita_id);
 
--- profiles: Erzieher sehen nur Profile ihrer Kitas
+-- ----------------------------------------------------------------
+-- 7. RLS POLICIES updaten
+-- ----------------------------------------------------------------
 drop policy if exists "Erzieher können alle Profile lesen" on profiles;
 
 create policy "Erzieher sehen Profile ihrer Kita"
@@ -184,9 +149,7 @@ create policy "Erzieher sehen Profile ihrer Kita"
         and p.role in ('teacher', 'admin')
         and p.kita_id = profiles.kita_id
     )
-    or
-    -- Erzieher mit mehreren Kitas: über teacher_kitas
-    exists (
+    or exists (
       select 1 from teacher_kitas tk
       join profiles p on p.id = auth.uid() and p.role = 'teacher'
       where tk.teacher_id = auth.uid() and tk.kita_id = profiles.kita_id
@@ -208,7 +171,6 @@ create policy "Traeger Admin sieht Profile seiner Kitas"
     )
   );
 
--- children: Erzieher sehen Kinder ihrer Kita(s)
 drop policy if exists "Erzieher sehen alle Kinder" on children;
 
 create policy "Erzieher sehen Kinder ihrer Kita"
@@ -216,12 +178,9 @@ create policy "Erzieher sehen Kinder ihrer Kita"
   using (
     exists (
       select 1 from profiles
-      where id = auth.uid()
-        and role in ('teacher', 'admin')
-        and kita_id = children.kita_id
+      where id = auth.uid() and role in ('teacher', 'admin') and kita_id = children.kita_id
     )
-    or
-    exists (
+    or exists (
       select 1 from teacher_kitas tk
       join profiles p on p.id = auth.uid() and p.role = 'teacher'
       where tk.teacher_id = auth.uid() and tk.kita_id = children.kita_id
@@ -235,21 +194,17 @@ create policy "Admin kann Kinder in eigener Kita anlegen"
   with check (
     exists (
       select 1 from profiles
-      where id = auth.uid()
-        and role in ('admin', 'super_admin')
-        and kita_id = children.kita_id
+      where id = auth.uid() and role in ('admin', 'super_admin') and kita_id = children.kita_id
     )
   );
 
--- invitations: scoped auf Kita
 drop policy if exists "Admin sieht eigene Einladungen" on invitations;
 
 create policy "Admin sieht Einladungen seiner Kita"
   on invitations for select
   using (
     auth.uid() = invited_by
-    or
-    exists (
+    or exists (
       select 1 from profiles
       where id = auth.uid()
         and role in ('admin', 'super_admin', 'traeger_admin')
@@ -258,7 +213,7 @@ create policy "Admin sieht Einladungen seiner Kita"
   );
 
 -- ----------------------------------------------------------------
--- 15. handle_new_user TRIGGER — kita_id + traeger_id aus metadata
+-- 8. handle_new_user TRIGGER
 -- ----------------------------------------------------------------
 create or replace function handle_new_user()
 returns trigger language plpgsql security definer as $$
@@ -302,7 +257,7 @@ create trigger on_auth_user_created
   for each row execute function handle_new_user();
 
 -- ----------------------------------------------------------------
--- 16. accept_invitation — kita_id auf Profil setzen
+-- 9. accept_invitation
 -- ----------------------------------------------------------------
 create or replace function accept_invitation(p_invite_id uuid, p_user_id uuid)
 returns jsonb language plpgsql security definer as $$
@@ -319,10 +274,7 @@ begin
     return jsonb_build_object('ok', false, 'error', 'Einladung bereits verwendet oder abgelaufen.');
   end if;
 
-  update invitations set
-    status      = 'accepted',
-    accepted_at = now(),
-    used_at     = now()
+  update invitations set status = 'accepted', accepted_at = now(), used_at = now()
   where id = v_inv.id;
 
   update profiles set
@@ -331,24 +283,18 @@ begin
     onboarding_status = case when v_inv.role = 'parent' then 'pending' else 'active' end
   where id = p_user_id;
 
-  -- Bei Erzieher: auch teacher_kitas Eintrag anlegen
   if v_inv.role = 'teacher' and v_inv.kita_id is not null then
     insert into teacher_kitas (teacher_id, kita_id)
     values (p_user_id, v_inv.kita_id)
     on conflict do nothing;
   end if;
 
-  return jsonb_build_object(
-    'ok', true,
-    'role', v_inv.role,
-    'child_id', v_inv.child_id,
-    'kita_id', v_inv.kita_id
-  );
+  return jsonb_build_object('ok', true, 'role', v_inv.role, 'child_id', v_inv.child_id, 'kita_id', v_inv.kita_id);
 end;
 $$;
 
 -- ----------------------------------------------------------------
--- 17. validate_invitation — kita_id im Result
+-- 10. validate_invitation
 -- ----------------------------------------------------------------
 create or replace function validate_invitation(p_invite_id uuid, p_email text)
 returns jsonb language plpgsql security definer as $$
@@ -366,11 +312,6 @@ begin
     return jsonb_build_object('ok', false, 'error', 'Einladung ungültig, abgelaufen oder E-Mail stimmt nicht überein.');
   end if;
 
-  return jsonb_build_object(
-    'ok', true,
-    'role', v_inv.role,
-    'child_id', v_inv.child_id,
-    'kita_id', v_inv.kita_id
-  );
+  return jsonb_build_object('ok', true, 'role', v_inv.role, 'child_id', v_inv.child_id, 'kita_id', v_inv.kita_id);
 end;
 $$;

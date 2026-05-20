@@ -32,6 +32,18 @@
 - Fixed Russian Thursday typo (`"Четşamba"` → `"Четверг"`)
 - TypeScript clean (`npx tsc --noEmit` = 0 errors)
 
+## 2026-05-20 — Multi-Tenancy: Träger + Kitas + Registration Flow
+- **DB-Migration 001:** `traeger` + `kitas` + `teacher_kitas` Tables in Supabase ausgeführt
+- **kita_id** auf profiles, invitations, children, tickets, observations, broadcasts, notifications, learning_stories, messages
+- **Träger-Modell:** Erzieher können mehreren Kitas zugeordnet werden (teacher_kitas JOIN-Table)
+- **RLS** alle Policies auf kita_id-Scope aktualisiert
+- **Rollen erweitert:** `super_admin`, `traeger_admin` neu
+- **Portal:** `/admin/kitas` — Kitas + Träger anlegen und verwalten
+- **Invite-Flow:** kita_id wird bei Einladung mitgegeben, `accept_invitation` setzt kita_id auf Profil
+- **Vercel Analytics** + `@vercel/analytics` in Root-Layout
+- **Web Push Fix:** VAPID lazy init verhindert Build-Crash
+- **Quality Gate:** PASS — alle P0 Security + GDPR Checks grün
+
 ## 2026-05-21 — Kafka/Redpanda + Web Push
 - **Kafka analysis:** Evaluated benefits at 20 Kitas / 200 families (reliability, fan-out, event replay)
 - **Redpanda installed:** Single-node Docker on Hostinger VPS alongside n8n + Traefik
