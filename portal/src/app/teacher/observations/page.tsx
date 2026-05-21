@@ -1,6 +1,6 @@
 import Navbar from '@/components/navbar'
 import NewObservationForm from './new-observation-form'
-import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { requireRole } from '@/lib/auth'
 import { getLang } from '@/lib/getLang'
 import { t } from '@/lib/translations'
@@ -16,13 +16,17 @@ const categoryLabel: Record<string, string> = {
 
 export default async function TeacherObservationsPage() {
   const { profile, userId } = await requireRole('teacher')
-  const supabase = await createClient()
   const lang = await getLang()
   const tr = (node: { de: string; en: string; tr: string; ru: string }) => node[lang] ?? node.de
 
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+
   const [{ data: childData }, { data: obsData }] = await Promise.all([
-    supabase.from('children').select('id, name').order('name'),
-    supabase.from('observations')
+    admin.from('children').select('id, name').order('name'),
+    admin.from('observations')
       .select('id, category, text, created_at, child:children(name), learning_disposition')
       .eq('teacher_id', userId)
       .order('created_at', { ascending: false }),
