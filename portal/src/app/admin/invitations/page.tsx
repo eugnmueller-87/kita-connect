@@ -1,5 +1,6 @@
 import Navbar from '@/components/navbar'
 import InviteForm from './invite-form'
+import InvitationList from './invitation-list'
 import { createClient } from '@/lib/supabase/server'
 import { requireRole } from '@/lib/auth'
 import { getLang } from '@/lib/getLang'
@@ -48,28 +49,7 @@ export default async function AdminInvitationsPage() {
             <span className="text-xl">📋</span>
             <h2 className="font-black text-gray-800">{tr(t.adminInvitations.sentInvites)}</h2>
           </div>
-          {invitations.length === 0 ? (
-            <p className="px-5 py-6 text-sm text-gray-400 font-semibold text-center">{tr(t.adminInvitations.noInvites)}</p>
-          ) : (
-            <div className="divide-y-2 divide-[#F5F0E8]">
-              {invitations.map(inv => (
-                <div key={inv.id} className="px-5 py-3 flex items-center justify-between">
-                  <div>
-                    <p className="font-bold text-gray-800">{inv.email}</p>
-                    <p className="text-xs text-gray-400 font-semibold">{new Date(inv.created_at).toLocaleDateString('de-DE')}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="kc-badge bg-teal-100 text-teal-700 text-xs">
-                      {inv.role === 'parent' ? `👨‍👩‍👧 ${tr(t.common.role_parent)}` : `👩‍🏫 ${tr(t.common.role_teacher)}`}
-                    </span>
-                    <span className={`kc-badge text-xs ${inv.used_at ? 'bg-gray-100 text-gray-500' : 'bg-yellow-100 text-yellow-700'}`}>
-                      {inv.used_at ? tr(t.status.approved) : tr(t.status.pending)}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <InvitationList initialInvitations={invitations} lang={lang} />
         </div>
 
       </div>
