@@ -197,6 +197,9 @@ Every table has RLS enabled and tested:
 
 ## Roadmap
 
+**[View Kanban Board](https://github.com/users/eugnmueller-87/projects/9/views/1)**
+
+
 | Phase | Description | Status |
 |-------|-------------|--------|
 | 0 — Foundation | DB schema (18 tables), RLS, Supabase Auth | Done |
