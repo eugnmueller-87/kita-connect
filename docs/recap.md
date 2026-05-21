@@ -2,6 +2,18 @@
 
 ---
 
+## 2026-05-21 — Auth-System auf Email + Passwort umgebaut
+
+- **Login-Seite** neu: `signInWithPassword` statt OTP, rollenbasierte Weiterleitung
+- **Register-Seite** neu: Passwort-Feld, direkt einloggen nach Registrierung (kein Magic Link mehr)
+- **`/api/register`** neu: nutzt `admin.createUser` (Email-Confirm bypassed), erstellt Profil, markiert Einladung als benutzt
+- **`/forgot-password`** neu: Supabase `resetPasswordForEmail` mit Redirect zu `/reset-password`
+- **Translations** ergänzt: passwordLabel, signIn, signingIn, forgotPassword-Sektion (4 Sprachen)
+- **Rollback bei Fehler**: wenn Profil-Insert fehlschlägt, wird Auth-User gelöscht
+- Motivation: Magic-Links zu fragil für Produktion, Industry-Standard ist Passwort-Auth
+
+---
+
 ## HANDOVER — Stand 2026-05-20 (Session-Ende)
 
 ### Was heute vollständig funktioniert ✅
