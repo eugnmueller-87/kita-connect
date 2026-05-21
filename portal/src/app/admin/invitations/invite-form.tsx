@@ -68,9 +68,13 @@ export default function InviteForm({
       <div className="flex gap-3">
         {roles.map(r => (
           <button key={r.key} type="button" onClick={() => setRole(r.key)}
-            className={`kc-card flex-1 p-3 flex items-center justify-center gap-2 text-sm font-black transition-all ${
-              role === r.key ? 'bg-teal-600 text-white border-teal-700' : 'text-gray-600 hover:bg-teal-50'
-            }`}>
+              className="kc-card flex-1 p-3 flex items-center justify-center gap-2 text-sm font-black transition-all"
+            style={role === r.key ? {
+              background: '#2a9d8f',
+              color: '#ffffff',
+              borderColor: '#1D7A6F',
+              boxShadow: '0 4px 0 0 #1D7A6F, 0 0 12px rgba(42,157,143,0.35)',
+            } : { color: '#4b5563' }}>
             <span className="text-xl">{r.emoji}</span> {r.label}
           </button>
         ))}
