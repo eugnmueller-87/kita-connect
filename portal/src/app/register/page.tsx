@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useTranslation } from '@/lib/useTranslation'
 import { t } from '@/lib/translations'
@@ -13,7 +13,6 @@ function getLangFromCookie(): string {
 }
 
 function RegisterHandler() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
   const { tr } = useTranslation(getLangFromCookie())
@@ -22,6 +21,7 @@ function RegisterHandler() {
   const [invitation, setInvitation] = useState<{ email: string; role: string } | null>(null)
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
+  const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -50,14 +50,14 @@ function RegisterHandler() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!fullName.trim() || !invitation) return
+    if (!fullName.trim() || !invitation || password.length < 8) return
     setSubmitting(true)
     setError('')
 
     const res = await fetch('/api/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, full_name: fullName.trim(), phone: phone.trim() || null }),
+      body: JSON.stringify({ token, full_name: fullName.trim(), phone: phone.trim() || null, password }),
     })
 
     if (!res.ok) {
@@ -67,13 +67,23 @@ function RegisterHandler() {
       return
     }
 
+    // Direkt einloggen
     const supabase = createClient()
-    await supabase.auth.signInWithOtp({
+    const { data: authData, error: signInErr } = await supabase.auth.signInWithPassword({
       email: invitation.email,
-      options: { shouldCreateUser: true },
+      password,
     })
 
-    router.replace(`/login?registered=1&email=${encodeURIComponent(invitation.email)}`)
+    if (signInErr || !authData.user) {
+      setError(signInErr?.message ?? 'Anmeldung fehlgeschlagen')
+      setSubmitting(false)
+      return
+    }
+
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', authData.user.id).single()
+    if (['admin', 'super_admin', 'traeger_admin'].includes(profile?.role ?? '')) window.location.href = '/admin'
+    else if (profile?.role === 'teacher') window.location.href = '/teacher'
+    else window.location.href = '/parent'
   }
 
   if (step === 'loading') {
@@ -150,6 +160,18 @@ function RegisterHandler() {
                 className="kc-input w-full px-4 py-3 text-sm"
               />
             </div>
+            <div>
+              <label className="block text-sm font-black text-gray-700 mb-2">{tr(t.register.passwordLabel)}</label>
+              <input
+                type="password"
+                required
+                minLength={8}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder={tr(t.register.passwordPlaceholder)}
+                className="kc-input w-full px-4 py-3 text-sm"
+              />
+            </div>
 
             {error && (
               <div className="bg-red-50 border-2 border-red-200 rounded-2xl px-4 py-3 text-sm text-red-600 font-semibold">{error}</div>
@@ -157,7 +179,7 @@ function RegisterHandler() {
 
             <button
               type="submit"
-              disabled={submitting || !fullName.trim()}
+              disabled={submitting || !fullName.trim() || password.length < 8}
               className="kc-btn w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-black py-3.5 text-sm transition-colors"
             >
               {submitting ? tr(t.register.creating) : tr(t.register.create)}

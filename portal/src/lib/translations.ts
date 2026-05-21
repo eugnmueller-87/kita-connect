@@ -81,8 +81,15 @@ export const t = {
   login: {
     title: { de: 'Kita Connect', en: 'Kita Connect', tr: 'Kita Connect', ru: 'Kita Connect' },
     subtitle: { de: 'Eltern- und Erzieherportal', en: 'Parent & Teacher Portal', tr: 'Ebeveyn ve Öğretmen Portalı', ru: 'Портал для родителей и воспитателей' },
-    emailLabel: { de: 'Deine E-Mail-Adresse', en: 'Your email address', tr: 'E-posta adresin', ru: 'Ваш e-mail' },
+    emailLabel: { de: 'E-Mail-Adresse', en: 'Email address', tr: 'E-posta adresi', ru: 'E-mail' },
     emailPlaceholder: { de: 'name@beispiel.de', en: 'name@example.com', tr: 'ad@ornek.com', ru: 'имя@пример.рф' },
+    passwordLabel: { de: 'Passwort', en: 'Password', tr: 'Şifre', ru: 'Пароль' },
+    passwordPlaceholder: { de: 'Dein Passwort', en: 'Your password', tr: 'Şifreniz', ru: 'Ваш пароль' },
+    signIn: { de: '🔓 Anmelden', en: '🔓 Sign In', tr: '🔓 Giriş Yap', ru: '🔓 Войти' },
+    signingIn: { de: '⏳ Wird angemeldet…', en: '⏳ Signing in…', tr: '⏳ Giriş yapılıyor…', ru: '⏳ Вход…' },
+    forgotPassword: { de: 'Passwort vergessen?', en: 'Forgot password?', tr: 'Şifremi unuttum?', ru: 'Забыли пароль?' },
+    noAccount: { de: 'Noch kein Account? Einladung anfordern.', en: 'No account? Request an invitation.', tr: 'Hesabınız yok mu? Davet isteyin.', ru: 'Нет аккаунта? Запросите приглашение.' },
+    // legacy OTP keys kept for auth/confirm compatibility
     sendCode: { de: '✉️ Code senden', en: '✉️ Send Code', tr: '✉️ Kod Gönder', ru: '✉️ Отправить код' },
     sending: { de: '⏳ Wird gesendet…', en: '⏳ Sending…', tr: '⏳ Gönderiliyor…', ru: '⏳ Отправка…' },
     noPassword: { de: 'Kein Passwort nötig — sicher & einfach 🔒', en: 'No password needed — secure & simple 🔒', tr: 'Şifre gerekmez — güvenli & kolay 🔒', ru: 'Пароль не нужен — безопасно и просто 🔒' },
@@ -103,8 +110,22 @@ export const t = {
     invitedAs: { de: 'Eingeladen als', en: 'Invited as', tr: 'Davet edildi:', ru: 'Приглашён как' },
     namePlaceholder: { de: 'Max Mustermann', en: 'Jane Smith', tr: 'Ad Soyad', ru: 'Иван Иванов' },
     phonePlaceholder: { de: '+49 170 1234567', en: '+44 7700 123456', tr: '+90 555 123 4567', ru: '+7 900 123-45-67' },
+    passwordLabel: { de: 'Passwort wählen', en: 'Choose a password', tr: 'Şifre seçin', ru: 'Выберите пароль' },
+    passwordPlaceholder: { de: 'Mindestens 8 Zeichen', en: 'At least 8 characters', tr: 'En az 8 karakter', ru: 'Минимум 8 символов' },
     creating: { de: '⏳ Wird erstellt…', en: '⏳ Creating…', tr: '⏳ Oluşturuluyor…', ru: '⏳ Создание…' },
     create: { de: '✅ Account anlegen', en: '✅ Create Account', tr: '✅ Hesap Oluştur', ru: '✅ Создать аккаунт' },
+    successTitle: { de: 'Account erstellt!', en: 'Account created!', tr: 'Hesap oluşturuldu!', ru: 'Аккаунт создан!' },
+    successMsg: { de: 'Du wirst automatisch weitergeleitet…', en: 'You will be redirected automatically…', tr: 'Otomatik olarak yönlendiriliyorsunuz…', ru: 'Вы будете перенаправлены автоматически…' },
+  },
+
+  // --- Forgot Password ---
+  forgotPassword: {
+    title: { de: 'Passwort zurücksetzen', en: 'Reset Password', tr: 'Şifreyi Sıfırla', ru: 'Сброс пароля' },
+    subtitle: { de: 'Wir senden dir einen Reset-Link', en: 'We will send you a reset link', tr: 'Size sıfırlama bağlantısı göndereceğiz', ru: 'Мы отправим вам ссылку для сброса' },
+    send: { de: '✉️ Reset-Link senden', en: '✉️ Send Reset Link', tr: '✉️ Sıfırlama Bağlantısı Gönder', ru: '✉️ Отправить ссылку' },
+    sending: { de: '⏳ Wird gesendet…', en: '⏳ Sending…', tr: '⏳ Gönderiliyor…', ru: '⏳ Отправка…' },
+    sent: { de: '✅ Reset-Link gesendet! Bitte prüfe dein Postfach.', en: '✅ Reset link sent! Please check your inbox.', tr: '✅ Sıfırlama bağlantısı gönderildi! Gelen kutunuzu kontrol edin.', ru: '✅ Ссылка отправлена! Проверьте почту.' },
+    backToLogin: { de: '← Zurück zur Anmeldung', en: '← Back to Login', tr: '← Girişe Dön', ru: '← Назад ко входу' },
   },
 
   // --- Auth confirm ---
