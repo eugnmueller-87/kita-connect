@@ -36,7 +36,6 @@ const COLOR_OPTIONS = ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤',
 const GENDER_OPTIONS = [
   { value: 'male', emoji: '👦' },
   { value: 'female', emoji: '👧' },
-  { value: 'other', emoji: '🧒' },
 ]
 
 function EditProfileModal({ child, lang, userId, onClose }: {
@@ -147,7 +146,7 @@ function EditProfileModal({ child, lang, userId, onClose }: {
                   style={gender === g.value ? { background: '#2a9d8f', color: '#fff', borderColor: '#1D7A6F', boxShadow: '0 4px 0 0 #1D7A6F' } : {}}
                   className={`kc-card flex-1 py-2 flex flex-col items-center gap-1 transition-all text-xs font-bold ${gender === g.value ? '' : 'text-gray-600'}`}>
                   <span className="text-xl">{g.emoji}</span>
-                  <span>{tr(t.childPage[`gender${g.value.charAt(0).toUpperCase() + g.value.slice(1)}` as 'genderMale' | 'genderFemale' | 'genderOther'])}</span>
+                  <span>{tr(t.childPage[`gender${g.value.charAt(0).toUpperCase() + g.value.slice(1)}` as 'genderMale' | 'genderFemale'])}</span>
                 </button>
               ))}
             </div>
