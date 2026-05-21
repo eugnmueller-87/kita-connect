@@ -53,7 +53,7 @@ function EditProfileModal({ child, lang, userId, onClose }: {
   const [favFood, setFavFood] = useState(child.fav_food ?? '')
   const [favGame, setFavGame] = useState(child.fav_game ?? '')
   const [favSong, setFavSong] = useState(child.fav_song ?? '')
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(child.avatar_url)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(child.avatar_url ?? null)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
