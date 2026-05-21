@@ -1,38 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Navbar from '@/components/navbar'
 import { X, Plus, UserPlus } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 import { useProfileSettings } from '@/lib/useProfileSettings'
 import { useTranslation } from '@/lib/useTranslation'
 import { t } from '@/lib/translations'
 import type { Profile } from '@/types'
 
-const mockProfile: Profile = {
-  id: 'dev-teacher', full_name: 'Maria Schmidt', email: 'maria@kita-connect.de',
-  role: 'teacher', phone: null, notify_email: true, notify_sms: false,
-  onboarding_status: 'active', created_at: new Date().toISOString(),
-}
-
-const INITIAL_CHILDREN = [
-  { id: '1',  name: 'Emma Müller',   birth_date: '2020-03-15', gender: 'f', group: 'Schmetterlinge' },
-  { id: '2',  name: 'Luca Becker',   birth_date: '2019-11-22', gender: 'm', group: 'Schmetterlinge' },
-  { id: '3',  name: 'Mia Fischer',   birth_date: '2020-07-08', gender: 'f', group: 'Schmetterlinge' },
-  { id: '4',  name: 'Noah Klein',    birth_date: '2019-09-14', gender: 'm', group: 'Schmetterlinge' },
-  { id: '5',  name: 'Lea Wagner',    birth_date: '2020-01-30', gender: 'f', group: 'Bienen' },
-  { id: '6',  name: 'Ben Schulz',    birth_date: '2019-12-05', gender: 'm', group: 'Bienen' },
-  { id: '7',  name: 'Sofia Braun',   birth_date: '2021-02-14', gender: 'f', group: 'Bienen' },
-  { id: '8',  name: 'Jonas Richter', birth_date: '2021-05-20', gender: 'm', group: 'Bienen' },
-  { id: '9',  name: 'Hanna Wolf',    birth_date: '2022-03-10', gender: 'f', group: 'Sonnenkäfer' },
-  { id: '10', name: 'Felix Neumann', birth_date: '2022-01-25', gender: 'm', group: 'Sonnenkäfer' },
-  { id: '11', name: 'Laura König',   birth_date: '2022-06-18', gender: 'f', group: 'Sonnenkäfer' },
-  { id: '12', name: 'Tim Hoffmann',  birth_date: '2023-04-02', gender: 'm', group: null },
-  { id: '13', name: 'Anna Weber',    birth_date: '2023-01-15', gender: 'f', group: null },
-]
-
-const INITIAL_GROUPS = ['Schmetterlinge', 'Bienen', 'Sonnenkäfer']
 const GROUP_EMOJI: Record<string, string> = { 'Schmetterlinge': '🦋', 'Bienen': '🐝', 'Sonnenkäfer': '🐞' }
 const GROUP_COLORS: Record<string, string> = { 'Schmetterlinge': '#FFF0F5', 'Bienen': '#FFFBE7', 'Sonnenkäfer': '#F0FFF4' }
+
+type Child = { id: string; name: string; birth_date: string; gender: string; group_name: string | null }
 
 function getAge(birth: string) {
   const b = new Date(birth), now = new Date()
@@ -48,25 +28,44 @@ function Avatar({ gender, size = 36 }: { gender: string; size?: number }) {
 }
 
 export default function GroupManagementPage() {
-  const { settings } = useProfileSettings(mockProfile.id)
-  const { tr } = useTranslation(settings.lang)
-
-  const [children, setChildren] = useState(INITIAL_CHILDREN)
-  const [groups, setGroups] = useState(INITIAL_GROUPS)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [children, setChildren] = useState<Child[]>([])
+  const [groups, setGroups] = useState<string[]>([])
   const [newGroupName, setNewGroupName] = useState('')
   const [showNewGroup, setShowNewGroup] = useState(false)
   const [assignTarget, setAssignTarget] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState('')
 
-  const unassigned = children.filter(c => !c.group)
+  const { settings } = useProfileSettings(profile?.id ?? 'guest')
+  const { tr } = useTranslation(settings.lang)
+
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data: p } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      if (p) setProfile(p as Profile)
+      const { data } = await supabase.from('children').select('id, name, birth_date, gender, group_name').order('name')
+      if (data) {
+        setChildren(data as Child[])
+        setGroups([...new Set(data.map(c => c.group_name).filter(Boolean) as string[])])
+      }
+    }
+    load()
+  }, [])
+
+  const unassigned = children.filter(c => !c.group_name)
 
   function assignChild(childId: string, group: string | null) {
-    setChildren(prev => prev.map(c => c.id === childId ? { ...c, group } : c))
+    setChildren(prev => prev.map(c => c.id === childId ? { ...c, group_name: group } : c))
     setAssignTarget(null)
   }
 
   function removeFromGroup(childId: string) {
-    setChildren(prev => prev.map(c => c.id === childId ? { ...c, group: null } : c))
+    setChildren(prev => prev.map(c => c.id === childId ? { ...c, group_name: null } : c))
   }
 
   function addGroup() {
@@ -79,20 +78,31 @@ export default function GroupManagementPage() {
 
   function deleteGroup(group: string) {
     setGroups(prev => prev.filter(g => g !== group))
-    setChildren(prev => prev.map(c => c.group === group ? { ...c, group: null } : c))
+    setChildren(prev => prev.map(c => c.group_name === group ? { ...c, group_name: null } : c))
   }
 
-  function save() {
+  async function save() {
+    setSaving(true)
+    setError('')
+    const supabase = createClient()
+    const updates = children.map(c =>
+      supabase.from('children').update({ group_name: c.group_name }).eq('id', c.id)
+    )
+    const results = await Promise.all(updates)
+    const failed = results.find(r => r.error)
+    setSaving(false)
+    if (failed?.error) { setError(failed.error.message); return }
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
 
+  if (!profile) return null
+
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={mockProfile} unreadCount={0} lang={settings.lang} />
+      <Navbar profile={profile} unreadCount={0} lang={settings.lang} />
 
       <div className="max-w-5xl mx-auto px-4 py-8">
-
         <a href="/teacher" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">{tr(t.common.back)}</a>
 
         <div className="kc-card p-5 mb-6 flex items-center justify-between gap-4" style={{ background: 'linear-gradient(135deg, #2EA89A, #1D7A6F)' }}>
@@ -102,38 +112,26 @@ export default function GroupManagementPage() {
               {groups.length} Gruppen · {children.length} {tr(t.teacherDash.statChildren)} · {unassigned.length} {tr(t.groupsPage.unassigned).replace('({n})', '').trim()}
             </p>
           </div>
-          <button
-            onClick={() => setShowNewGroup(true)}
-            className="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white font-bold text-sm px-4 py-2.5 rounded-2xl border-2 border-white/30 transition-colors"
-          >
-            <Plus size={16} />
-            {tr(t.groupsPage.newGroup)}
+          <button onClick={() => setShowNewGroup(true)}
+            className="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white font-bold text-sm px-4 py-2.5 rounded-2xl border-2 border-white/30 transition-colors">
+            <Plus size={16} /> {tr(t.groupsPage.newGroup)}
           </button>
         </div>
 
         {showNewGroup && (
           <div className="kc-card p-4 mb-6 flex gap-3 items-center" style={{ background: '#F0FFF4' }}>
             <span className="text-2xl">📍</span>
-            <input
-              autoFocus
-              value={newGroupName}
-              onChange={e => setNewGroupName(e.target.value)}
+            <input autoFocus value={newGroupName} onChange={e => setNewGroupName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addGroup()}
-              placeholder={tr(t.groupsPage.groupNamePlaceholder)}
-              className="kc-input flex-1 px-4 py-2 text-sm"
-            />
-            <button onClick={addGroup} className="kc-btn bg-teal-600 text-white text-sm font-black px-4 py-2">
-              {tr(t.groupsPage.create)}
-            </button>
-            <button onClick={() => setShowNewGroup(false)} className="kc-btn bg-gray-100 text-gray-600 text-sm font-black px-3 py-2">
-              {tr(t.common.cancel)}
-            </button>
+              placeholder={tr(t.groupsPage.groupNamePlaceholder)} className="kc-input flex-1 px-4 py-2 text-sm" />
+            <button onClick={addGroup} className="kc-btn bg-teal-600 text-white text-sm font-black px-4 py-2">{tr(t.groupsPage.create)}</button>
+            <button onClick={() => setShowNewGroup(false)} className="kc-btn bg-gray-100 text-gray-600 text-sm font-black px-3 py-2">{tr(t.common.cancel)}</button>
           </div>
         )}
 
         <div className="space-y-5 mb-6">
           {groups.map(group => {
-            const groupChildren = children.filter(c => c.group === group)
+            const groupChildren = children.filter(c => c.group_name === group)
             const bg = GROUP_COLORS[group] ?? '#F5F5F5'
             const emoji = GROUP_EMOJI[group] ?? '📍'
             return (
@@ -144,14 +142,10 @@ export default function GroupManagementPage() {
                     <h2 className="font-black text-gray-800">{group}</h2>
                     <span className="kc-badge bg-white/80 text-gray-600 text-xs">{groupChildren.length} {tr(t.teacherDash.statChildren)}</span>
                   </div>
-                  <button
-                    onClick={() => deleteGroup(group)}
-                    className="text-xs text-red-400 hover:text-red-600 font-bold flex items-center gap-1 transition-colors"
-                  >
+                  <button onClick={() => deleteGroup(group)} className="text-xs text-red-400 hover:text-red-600 font-bold flex items-center gap-1 transition-colors">
                     <X size={14} /> {tr(t.groupsPage.deleteGroup)}
                   </button>
                 </div>
-
                 <div className="p-4">
                   {groupChildren.length === 0 ? (
                     <p className="text-sm text-gray-400 font-semibold text-center py-2">{tr(t.groupsPage.noChildren)}</p>
@@ -169,27 +163,23 @@ export default function GroupManagementPage() {
                       ))}
                     </div>
                   )}
-
                   {unassigned.length > 0 && (
-                    <div className="relative">
-                      {assignTarget === group ? (
-                        <div className="flex flex-wrap gap-2 mt-1">
-                          <span className="text-xs text-gray-500 font-bold self-center mr-1">{tr(t.groupsPage.addChild)}</span>
-                          {unassigned.map(c => (
-                            <button key={c.id} onClick={() => assignChild(c.id, group)}
-                              className="flex items-center gap-1.5 bg-teal-50 hover:bg-teal-100 border-2 border-teal-200 text-teal-700 text-xs font-bold px-3 py-1.5 rounded-2xl transition-colors">
-                              <Avatar gender={c.gender} size={20} />
-                              {c.name}
-                            </button>
-                          ))}
-                          <button onClick={() => setAssignTarget(null)} className="text-xs text-gray-400 hover:text-gray-600 font-bold self-center">{tr(t.common.cancel)}</button>
-                        </div>
-                      ) : (
-                        <button onClick={() => setAssignTarget(group)} className="flex items-center gap-1.5 text-xs text-teal-600 hover:text-teal-800 font-bold transition-colors">
-                          <UserPlus size={14} /> {tr(t.groupsPage.assignChild)}
-                        </button>
-                      )}
-                    </div>
+                    assignTarget === group ? (
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        <span className="text-xs text-gray-500 font-bold self-center mr-1">{tr(t.groupsPage.addChild)}</span>
+                        {unassigned.map(c => (
+                          <button key={c.id} onClick={() => assignChild(c.id, group)}
+                            className="flex items-center gap-1.5 bg-teal-50 hover:bg-teal-100 border-2 border-teal-200 text-teal-700 text-xs font-bold px-3 py-1.5 rounded-2xl transition-colors">
+                            <Avatar gender={c.gender} size={20} /> {c.name}
+                          </button>
+                        ))}
+                        <button onClick={() => setAssignTarget(null)} className="text-xs text-gray-400 hover:text-gray-600 font-bold self-center">{tr(t.common.cancel)}</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setAssignTarget(group)} className="flex items-center gap-1.5 text-xs text-teal-600 hover:text-teal-800 font-bold transition-colors">
+                        <UserPlus size={14} /> {tr(t.groupsPage.assignChild)}
+                      </button>
+                    )
                   )}
                 </div>
               </div>
@@ -232,10 +222,13 @@ export default function GroupManagementPage() {
           </div>
         )}
 
-        <button onClick={save} className="kc-btn w-full py-3 font-black text-white text-base" style={{ background: 'linear-gradient(135deg, #2EA89A, #1D7A6F)' }}>
-          {saved ? tr(t.common.saved) : tr(t.groupsPage.saveAssignments)}
-        </button>
+        {error && <p className="text-sm text-red-600 font-semibold mb-4">⚠️ {error}</p>}
 
+        <button onClick={save} disabled={saving}
+          className="kc-btn w-full py-3 font-black text-white text-base disabled:opacity-50"
+          style={{ background: 'linear-gradient(135deg, #2EA89A, #1D7A6F)' }}>
+          {saving ? tr(t.common.saving) : saved ? tr(t.common.saved) : tr(t.groupsPage.saveAssignments)}
+        </button>
       </div>
     </div>
   )
