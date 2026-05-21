@@ -1,7 +1,10 @@
-'use client'
-import { usePushSubscription } from '@/lib/usePushSubscription'
+import PushInit from './push-init'
 
 export default function ParentLayout({ children }: { children: React.ReactNode }) {
-  usePushSubscription()
-  return <>{children}</>
+  return (
+    <>
+      <PushInit />
+      {children}
+    </>
+  )
 }
