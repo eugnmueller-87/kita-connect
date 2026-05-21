@@ -75,7 +75,7 @@ export default function AddChildForm({ lang, userId }: { lang: Lang; userId: str
 
     if (!res.ok) {
       const data = await res.json()
-      setError(`${data.error ?? 'Fehler'} | code: ${data.code} | ${data.hint ?? ''} | ${data.details ?? ''}`)
+      setError(data.error ?? 'Fehler beim Speichern')
       setSaving(false)
       return
     }

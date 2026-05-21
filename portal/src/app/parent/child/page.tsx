@@ -1,20 +1,21 @@
 import { requireRole } from '@/lib/auth'
-import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { getLang } from '@/lib/getLang'
-import { t } from '@/lib/translations'
 import Navbar from '@/components/navbar'
 import ChildTabs from './child-tabs'
 import AddChildForm from './add-child-form'
 
 export default async function ParentChildPage() {
   const { profile, userId } = await requireRole('parent')
-  const supabase = await createClient()
   const lang = await getLang()
-  const tr = (node: { de: string; en: string; tr: string; ru: string }) => node[lang] ?? node.de
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
 
-  const { data: children } = await supabase
+  const { data: children } = await admin
     .from('children')
-    .select('id, name, birth_date, group_name, gender, allergies, dietary_notes')
+    .select('id, name, birth_date, group_name, gender, allergies, dietary_notes, avatar_url, fav_color, fav_book, fav_food, fav_game, fav_song')
     .eq('parent_id', userId)
     .order('name')
 
@@ -24,8 +25,8 @@ export default async function ParentChildPage() {
   const details = await Promise.all(
     childList.map(async c => {
       const [{ data: obs }, { data: stories }] = await Promise.all([
-        supabase.from('observations').select('id, category, text, created_at').eq('child_id', c.id).order('created_at', { ascending: false }),
-        supabase.from('learning_stories').select('id, title, final_text, created_at').eq('child_id', c.id).eq('status', 'published').order('created_at', { ascending: false }),
+        admin.from('observations').select('id, category, text, created_at').eq('child_id', c.id).order('created_at', { ascending: false }),
+        admin.from('learning_stories').select('id, title, final_text, created_at').eq('child_id', c.id).eq('status', 'published').order('created_at', { ascending: false }),
       ])
       return { childId: c.id, observations: obs ?? [], stories: stories ?? [] }
     })
