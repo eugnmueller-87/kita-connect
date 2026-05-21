@@ -20,6 +20,9 @@ export async function POST(request: Request) {
   // Kita-Kontext: super_admin kann kita_id frei wählen, admin nutzt eigene kita_id
   const resolvedKitaId = profile.role === 'super_admin' ? (kita_id || null) : profile.kita_id
 
+  // Alte offene Einladungen für diese Email löschen
+  await supabase.from('invitations').delete().eq('email', email.trim().toLowerCase()).is('used_at', null)
+
   const token = crypto.randomUUID()
 
   const { data: inserted, error } = await supabase.from('invitations').insert({
