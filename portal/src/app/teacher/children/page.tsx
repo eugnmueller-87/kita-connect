@@ -68,8 +68,11 @@ export default function TeacherChildrenPage() {
       const { data: p } = await supabase.from('profiles').select('*').eq('id', user.id).single()
       if (p) setProfile(p as Profile)
 
-      const { data } = await supabase.from('children').select('id, name, birth_date, group_name, gender').order('group_name').order('name')
-      if (data) setAllChildren(data as Child[])
+      const res = await fetch('/api/teacher/children')
+      if (res.ok) {
+        const data = await res.json()
+        setAllChildren(data as Child[])
+      }
     }
     load()
   }, [])
