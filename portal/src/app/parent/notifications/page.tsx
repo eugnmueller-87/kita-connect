@@ -63,7 +63,7 @@ export default function NotificationsPage() {
 
       <div className="max-w-3xl mx-auto px-4 py-8">
 
-        <div className="kc-card p-6 mb-6 flex items-center justify-between gap-5" style={{ background: 'linear-gradient(135deg, #FFD166, #FFB347)' }}>
+        <div className="kc-card p-6 mb-6 flex items-center justify-between gap-5" style={{ background: 'linear-gradient(135deg, #2a9d8f, #457b9d)' }}>
           <div className="flex items-center gap-4">
             <div className="text-6xl flex-shrink-0">🔔</div>
             <div>

@@ -93,7 +93,7 @@ export default function ParentMealsPage() {
       <div className="max-w-2xl mx-auto px-4 py-8">
         <a href="/parent" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">{tr(t.common.back)}</a>
 
-        <div className="kc-card p-5 mb-5 flex items-center gap-4" style={{ background: 'linear-gradient(135deg, #FFD166, #FFB347)' }}>
+        <div className="kc-card p-5 mb-5 flex items-center gap-4" style={{ background: 'linear-gradient(135deg, #2a9d8f, #457b9d)' }}>
           <span className="text-5xl">🍽️</span>
           <div>
             <h1 className="text-2xl font-black text-white">{tr(t.meals.heading)}</h1>
