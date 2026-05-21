@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { writeAuditLog } from '@/lib/audit'
 
 export async function POST(request: Request) {
@@ -20,12 +21,18 @@ export async function POST(request: Request) {
   // Kita-Kontext: super_admin kann kita_id frei wählen, admin nutzt eigene kita_id
   const resolvedKitaId = profile.role === 'super_admin' ? (kita_id || null) : profile.kita_id
 
+  // Use admin client to bypass RLS — auth check already done above
+  const adminSupabase = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+
   // Alte offene Einladungen für diese Email löschen
-  await supabase.from('invitations').delete().eq('email', email.trim().toLowerCase()).is('used_at', null)
+  await adminSupabase.from('invitations').delete().eq('email', email.trim().toLowerCase()).is('used_at', null)
 
   const token = crypto.randomUUID()
 
-  const { data: inserted, error } = await supabase.from('invitations').insert({
+  const { data: inserted, error } = await adminSupabase.from('invitations').insert({
     email: email.trim().toLowerCase(),
     role,
     token,
