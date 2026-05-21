@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     fav_song: body.fav_song ?? null,
   }).select('id').single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: error.message, code: error.code, details: error.details, hint: error.hint }, { status: 500 })
   return NextResponse.json({ id: data.id })
 }
 
@@ -46,13 +46,12 @@ export async function PATCH(request: Request) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   )
 
-  // Verify ownership first
   const { data: child } = await adminSupabase.from('children').select('parent_id').eq('id', id).single()
   if (!child || child.parent_id !== user.id) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   const { error } = await adminSupabase.from('children').update(fields).eq('id', id)
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: error.message, code: error.code, details: error.details, hint: error.hint }, { status: 500 })
   return NextResponse.json({ ok: true })
 }
