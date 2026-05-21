@@ -58,21 +58,25 @@ export default function AddChildForm({ lang, userId }: { lang: Lang; userId: str
       }
     }
 
-    const { error: insertError } = await supabase.from('children').insert({
-      parent_id: userId,
-      name: name.trim(),
-      birth_date: birthDate || null,
-      gender: gender || null,
-      avatar_url,
-      fav_color: favColor || null,
-      fav_book: favBook.trim() || null,
-      fav_food: favFood.trim() || null,
-      fav_game: favGame.trim() || null,
-      fav_song: favSong.trim() || null,
+    const res = await fetch('/api/parent/children', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name.trim(),
+        birth_date: birthDate || null,
+        gender: gender || null,
+        avatar_url,
+        fav_color: favColor || null,
+        fav_book: favBook.trim() || null,
+        fav_food: favFood.trim() || null,
+        fav_game: favGame.trim() || null,
+        fav_song: favSong.trim() || null,
+      }),
     })
 
-    if (insertError) {
-      setError(insertError.message)
+    if (!res.ok) {
+      const data = await res.json()
+      setError(data.error ?? 'Fehler beim Speichern')
       setSaving(false)
       return
     }
