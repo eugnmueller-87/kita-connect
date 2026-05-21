@@ -187,7 +187,7 @@ function RegisterHandler() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6 font-semibold">{tr(t.common.gdpr)}</p>
+        <p className="text-center text-xs text-gray-400 mt-6 font-semibold max-w-xs mx-auto">{tr(t.common.consentNotice)}</p>
       </div>
     </div>
   )
