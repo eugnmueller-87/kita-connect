@@ -81,19 +81,25 @@ function EditProfileModal({ child, lang, userId, onClose }: {
       }
     }
 
-    await supabase.from('children').update({
-      name: name.trim(),
-      birth_date: birthDate || null,
-      gender: gender || null,
-      avatar_url,
-      fav_color: favColor || null,
-      fav_book: favBook.trim() || null,
-      fav_food: favFood.trim() || null,
-      fav_game: favGame.trim() || null,
-      fav_song: favSong.trim() || null,
-    }).eq('id', child.id)
+    const res = await fetch('/api/parent/children', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: child.id,
+        name: name.trim(),
+        birth_date: birthDate || null,
+        gender: gender || null,
+        avatar_url,
+        fav_color: favColor || null,
+        fav_book: favBook.trim() || null,
+        fav_food: favFood.trim() || null,
+        fav_game: favGame.trim() || null,
+        fav_song: favSong.trim() || null,
+      }),
+    })
 
     setSaving(false)
+    if (!res.ok) return
     setSaved(true)
     setTimeout(() => { onClose(); router.refresh() }, 1000)
   }
