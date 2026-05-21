@@ -3,11 +3,21 @@
 Dev server: `cd portal && npm run dev` → [localhost:3000](http://localhost:3000)
 
 **Production:** [app.kita-connect.cloud](https://app.kita-connect.cloud)
-**Staging:** [staging.kita-connect.cloud](https://staging.kita-connect.cloud) *(Vercel domain pending)*
 **GitHub:** [eugnmueller-87/kita-connect](https://github.com/eugnmueller-87/kita-connect)
-**Kanban:** [Board](https://github.com/users/eugnmueller-87/projects/9/views/1) · [Roadmap](https://github.com/users/eugnmueller-87/projects/9/views/2)
-**Supabase:** [kita-connect Dashboard](https://supabase.com/dashboard/project/kita-connect)
+**Kanban:** [Board](https://github.com/users/eugnmueller-87/projects/9/views/1)
+**Supabase:** [Dashboard](https://supabase.com/dashboard/project/kita-connect)
 **n8n:** [eugen-m.n8n.irn.hk](https://eugen-m.n8n.irn.hk)
+
+---
+
+## Test Accounts (Präsentation)
+
+| Role | Email | Password |
+|------|-------|----------|
+| Parent | parenttest@kita-connect.cloud | abc123 |
+| Teacher | teachertest@kita-connect.cloud | abc123 |
+| Admin | admintest@kita-connect.cloud | abc123 |
+| Super Admin | eugnmueller@googlemail.com | (eigenes PW) |
 
 ---
 
@@ -15,7 +25,7 @@ Dev server: `cd portal && npm run dev` → [localhost:3000](http://localhost:300
 
 | Page | Local | Production |
 |------|-------|------------|
-| Dashboard | [localhost/parent](http://localhost:3000/parent) | [app.kita-connect.cloud/parent](https://app.kita-connect.cloud/parent) |
+| Dashboard | [localhost/parent](http://localhost:3000/parent) | [app.../parent](https://app.kita-connect.cloud/parent) |
 | My Child | [localhost/parent/child](http://localhost:3000/parent/child) | [app.../parent/child](https://app.kita-connect.cloud/parent/child) |
 | Tickets | [localhost/parent/tickets](http://localhost:3000/parent/tickets) | [app.../parent/tickets](https://app.kita-connect.cloud/parent/tickets) |
 | New Ticket | [localhost/parent/tickets/new](http://localhost:3000/parent/tickets/new) | [app.../parent/tickets/new](https://app.kita-connect.cloud/parent/tickets/new) |
@@ -23,7 +33,6 @@ Dev server: `cd portal && npm run dev` → [localhost:3000](http://localhost:300
 | Meals | [localhost/parent/meals](http://localhost:3000/parent/meals) | [app.../parent/meals](https://app.kita-connect.cloud/parent/meals) |
 | FAQ | [localhost/parent/faq](http://localhost:3000/parent/faq) | [app.../parent/faq](https://app.kita-connect.cloud/parent/faq) |
 | Settings | [localhost/parent/settings](http://localhost:3000/parent/settings) | [app.../parent/settings](https://app.kita-connect.cloud/parent/settings) |
-| Register | [localhost/register](http://localhost:3000/register) | [app.../register](https://app.kita-connect.cloud/register) |
 
 ---
 
@@ -33,7 +42,6 @@ Dev server: `cd portal && npm run dev` → [localhost:3000](http://localhost:300
 |------|-------|------------|
 | Dashboard | [localhost/teacher](http://localhost:3000/teacher) | [app.../teacher](https://app.kita-connect.cloud/teacher) |
 | Children | [localhost/teacher/children](http://localhost:3000/teacher/children) | [app.../teacher/children](https://app.kita-connect.cloud/teacher/children) |
-| Child Detail | [localhost/teacher/children/[id]](http://localhost:3000/teacher/children) | [app.../teacher/children/[id]](https://app.kita-connect.cloud/teacher/children) |
 | Observations | [localhost/teacher/observations](http://localhost:3000/teacher/observations) | [app.../teacher/observations](https://app.kita-connect.cloud/teacher/observations) |
 | New Observation | [localhost/teacher/observations/new](http://localhost:3000/teacher/observations/new) | [app.../teacher/observations/new](https://app.kita-connect.cloud/teacher/observations/new) |
 | Learning Stories | [localhost/teacher/stories](http://localhost:3000/teacher/stories) | [app.../teacher/stories](https://app.kita-connect.cloud/teacher/stories) |
@@ -63,4 +71,4 @@ Dev server: `cd portal && npm run dev` → [localhost:3000](http://localhost:300
 |------|-------|------------|
 | Login | [localhost/login](http://localhost:3000/login) | [app.../login](https://app.kita-connect.cloud/login) |
 | Register | [localhost/register](http://localhost:3000/register) | [app.../register](https://app.kita-connect.cloud/register) |
-| Dashboard (redirect) | [localhost/dashboard](http://localhost:3000/dashboard) | [app.../dashboard](https://app.kita-connect.cloud/dashboard) |
+| Forgot Password | [localhost/forgot-password](http://localhost:3000/forgot-password) | [app.../forgot-password](https://app.kita-connect.cloud/forgot-password) |

@@ -126,7 +126,7 @@ export default function AdminBroadcastPage() {
       <div className="max-w-2xl mx-auto px-4 py-8">
         <a href="/admin" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">{tr(t.common.back)}</a>
 
-        <div className="kc-card p-6 mb-5 flex items-center gap-5" style={{ background: 'linear-gradient(135deg, #FF6B6B, #EE5A24)' }}>
+        <div className="kc-card p-6 mb-5 flex items-center gap-5" style={{ background: 'linear-gradient(135deg, #2a9d8f, #457b9d)' }}>
           <div className="text-6xl flex-shrink-0">📢</div>
           <div>
             <h1 className="text-2xl font-black text-white">{tr(t.broadcastPage.adminHeading)}</h1>

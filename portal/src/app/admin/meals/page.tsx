@@ -150,11 +150,11 @@ export default function AdminMealsPage() {
       <div className="max-w-3xl mx-auto px-4 py-8">
         <a href="/admin" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">{tr(t.common.back)}</a>
 
-        <div className="kc-card p-5 mb-5 flex items-center gap-4" style={{ background: 'linear-gradient(135deg, #FF6B6B, #EE5A24)' }}>
+        <div className="kc-card p-5 mb-5 flex items-center gap-4" style={{ background: 'linear-gradient(135deg, #2a9d8f, #457b9d)' }}>
           <span className="text-5xl">🍽️</span>
           <div>
             <h1 className="text-2xl font-black text-white">{tr(t.meals.manageHeading)}</h1>
-            <p className="text-red-200 font-semibold text-sm mt-0.5">KW 21 · 19.–23. Mai 2026 · {tr(t.teacherDash.allGroups)}</p>
+            <p className="text-white/70 font-semibold text-sm mt-0.5">KW 21 · 19.–23. Mai 2026 · {tr(t.teacherDash.allGroups)}</p>
           </div>
           {saved && (
             <span className="ml-auto bg-white/20 text-white text-xs font-black px-3 py-1.5 rounded-xl">{tr(t.common.mealSaved)}</span>
