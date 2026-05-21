@@ -1,6 +1,6 @@
 # Kita Connect
 
-**Full-stack Kita management platform** — built for German daycare centers (Kitas), designed to run at near-zero monthly cost.
+**Full-stack Kita management platform** — built for German daycare centers, designed to run at near-zero monthly cost with enterprise-grade security and GDPR compliance.
 
 > Portfolio project by [Eugen Mueller](https://github.com/eugnmueller-87). Live at [app.kita-connect.cloud](https://app.kita-connect.cloud).
 
@@ -19,22 +19,44 @@
 Kita Connect replaces fragmented communication tools (WhatsApp groups, paper forms, phone calls) with a unified platform for parents, educators, and Kita management.
 
 **For Parents**
-- Secure portal to view their child's development documentation and observations
-- Direct messaging with educators via support ticket system
-- Real-time in-app notifications
-- Multi-language: German, English, Russian
+- Secure portal to view their child's development documentation and learning stories
+- Direct messaging with educators via ticket system
+- Real-time in-app, email, and SMS notifications
+- Multi-language: German, English, Turkish, Russian
 
 **For Educators**
 - Development observations (Sismik, Seldak, Perik standardized assessments)
-- AI-assisted learning stories (Lerngeschichten) via Claude AI — GDPR-pseudonymized before sending to AI
-- Child milestone tracking
+- AI-assisted learning stories — GDPR-pseudonymized before AI processing
+- Child milestone tracking and meal planning
 - Broadcast announcements to all parents
 
 **For Kita Management**
-- Multi-channel communication: In-App, E-Mail, SMS
-- Invite-only registration — no self-signup, full access control
-- Automated workflows for registrations, tickets, announcements
-- GDPR-compliant audit log with 90-day retention
+- Invite-only registration — no self-signup, full role-based access control
+- Multi-tenant: one platform for multiple Kitas under one Träger
+- Automated onboarding workflows via n8n
+- Full GDPR compliance: audit log, right to deletion, consent tracking
+
+---
+
+## What's Live and Working
+
+| Feature | Status |
+|---------|--------|
+| Multi-role auth (super_admin, traeger_admin, admin, teacher, parent) | Live |
+| Invite-only registration with email + password | Live |
+| Parent portal — dashboard, child view, messaging, FAQ | Live |
+| Teacher portal — observations, learning stories, children | Live |
+| Admin portal — invitations, broadcasts, user management | Live |
+| Super Admin — cross-Kita management | Live |
+| n8n automation — 8 workflows (invitations, tickets, broadcasts, AI) | Live |
+| Email delivery via Resend + DKIM/SPF/DMARC verified | Live |
+| Kafka event streaming via Redpanda — 24h GDPR retention | Live |
+| GDPR: full account deletion, consent notice, audit log 90-day retention | Live |
+| Row Level Security on all 18 tables | Live |
+| AI pseudonymization before any external API call | Live |
+| Vercel deployment — Frankfurt region | Live |
+| Supabase — EU Ireland region | Live |
+| Hostinger DNS — DKIM, SPF, DMARC configured | Live |
 
 ---
 
@@ -42,48 +64,89 @@ Kita Connect replaces fragmented communication tools (WhatsApp groups, paper for
 
 | Layer | Technology | Why |
 |-------|-----------|-----|
-| Frontend | Next.js 14 (App Router) | Free hosting on Vercel, server components |
-| Database | Supabase (EU Ireland) | Generous free tier, built-in RLS, Realtime |
-| Auth | Supabase Magic Link | Invite-only, no password management |
-| Automation | n8n (self-hosted) | German company, GDPR-compliant, self-hostable |
-| Email | Resend | 3,000 emails/month free |
-| Push | Web Push API (VAPID) | Browser-native, no cost |
-| SMS | seven.io | Fallback for parents without smartphones |
-| AI | Claude Haiku (Anthropic) | Most cost-efficient model for summaries & learning stories |
-| Hosting | Vercel + Supabase EU | EU region, GDPR-compliant data residency |
-| Analytics | Vercel Web Analytics | Privacy-friendly, no cookies, included in Hobby plan |
-| Logging | Supabase audit_log + pg_cron | No third-party logging tool needed |
-
-**Target running cost: ~0 €/month** (free tiers across all services)
+| Frontend | Next.js 14 (App Router) | Free on Vercel, server components, middleware auth |
+| Database | Supabase (EU Ireland) | Free tier, built-in RLS, Realtime, Auth |
+| Auth | Supabase Auth — email + password | Industry standard, invite-only flow |
+| Event Streaming | Redpanda (Kafka-compatible) | Stability, async decoupling, 24h GDPR retention |
+| Automation | n8n (self-hosted) | German company, GDPR-compliant, 8 active workflows |
+| Email | Resend (SMTP) | 3,000 emails/month free, EU region, DKIM/SPF/DMARC |
+| SMS | seven.io | German provider, GDPR-native |
+| Push | Web Push API (VAPID) | Browser-native, no cost, no third party |
+| AI | Mistral AI (FAQ + moderation) | EU-based, used only for non-personal FAQ queries |
+| DNS + Domain | Hostinger | kita-connect.cloud, all DNS records verified |
+| Hosting | Vercel (Frankfurt) | EU region, zero config deploys |
+| Logging | Supabase audit_log | No third-party logging, 90-day auto-purge |
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────┐
-│  Next.js App (Vercel)                           │
-│  Parent Portal · Educator Dashboard · Admin     │
-│  Middleware: role-based auth guard on all routes│
-└──────────────┬──────────────────────────────────┘
-               │ Server Components + Route Handlers
-               ▼
-┌─────────────────────────────────────────────────┐
-│  Supabase (EU Ireland)                          │
-│  PostgreSQL · Auth · RLS · Realtime · Storage   │
-│  audit_log table — 90-day retention via pg_cron │
-└──────────────┬──────────────────────────────────┘
-               │ Webhooks
-               ▼
-┌─────────────────────────────────────────────────┐
-│  n8n Automation (8 workflows)                   │
-│  Tickets · Broadcasts · Onboarding · AI Stories │
-└──────┬──────────┬─────────────┬─────────────────┘
-       │          │             │
-       ▼          ▼             ▼
-   Resend      seven.io     Claude Haiku
-   (Email)      (SMS)      (AI, pseudonymized)
+Next.js App (Vercel - Frankfurt)
+Parent / Teacher / Admin / Super Admin portals
+Middleware: role-based auth guard on every route
+                    |
+                    | Server Components + API Routes
+                    v
+Supabase (EU Ireland)
+PostgreSQL / Auth / RLS / Realtime / Storage
+18 tables / audit_log (90-day) / ai_pseudonym_map
+                    |
+                    | Kafka Events via Redpanda (24h retention)
+                    v
+n8n Automation (self-hosted, 8 workflows)
+Invitations / Tickets / Broadcasts / AI Stories
+        |               |               |
+        v               v               v
+    Resend          seven.io        Mistral AI
+    (Email)          (SMS)       (FAQ - no PII sent)
 ```
+
+---
+
+## GDPR and Security
+
+### Data Residency
+- Supabase: EU Ireland
+- Vercel: Frankfurt
+- n8n: self-hosted EU
+- Mistral AI: EU-based (Paris) — only FAQ questions, no personal data
+
+### Right to Deletion (GDPR Art. 17)
+Full cascade delete via `delete_user_account()` DB function:
+- Deletes children, observations, learning stories, photos, tickets, profile
+- Deletes Supabase auth user via service role
+- Audit entry logged before deletion
+- Exposed via `DELETE /api/user/delete`
+
+### Invite-Only Registration
+- No self-signup — users register only via role-scoped invite token
+- Token single-use, validated before and after registration
+- Pending registrations auto-deleted after 48 hours (GDPR Art. 5)
+- Passwords hashed by Supabase Auth (bcrypt)
+
+### Row Level Security
+Every table has RLS enabled and tested:
+- Parents: own data only
+- Teachers: Kita-scoped access
+- Admins: own Kita only
+- Super Admin: all Kitas
+
+### AI Pseudonymization
+- Child names replaced with Kind-A1B2 pseudonyms before any AI call
+- ai_pseudonym_map table: RLS blocks all client access
+- No real names, birth dates, or identifiers sent to external services
+
+### Audit Log
+- Every sensitive action logged: actor_id, action, target, ip, user_agent
+- Write-only via security definer function — tamper-proof
+- Auto-purged after 90 days via pg_cron
+- Readable by admin role only
+
+### Kafka Retention
+- Redpanda configured with 24-hour retention per GDPR decision
+- Events used only as delivery queue between app and n8n
+- No long-term personal data stored in message broker
 
 ---
 
@@ -91,81 +154,66 @@ Kita Connect replaces fragmented communication tools (WhatsApp groups, paper for
 
 | Method | Route | Auth | Description |
 |--------|-------|------|-------------|
-| POST | `/api/admin/invite` | admin | Send invite email with role-scoped token |
-| POST | `/api/admin/approve` | admin | Approve or reject a parent account |
-| POST | `/api/admin/broadcast` | admin | Send broadcast to all parents |
-| POST | `/api/teacher/observations` | teacher | Create an observation for a child |
-| POST | `/api/tickets` | parent/teacher | Create or reply to a support ticket |
-| GET | `/api/tickets` | parent/teacher | Fetch own tickets |
-
-All routes:
-- Validate session via Supabase SSR
-- Check role from `profiles` table
-- Write to `audit_log` via `write_audit_log()` RPC (includes IP + user-agent)
-- Never expose service role key to the client
+| POST | /api/admin/invite | admin+ | Send role-scoped invitation email |
+| DELETE | /api/admin/invite/[id] | admin+ | Delete unused invitation |
+| POST | /api/admin/broadcast | admin+ | Broadcast to all parents |
+| POST | /api/register | anon | Complete registration via invite token |
+| DELETE | /api/user/delete | any | Full GDPR account deletion |
+| POST | /api/teacher/observations | teacher | Create child observation |
+| POST | /api/tickets | parent/teacher | Create or reply to ticket |
 
 ---
 
-## GDPR & Security
+## Cost Analysis
 
-### Data Residency
-- Supabase project hosted in **EU (Ireland)**
-- Vercel deployment in **Frankfurt**
-- n8n self-hosted (EU)
-- No personal data leaves the EU
+### Current — Development / Early Pilot
 
-### Row Level Security (RLS)
-Every table has RLS enabled. Key policies:
-- Parents can only read their own children's data
-- Teachers can only read children in their assigned group
-- Admins have full read access, no write bypass
-- `audit_log` table: no direct write access for any user — only via `security definer` function
+| Service | Plan | Monthly Cost |
+|---------|------|-------------|
+| Vercel | Hobby (free) | 0 EUR |
+| Supabase | Free tier | 0 EUR |
+| Resend | Free (3,000 emails/month) | 0 EUR |
+| n8n + Redpanda | Self-hosted VPS | 5–10 EUR |
+| Hostinger domain | kita-connect.cloud | 1 EUR |
+| Mistral AI | Pay-per-use (FAQ only) | 0–2 EUR |
+| seven.io SMS | Pay-per-use | 0–5 EUR |
+| **Total** | | **6–18 EUR/month** |
 
-### Invite-Only Registration
-- No self-signup. Users register only via a time-limited invite token
-- Token is role-scoped (`parent` / `teacher`) — can't escalate privileges
-- Tokens stored in `invitations` table, consumed on first use
+### At Scale — 100 Kitas, ~5,000 users
 
-### Audit Log
-- Table: `audit_log` — records every sensitive action
-- Fields: `actor_id`, `action`, `table_name`, `record_id`, `details` (JSONB, no plaintext PII), `ip_address`, `user_agent`
-- Write access: only via `write_audit_log()` RPC with `security definer` — regular users cannot insert directly
-- Read access: admin role only
-- Retention: **90 days** — automated via `pg_cron` (runs daily at 03:00 UTC)
-- Covers: login, approval, invitation, broadcast, observation, data deletion, profile changes
+| Service | Plan | Monthly Cost |
+|---------|------|-------------|
+| Vercel Pro | Included bandwidth | 20 EUR |
+| Supabase Pro | 8GB DB, 100GB storage | 25 EUR |
+| Resend Growth | 50,000 emails/month | 20 EUR |
+| n8n + Redpanda VPS | Scaled server | 20–40 EUR |
+| Mistral AI | Higher volume | 5–15 EUR |
+| seven.io SMS | ~1,000 SMS/month | 10–20 EUR |
+| **Total** | | **100–120 EUR/month** |
 
-### Pseudonymization for AI
-- Before sending data to Claude Haiku, child names are replaced with UUIDs via `ai_pseudonym_map` table
-- No real names, birth dates, or identifiers ever sent to Anthropic API
-- Reversible only by the system (not exposed to users)
-
-### Photo Consent
-- Child photos require explicit `photo_consent = true` per child
-- Storage RLS enforces this — photos are inaccessible without consent flag set
-- `photo_consent_at` timestamp recorded for GDPR accountability
+**Unit economics: under 1.20 EUR per Kita per month at 100 Kitas**
 
 ---
 
-## Status
-
-**[View Kanban →](https://github.com/users/eugnmueller-87/projects/9/views/1)** · **[View Roadmap →](https://github.com/users/eugnmueller-87/projects/9/views/2)**
+## Roadmap
 
 | Phase | Description | Status |
 |-------|-------------|--------|
-| 0 — Foundation | DB schema (18 tables), RLS, Supabase Auth | ✅ Complete |
-| 1 — Automation | n8n — 8 workflows active and tested | ✅ Complete |
-| 2 — Portal | Next.js — all 25 screens across 3 role portals | ✅ Complete |
-| 3 — Live | Real Supabase data, middleware auth guards, audit log | 🔵 In progress |
-| 4 — Mobile | Native iOS App (App Store) + Android App (Google Play) | ⬜ Planned |
-| 5 — Launch | Legal (DPAs), marketing website, CI/CD | ⬜ Planned |
-| 6 — Monetization | Pricing, Stripe, pilot program, i18n | ⬜ Planned |
+| 0 — Foundation | DB schema (18 tables), RLS, Supabase Auth | Done |
+| 1 — Automation | n8n — 8 workflows live and tested | Done |
+| 2 — Portal | Next.js — all screens, 3 role portals | Done |
+| 3 — Live | Auth, GDPR, Kafka, email delivery, real users | Done |
+| 4 — Mobile | PWA optimization + native iOS/Android | Next |
+| 5 — Launch | DPAs, privacy policy page, marketing site | Next |
+| 6 — Monetization | Stripe, pricing tiers, pilot Kitas | Planned |
 
-**Phase 3 remaining:** Web Push (VAPID), error monitoring (Sentry)
-
-**Products planned:**
-- Web App — [app.kita-connect.cloud](https://app.kita-connect.cloud)
-- iOS App — Apple App Store (native, post web launch)
-- Android App — Google Play Store (native, post web launch)
+### Immediate Next Steps
+1. **Mobile register flow** — fix email link handling on mobile browsers
+2. **PWA** — installable on home screen, offline support for educators on tablets
+3. **Reset password page** — /reset-password after Supabase email redirect
+4. **Data Processing Agreements** — sign DPAs with Resend and seven.io
+5. **Privacy policy** — public page at kita-connect.cloud/datenschutz
+6. **First pilot Kita** — onboard real users and collect feedback
 
 ---
 
