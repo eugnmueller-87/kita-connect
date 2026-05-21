@@ -34,8 +34,8 @@ export default function NewTicketForm({ lang = 'de' }: { lang?: Lang }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ subject, category, message }),
       })
-      if (!res.ok) throw new Error('Fehler beim Erstellen')
       const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Fehler beim Erstellen')
       router.push(`/parent/tickets/${data.id}`)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Unbekannter Fehler')
@@ -54,10 +54,16 @@ export default function NewTicketForm({ lang = 'de' }: { lang?: Lang }) {
               key={c.label}
               type="button"
               onClick={() => setCategory(c.label)}
+              style={category === c.label ? {
+                background: '#2a9d8f',
+                color: '#ffffff',
+                borderColor: '#1D7A6F',
+                boxShadow: '0 4px 0 0 #1D7A6F, 0 0 12px rgba(42,157,143,0.45)',
+              } : {}}
               className={`kc-card p-3 flex items-center gap-2 text-sm font-bold transition-all ${
                 category === c.label
-                  ? 'bg-teal-600 text-white border-teal-700'
-                  : 'hover:bg-teal-50 text-gray-700'
+                  ? ''
+                  : 'hover:border-teal-300 hover:shadow-[0_4px_0_0_#D4C9BA,0_0_8px_rgba(42,157,143,0.2)] text-gray-700'
               }`}
             >
               <span className="text-xl">{c.emoji}</span>

@@ -35,17 +35,25 @@ export async function POST(request: Request) {
     // Moderation service unavailable — fail open, ticket goes through
   }
 
+  const { data: profile } = await supabase.from('profiles').select('kita_id').eq('id', user.id).single()
+
   const { data: ticket, error: ticketError } = await supabase
     .from('tickets')
-    .insert({ parent_id: user.id, subject: subject.trim(), status: 'open' })
+    .insert({
+      parent_id: user.id,
+      subject: subject.trim(),
+      body: message.trim(),
+      status: 'open',
+      kita_id: profile?.kita_id ?? null,
+    })
     .select()
     .single()
 
   if (ticketError) return NextResponse.json({ error: ticketError.message }, { status: 500 })
 
-  await supabase.from('ticket_messages').insert({
+  await supabase.from('ticket_replies').insert({
     ticket_id: ticket.id,
-    sender_id: user.id,
+    author_id: user.id,
     body: message.trim(),
   })
 
