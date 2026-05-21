@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useTranslation } from '@/lib/useTranslation'
 import { t } from '@/lib/translations'
 
+
 function getLangFromCookie(): string {
   if (typeof document === 'undefined') return 'de'
   const match = document.cookie.match(/kc_lang=([^;]+)/)
@@ -31,17 +32,12 @@ function RegisterHandler() {
       return
     }
     async function validateToken() {
-      const supabase = createClient()
-      const { data, error } = await supabase
-        .from('invitations')
-        .select('email, role, used_at')
-        .eq('token', token)
-        .single()
-
-      if (error || !data || data.used_at) {
+      const res = await fetch(`/api/validate-invite?token=${token}`)
+      if (!res.ok) {
         setStep('error')
         return
       }
+      const data = await res.json()
       setInvitation({ email: data.email, role: data.role })
       setStep('form')
     }
