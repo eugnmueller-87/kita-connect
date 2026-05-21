@@ -10,7 +10,6 @@ import type { Lang } from '@/lib/translations'
 const GENDER_OPTIONS = [
   { value: 'male',   emoji: '👦' },
   { value: 'female', emoji: '👧' },
-  { value: 'other',  emoji: '🧒' },
 ]
 
 const COLOR_OPTIONS = ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🩷', '🩵']
@@ -156,7 +155,7 @@ export default function AddChildForm({ lang, userId }: { lang: Lang; userId: str
                 }`}
               >
                 <span className="text-2xl">{g.emoji}</span>
-                <span className="text-xs">{tr(t.childPage[`gender${g.value.charAt(0).toUpperCase() + g.value.slice(1)}` as 'genderMale' | 'genderFemale' | 'genderOther'])}</span>
+                <span className="text-xs">{tr(t.childPage[`gender${g.value.charAt(0).toUpperCase() + g.value.slice(1)}` as 'genderMale' | 'genderFemale'])}</span>
               </button>
             ))}
           </div>
