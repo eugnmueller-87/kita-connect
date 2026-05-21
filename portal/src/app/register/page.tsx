@@ -35,7 +35,7 @@ function RegisterHandler() {
       const { data, error } = await supabase
         .from('invitations')
         .select('email, role, used_at')
-        .eq('id', token)
+        .eq('token', token)
         .single()
 
       if (error || !data || data.used_at) {
