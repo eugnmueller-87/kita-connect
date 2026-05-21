@@ -14,7 +14,7 @@ const GROUP_EMOJI: Record<string, string> = { 'Schmetterlinge': '🦋', 'Bienen'
 export default function TeacherDashboard() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [children, setChildren] = useState<{ id: string; name: string; group_name: string }[]>([])
-  const [observations, setObservations] = useState<{ id: string; category: string; situation: string; child_id: string; created_at: string }[]>([])
+  const [observations, setObservations] = useState<{ id: string; category: string; text: string; child_id: string; created_at: string }[]>([])
   const [stories, setStories] = useState<{ id: string; title: string; status: string; child?: { name: string } }[]>([])
   const [groups, setGroups] = useState<string[]>([])
   const [selectedGroup, setSelectedGroup] = useState('all')
@@ -136,7 +136,7 @@ export default function TeacherDashboard() {
                       <span className="kc-badge bg-teal-100 text-teal-700 text-xs">{o.category}</span>
                       <span className="text-xs text-gray-400">{new Date(o.created_at).toLocaleDateString('de-DE')}</span>
                     </div>
-                    <p className="text-sm text-gray-700 mt-1 line-clamp-2">{o.situation}</p>
+                    <p className="text-sm text-gray-700 mt-1 line-clamp-2">{o.text}</p>
                   </div>
                 ))
               }
