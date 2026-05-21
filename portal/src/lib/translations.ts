@@ -39,6 +39,7 @@ export const t = {
     mealSaved: { de: '✅ Gespeichert', en: '✅ Saved', tr: '✅ Kaydedildi', ru: '✅ Сохранено' },
     noEntries: { de: 'Keine Angaben', en: 'No data', tr: 'Bilgi yok', ru: 'Нет данных' },
     gdpr: { de: 'DSGVO-konform · EU-Hosting 🇪🇺', en: 'GDPR-compliant · EU Hosting 🇪🇺', tr: 'GDPR uyumlu · AB Barındırma 🇪🇺', ru: 'Соответствует GDPR · EU-хостинг 🇪🇺' },
+    consentNotice: { de: 'Mit der Registrierung stimmst du der Speicherung deiner Daten zu. Du kannst dein Konto und alle Daten jederzeit löschen.', en: 'By registering, you agree to the storage of your data. You can delete your account and all data at any time.', tr: 'Kayıt olarak verilerinin saklanmasını kabul ediyorsunuz. Hesabınızı ve tüm verilerinizi istediğiniz zaman silebilirsiniz.', ru: 'Регистрируясь, вы соглашаетесь на хранение ваших данных. Вы можете удалить свой аккаунт и все данные в любой момент.' },
     email: { de: 'E-Mail', en: 'Email', tr: 'E-posta', ru: 'E-mail' },
     phone: { de: 'Telefon', en: 'Phone', tr: 'Telefon', ru: 'Телефон' },
     optional: { de: '(optional)', en: '(optional)', tr: '(isteğe bağlı)', ru: '(необязательно)' },
