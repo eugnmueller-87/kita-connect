@@ -1,17 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Navbar from '@/components/navbar'
+import { createClient } from '@/lib/supabase/client'
 import { useProfileSettings } from '@/lib/useProfileSettings'
 import { useTranslation } from '@/lib/useTranslation'
 import { t } from '@/lib/translations'
 import type { Profile } from '@/types'
-
-const mockProfile: Profile = {
-  id: 'dev-admin', full_name: 'Admin Nutzer', email: 'admin@kita-connect.de',
-  role: 'admin', phone: null, notify_email: true, notify_sms: false,
-  onboarding_status: 'active', created_at: new Date().toISOString(),
-}
 
 const LANGUAGES = [
   { code: 'de', flag: '🇩🇪', label: 'Deutsch' },
@@ -21,7 +16,20 @@ const LANGUAGES = [
 ]
 
 export default function AdminSettingsPage() {
-  const { settings, update } = useProfileSettings(mockProfile.id)
+  const [profile, setProfile] = useState<Profile | null>(null)
+
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data: p } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      if (p) setProfile(p as Profile)
+    }
+    load()
+  }, [])
+
+  const { settings, update } = useProfileSettings(profile?.id ?? 'guest')
   const { tr } = useTranslation(settings.lang)
   const [saved, setSaved] = useState(false)
 
@@ -38,9 +46,11 @@ export default function AdminSettingsPage() {
     setTimeout(() => setSaved(false), 2000)
   }
 
+  if (!profile) return null
+
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={mockProfile} unreadCount={0} lang={settings.lang} />
+      <Navbar profile={profile} unreadCount={0} lang={settings.lang} />
 
       <div className="max-w-2xl mx-auto px-4 py-8">
 
@@ -50,7 +60,7 @@ export default function AdminSettingsPage() {
           <span className="text-5xl">⚙️</span>
           <div>
             <h1 className="text-2xl font-black text-white">{tr(t.settings.adminHeading)}</h1>
-            <p className="text-teal-200 text-sm font-semibold mt-0.5">{mockProfile.full_name} · {mockProfile.email}</p>
+            <p className="text-teal-200 text-sm font-semibold mt-0.5">{profile.full_name} · {profile.email}</p>
           </div>
         </div>
 

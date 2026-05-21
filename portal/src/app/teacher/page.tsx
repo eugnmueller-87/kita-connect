@@ -34,7 +34,7 @@ export default function TeacherDashboard() {
 
       const [{ data: childData }, { data: obsData }, { data: storyData }] = await Promise.all([
         supabase.from('children').select('id, name, group_name').order('name'),
-        supabase.from('observations').select('id, category, situation, child_id, created_at').eq('teacher_id', user.id).order('created_at', { ascending: false }).limit(5),
+        supabase.from('observations').select('id, category, text, child_id, created_at').eq('teacher_id', user.id).order('created_at', { ascending: false }).limit(5),
         supabase.from('learning_stories').select('id, title, status, child:children(name)').eq('teacher_id', user.id).order('created_at', { ascending: false }).limit(5),
       ])
 

@@ -1,27 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Navbar from '@/components/navbar'
+import { createClient } from '@/lib/supabase/client'
 import { useProfileSettings } from '@/lib/useProfileSettings'
 import { useTranslation } from '@/lib/useTranslation'
 import { t } from '@/lib/translations'
 import type { Profile } from '@/types'
 
-const mockProfile: Profile = {
-  id: 'dev-teacher', full_name: 'Maria Schmidt', email: 'maria@kita-connect.de',
-  role: 'teacher', phone: null, notify_email: true, notify_sms: false,
-  onboarding_status: 'active', created_at: new Date().toISOString(),
-}
-
 const DAY_KEYS = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']
 const DATES = ['19.05.', '20.05.', '21.05.', '22.05.', '23.05.']
-
-const CHILDREN = [
-  { id: '1', name: 'Emma Müller',  gender: 'f' },
-  { id: '2', name: 'Luca Becker',  gender: 'm' },
-  { id: '3', name: 'Mia Fischer',  gender: 'f' },
-  { id: '4', name: 'Noah Klein',   gender: 'm' },
-]
 
 interface Meal {
   dish: string
@@ -66,7 +54,23 @@ function NutritionBar({ label, value, max, color }: { label: string; value: numb
 }
 
 export default function TeacherMealsPage() {
-  const { settings } = useProfileSettings(mockProfile.id)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [children, setChildren] = useState<{ id: string; name: string; gender: string }[]>([])
+
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data: p } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      if (p) setProfile(p as Profile)
+      const { data } = await supabase.from('children').select('id, name, gender').order('name')
+      if (data) setChildren(data)
+    }
+    load()
+  }, [])
+
+  const { settings } = useProfileSettings(profile?.id ?? 'guest')
   const { tr } = useTranslation(settings.lang)
 
   const DAYS = [
@@ -90,6 +94,8 @@ export default function TeacherMealsPage() {
   const [editing, setEditing] = useState(false)
   const [saved, setSaved] = useState(false)
   const [editMeal, setEditMeal] = useState<Meal>({ ...initialMeals.Montag })
+
+  if (!profile) return null
 
   const meal = meals[selectedDay]
   const dayFeedback = feedback[selectedDay] ?? {}
@@ -132,7 +138,7 @@ export default function TeacherMealsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
-      <Navbar profile={mockProfile} unreadCount={0} lang={settings.lang} />
+      <Navbar profile={profile!} unreadCount={0} lang={settings.lang} />
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         <a href="/teacher" className="text-teal-600 text-sm font-bold hover:underline mb-4 block">{tr(t.common.back)}</a>
@@ -257,7 +263,7 @@ export default function TeacherMealsPage() {
               </button>
             </div>
             <div className="divide-y-2 divide-[#F5F0E8]">
-              {CHILDREN.map(child => {
+              {children.map(child => {
                 const fb = dayFeedback[child.id] ?? { status: '', note: '' }
                 return (
                   <div key={child.id} className="px-5 py-4">
