@@ -23,7 +23,7 @@ export default async function TeacherObservationsPage() {
   const [{ data: childData }, { data: obsData }] = await Promise.all([
     supabase.from('children').select('id, name').order('name'),
     supabase.from('observations')
-      .select('id, category, situation, created_at, child:children(name), learning_disposition')
+      .select('id, category, text, created_at, child:children(name), learning_disposition')
       .eq('teacher_id', userId)
       .order('created_at', { ascending: false }),
   ])
@@ -77,7 +77,7 @@ export default async function TeacherObservationsPage() {
                       </div>
                       <span className="text-xs text-gray-400 font-semibold">{new Date(o.created_at).toLocaleDateString('de-DE')}</span>
                     </div>
-                    <p className="text-sm text-gray-700 leading-relaxed">{o.situation}</p>
+                    <p className="text-sm text-gray-700 leading-relaxed">{o.text}</p>
                     {o.learning_disposition && (
                       <p className="text-xs text-purple-600 font-semibold mt-1">💡 {o.learning_disposition}</p>
                     )}

@@ -1,19 +1,21 @@
 'use client'
 
 import { useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { useTranslation } from '@/lib/useTranslation'
 import { t } from '@/lib/translations'
 import type { Lang } from '@/lib/translations'
 
 interface Child { id: string; name: string }
 
-export default function NewObservationForm({ children, lang = 'de' }: { children: Child[]; teacherId: string; lang?: Lang }) {
+export default function NewObservationForm({ children, teacherId, lang = 'de' }: { children: Child[]; teacherId: string; lang?: Lang }) {
   const { tr } = useTranslation(lang)
   const [childId, setChildId] = useState('')
   const [category, setCategory] = useState('')
   const [situation, setSituation] = useState('')
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState('')
 
   const CATEGORIES = [
     { key: 'sprache', label: tr(t.obsCategories.language) },
@@ -27,15 +29,32 @@ export default function NewObservationForm({ children, lang = 'de' }: { children
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
-    await new Promise(r => setTimeout(r, 600))
+    setError('')
+
+    const supabase = createClient()
+    const { error: insertErr } = await supabase.from('observations').insert({
+      child_id: childId,
+      teacher_id: teacherId,
+      category,
+      text: situation.trim(),
+    })
+
     setLoading(false)
+
+    if (insertErr) {
+      setError(insertErr.message)
+      return
+    }
+
     setSaved(true)
     setTimeout(() => {
       setSaved(false)
       setChildId('')
       setCategory('')
       setSituation('')
-    }, 2000)
+      // Reload to show new observation in list
+      window.location.reload()
+    }, 1500)
   }
 
   if (saved) {
@@ -91,6 +110,8 @@ export default function NewObservationForm({ children, lang = 'de' }: { children
           className="kc-input w-full px-4 py-3 text-sm resize-none"
         />
       </div>
+
+      {error && <p className="text-sm text-red-600 font-semibold">⚠️ {error}</p>}
 
       <button
         type="submit"
