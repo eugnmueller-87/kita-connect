@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 
 export async function POST(request: Request) {
@@ -9,10 +8,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Fehlende oder ungültige Felder' }, { status: 400 })
   }
 
-  const supabase = await createClient()
+  // Use admin client for all DB operations to bypass RLS on invitations
+  const adminSupabase = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
 
   // Validate token
-  const { data: invitation, error: invErr } = await supabase
+  const { data: invitation, error: invErr } = await adminSupabase
     .from('invitations')
     .select('id, email, role, kita_id, used_at')
     .eq('token', token)
@@ -23,7 +26,7 @@ export async function POST(request: Request) {
   }
 
   // Check if profile already exists
-  const { data: existingProfile } = await supabase
+  const { data: existingProfile } = await adminSupabase
     .from('profiles')
     .select('id')
     .eq('email', invitation.email)
@@ -32,12 +35,6 @@ export async function POST(request: Request) {
   if (existingProfile) {
     return NextResponse.json({ error: 'Account existiert bereits' }, { status: 409 })
   }
-
-  // Create user via service role (bypasses email confirmation)
-  const adminSupabase = createAdminClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  )
 
   const { data: newUser, error: signUpErr } = await adminSupabase.auth.admin.createUser({
     email: invitation.email,
