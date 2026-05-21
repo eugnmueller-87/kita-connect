@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   const { data: invitation, error: invErr } = await supabase
     .from('invitations')
     .select('id, email, role, kita_id, used_at')
-    .eq('id', token)
+    .eq('token', token)
     .single()
 
   if (invErr || !invitation || invitation.used_at) {
