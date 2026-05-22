@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { publishEvent } from '@/lib/kafka'
 
 export async function POST(request: Request) {
@@ -35,9 +36,14 @@ export async function POST(request: Request) {
     // Moderation service unavailable — fail open, ticket goes through
   }
 
-  const { data: profile } = await supabase.from('profiles').select('kita_id').eq('id', user.id).single()
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
 
-  const { data: ticket, error: ticketError } = await supabase
+  const { data: profile } = await admin.from('profiles').select('kita_id').eq('id', user.id).single()
+
+  const { data: ticket, error: ticketError } = await admin
     .from('tickets')
     .insert({
       parent_id: user.id,
@@ -51,7 +57,7 @@ export async function POST(request: Request) {
 
   if (ticketError) return NextResponse.json({ error: ticketError.message }, { status: 500 })
 
-  await supabase.from('ticket_replies').insert({
+  await admin.from('ticket_replies').insert({
     ticket_id: ticket.id,
     author_id: user.id,
     body: message.trim(),
