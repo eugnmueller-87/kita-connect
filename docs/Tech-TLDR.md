@@ -35,7 +35,7 @@ An event bus — the app writes "events" (e.g. "ticket created") into Redpanda, 
 
 ### Mistral API
 The AI layer. Three concrete use cases:
-- **FAQ Bot**: answers parent questions based on daycare documents
+- **FAQ Bot**: answers common parent questions using a fixed set of prompts and context
 - **Learning Stories**: assists educators in writing developmental reports
 - **Content Moderation**: checks parent messages for toxic content before they are saved
 
