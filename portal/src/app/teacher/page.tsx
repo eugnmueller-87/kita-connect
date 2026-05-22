@@ -19,6 +19,7 @@ export default function TeacherDashboard() {
   const [groups, setGroups] = useState<string[]>([])
   const [selectedGroup, setSelectedGroup] = useState('all')
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [openTickets, setOpenTickets] = useState(0)
 
   const { settings } = useProfileSettings(profile?.id ?? 'guest')
   const { tr } = useTranslation(settings.lang)
@@ -44,6 +45,12 @@ export default function TeacherDashboard() {
       }
       if (obsData) setObservations(obsData)
       if (storyData) setStories(storyData.map(s => ({ ...s, child: Array.isArray(s.child) ? s.child[0] : s.child })))
+
+      const ticketRes = await fetch('/api/teacher/tickets/count')
+      if (ticketRes.ok) {
+        const { count } = await ticketRes.json()
+        setOpenTickets(count)
+      }
     }
     load()
   }, [])
@@ -107,11 +114,12 @@ export default function TeacherDashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-4 gap-4 mb-6">
           {[
             { emoji: '👶', count: filteredChildren.length, label: tr(t.teacherDash.statChildren), color: '#E1F5EE', href: '/teacher/children' },
             { emoji: '👁️', count: filteredObs.length, label: tr(t.teacherDash.statObservations), color: '#FFF8E7', href: '/teacher/observations' },
             { emoji: '📖', count: filteredStories.length, label: tr(t.teacherDash.statStories), color: '#FFF0F5', href: '/teacher/stories' },
+            { emoji: '💬', count: openTickets, label: 'Offene Anfragen', color: '#EEF6FF', href: '/teacher/tickets' },
           ].map(s => (
             <a key={s.label} href={s.href} className="kc-card p-5 flex flex-col items-center gap-2 hover:scale-105 transition-transform" style={{ background: s.color }}>
               <span className="text-4xl">{s.emoji}</span>
