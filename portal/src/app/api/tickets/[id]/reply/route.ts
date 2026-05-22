@@ -17,9 +17,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   )
 
-  const { error } = await admin.from('ticket_messages').insert({
+  const { error } = await admin.from('ticket_replies').insert({
     ticket_id: id,
-    sender_id: user.id,
+    author_id: user.id,
     body,
   })
 
