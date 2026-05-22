@@ -12,6 +12,11 @@
 |---|---|---|
 | ![Admin](Screenshots/Admin.png) | ![Teacher](Screenshots/teacher.png) | ![Parent](Screenshots/parent.png) |
 
+### Ticket Chat System
+![Ticket Chat](Screenshots/ticket%20system.png)
+
+Real-time messaging between parents and educators — full conversation thread visible to both parties, status management (Open / In Progress / Closed).
+
 ---
 
 ## What it does
@@ -45,7 +50,8 @@ Kita Connect replaces fragmented communication tools (WhatsApp groups, paper for
 | Multi-role auth (super_admin, traeger_admin, admin, teacher, parent) | Live |
 | Invite-only registration with email + password | Live |
 | Parent portal — dashboard, child view, messaging, FAQ | Live |
-| Teacher portal — observations, learning stories, children | Live |
+| Teacher portal — observations, learning stories, children, ticket management | Live |
+| Ticket chat — parent ↔ teacher messaging with full thread history | Live |
 | Admin portal — invitations, broadcasts, user management | Live |
 | Super Admin — cross-Kita management | Live |
 | n8n automation — 8 workflows (invitations, tickets, broadcasts, AI) | Live |
@@ -160,7 +166,12 @@ Every table has RLS enabled and tested:
 | POST | /api/register | anon | Complete registration via invite token |
 | DELETE | /api/user/delete | any | Full GDPR account deletion |
 | POST | /api/teacher/observations | teacher | Create child observation |
-| POST | /api/tickets | parent/teacher | Create or reply to ticket |
+| POST | /api/tickets | parent | Create new ticket |
+| POST | /api/tickets/[id]/reply | parent | Reply to ticket |
+| GET | /api/parent/tickets/[id] | parent | Get ticket + full message thread |
+| POST | /api/teacher/tickets | teacher | Reply to ticket |
+| PATCH | /api/teacher/tickets | teacher | Change ticket status |
+| GET | /api/teacher/tickets/count | teacher | Open ticket count for dashboard |
 
 ---
 
