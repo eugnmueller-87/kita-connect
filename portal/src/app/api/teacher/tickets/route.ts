@@ -7,7 +7,12 @@ export async function PATCH(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+
+  const { data: profile } = await admin.from('profiles').select('role').eq('id', user.id).single()
   if (!profile || profile.role !== 'teacher') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
@@ -17,11 +22,6 @@ export async function PATCH(request: Request) {
 
   const validStatuses = ['open', 'in_progress', 'closed']
   if (!validStatuses.includes(status)) return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
-
-  const admin = createAdminClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  )
 
   const { error } = await admin.from('tickets').update({ status }).eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -34,7 +34,12 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+
+  const { data: profile } = await admin.from('profiles').select('role').eq('id', user.id).single()
   if (!profile || profile.role !== 'teacher') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
@@ -54,5 +59,8 @@ export async function POST(request: Request) {
   })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  await admin.from('tickets').update({ status: 'in_progress' }).eq('id', ticket_id).eq('status', 'open')
+
   return NextResponse.json({ ok: true })
 }
