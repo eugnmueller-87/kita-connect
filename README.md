@@ -2,7 +2,7 @@
 
 **Full-stack Kita management platform** — built for German daycare centers, designed to run at near-zero monthly cost with enterprise-grade security and GDPR compliance.
 
-> Portfolio project by [Eugen Mueller](https://github.com/eugnmueller-87). Live at [app.kita-connect.cloud](https://app.kita-connect.cloud).
+> Portfolio project by [Eugen Mueller](https://github.com/eugnmueller-87). Live at [app.kita-connect.cloud](https://app.kita-connect.cloud) · [Präsentation](https://eugnmueller-87.github.io/kita-connect/presentation/)
 
 ---
 

@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kita Connect — Presentation</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+<style>
+  :root {
+    --teal: #2a9d8f;
+    --teal-light: #a8dadc;
+    --blue: #457b9d;
+    --blue-light: #d4e9f7;
+    --beige: #f8f4ed;
+    --dark: #264653;
+    --accent: #e9c46a;
+    --red: #e76f51;
+  }
+
+  .reveal-viewport { background: var(--beige); }
+
+  .reveal .slides section {
+    text-align: left;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: var(--dark);
+    height: 100%;
+    box-sizing: border-box;
+  }
+
+  /* ── TITLE SLIDE ── */
+  .slide-title {
+    background: linear-gradient(135deg, #e8f4f8 0%, #f0f7ee 50%, #fff8e7 100%);
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center !important;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide-title h1 {
+    font-size: 3.2em;
+    font-weight: 900;
+    color: var(--teal);
+    margin: 0;
+    line-height: 1.1;
+  }
+  .slide-title .subtitle {
+    font-size: 1.2em;
+    color: var(--blue);
+    margin-top: 0.5em;
+    font-weight: 600;
+  }
+  .slide-title .built-by {
+    margin-top: 1.5em;
+    font-size: 0.85em;
+    color: #888;
+    font-weight: 500;
+  }
+  .slide-title .url-badge {
+    margin-top: 1em;
+    background: var(--teal);
+    color: white;
+    padding: 0.4em 1.2em;
+    border-radius: 999px;
+    font-size: 0.9em;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── DECO BLOBS ── */
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.15;
+    pointer-events: none;
+  }
+  .blob-tl { width: 220px; height: 220px; background: var(--teal); top: -60px; left: -60px; }
+  .blob-br { width: 280px; height: 280px; background: var(--blue); bottom: -80px; right: -80px; }
+  .blob-tr { width: 150px; height: 150px; background: var(--accent); top: -30px; right: 40px; }
+
+  /* ── SECTION HEADER ── */
+  .slide-section {
+    background: var(--dark);
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center !important;
+  }
+  .slide-section h2 {
+    font-size: 2.4em;
+    font-weight: 900;
+    color: white;
+    margin: 0;
+  }
+  .slide-section .section-num {
+    font-size: 5em;
+    opacity: 0.1;
+    font-weight: 900;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    line-height: 1;
+  }
+  .slide-section .emoji { font-size: 2em; margin-bottom: 0.3em; }
+
+  /* ── CONTENT SLIDES ── */
+  .slide-content {
+    background: white;
+    padding: 3em 4em !important;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide-content h2 {
+    font-size: 1.6em;
+    font-weight: 900;
+    color: var(--dark);
+    margin: 0 0 0.8em 0;
+    border-left: 5px solid var(--teal);
+    padding-left: 0.5em;
+  }
+  .slide-content .accent-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--teal), var(--blue));
+  }
+
+  /* ── CARDS ── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1em;
+    margin-top: 0.5em;
+  }
+  .cards-2 { grid-template-columns: repeat(2, 1fr); }
+  .card {
+    background: var(--beige);
+    border-radius: 16px;
+    padding: 1.2em;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .card-teal { border-color: var(--teal-light); }
+  .card-blue { border-color: var(--blue-light); }
+  .card-accent { border-color: var(--accent); }
+  .card .card-icon { font-size: 1.8em; margin-bottom: 0.3em; }
+  .card h3 { font-size: 0.95em; font-weight: 800; color: var(--dark); margin: 0 0 0.4em 0; }
+  .card p { font-size: 0.75em; color: #555; margin: 0; line-height: 1.5; }
+
+  /* ── BIG STAT ── */
+  .stats-row {
+    display: flex;
+    gap: 1.5em;
+    margin-top: 1em;
+  }
+  .stat-box {
+    flex: 1;
+    background: var(--beige);
+    border-radius: 16px;
+    padding: 1.2em;
+    text-align: center;
+  }
+  .stat-box .stat-num {
+    font-size: 2.2em;
+    font-weight: 900;
+    color: var(--teal);
+    line-height: 1;
+  }
+  .stat-box .stat-label {
+    font-size: 0.7em;
+    color: #666;
+    margin-top: 0.3em;
+    font-weight: 600;
+  }
+
+  /* ── LIST ── */
+  .kc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.5em 0 0 0;
+  }
+  .kc-list li {
+    font-size: 0.85em;
+    padding: 0.5em 0.8em;
+    border-radius: 10px;
+    margin-bottom: 0.4em;
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    font-weight: 600;
+    color: var(--dark);
+  }
+  .kc-list li.ok { background: #e8f5e9; }
+  .kc-list li.warn { background: #fff3e0; }
+  .kc-list .icon { font-size: 1.1em; flex-shrink: 0; }
+
+  /* ── TWO COL ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2em;
+    align-items: center;
+  }
+  .two-col-wide {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 2em;
+    align-items: center;
+  }
+
+  /* ── SCREENSHOT PLACEHOLDER ── */
+  .screenshot-box {
+    background: #f0f4f8;
+    border-radius: 12px;
+    border: 2px dashed #ccd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    color: #aab;
+    font-size: 0.8em;
+    font-weight: 600;
+    gap: 0.5em;
+    padding: 1em;
+    text-align: center;
+  }
+  .screenshot-box .ph-icon { font-size: 2.5em; }
+
+  /* ── SCREENSHOT ACTUAL ── */
+  .screenshot-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  /* ── TECH TABLE ── */
+  .tech-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78em;
+    margin-top: 0.5em;
+  }
+  .tech-table th {
+    background: var(--dark);
+    color: white;
+    padding: 0.5em 0.8em;
+    text-align: left;
+    font-weight: 700;
+  }
+  .tech-table td {
+    padding: 0.5em 0.8em;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+  }
+  .tech-table tr:nth-child(even) td { background: #f9f9f9; }
+  .tag {
+    display: inline-block;
+    background: var(--teal-light);
+    color: var(--dark);
+    border-radius: 6px;
+    padding: 0.1em 0.5em;
+    font-size: 0.85em;
+    font-weight: 700;
+  }
+  .tag-blue { background: var(--blue-light); }
+  .tag-accent { background: #fef3c7; }
+
+  /* ── ROADMAP ── */
+  .roadmap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7em;
+    margin-top: 0.5em;
+  }
+  .roadmap-item {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    background: var(--beige);
+    border-radius: 12px;
+    padding: 0.7em 1em;
+  }
+  .roadmap-item .phase {
+    font-size: 0.65em;
+    font-weight: 900;
+    color: white;
+    background: var(--teal);
+    border-radius: 6px;
+    padding: 0.2em 0.6em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .roadmap-item .phase-blue { background: var(--blue); }
+  .roadmap-item .phase-accent { background: #d4a017; }
+  .roadmap-item .rtext { font-size: 0.8em; font-weight: 700; color: var(--dark); }
+  .roadmap-item .rwhen { font-size: 0.7em; color: #888; margin-left: auto; font-weight: 600; }
+
+  /* ── FINAL SLIDE ── */
+  .slide-final {
+    background: linear-gradient(135deg, var(--teal) 0%, var(--blue) 100%);
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center !important;
+    color: white;
+  }
+  .slide-final h2 { font-size: 2.2em; font-weight: 900; color: white; margin: 0; }
+  .slide-final .final-url {
+    margin-top: 1em;
+    font-size: 1.4em;
+    font-weight: 900;
+    background: rgba(255,255,255,0.2);
+    padding: 0.4em 1.2em;
+    border-radius: 999px;
+    letter-spacing: 0.03em;
+  }
+  .slide-final .final-sub { margin-top: 0.8em; font-size: 0.9em; opacity: 0.8; }
+
+  /* ── SVG CHARACTERS ── */
+  .char-wrap { display: flex; justify-content: center; align-items: flex-end; }
+
+  /* ── PROBLEM SLIDE ── */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1em;
+    margin-top: 0.5em;
+  }
+  .problem-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8em;
+    background: #fff5f5;
+    border-radius: 12px;
+    padding: 0.9em;
+    border-left: 4px solid var(--red);
+  }
+  .problem-item .p-icon { font-size: 1.6em; flex-shrink: 0; }
+  .problem-item h3 { font-size: 0.85em; font-weight: 800; margin: 0 0 0.2em; color: var(--dark); }
+  .problem-item p { font-size: 0.72em; color: #666; margin: 0; line-height: 1.4; }
+
+  /* ── ROLE TABS ── */
+  .role-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1em;
+    margin-top: 0.5em;
+  }
+  .role-tab {
+    border-radius: 16px;
+    padding: 1.2em;
+    text-align: center;
+  }
+  .role-tab.parent { background: #e8f5e9; border: 2px solid #a5d6a7; }
+  .role-tab.teacher { background: #e3f2fd; border: 2px solid #90caf9; }
+  .role-tab.admin { background: #fff3e0; border: 2px solid #ffcc80; }
+  .role-tab .r-icon { font-size: 2.2em; margin-bottom: 0.3em; }
+  .role-tab h3 { font-size: 0.9em; font-weight: 900; margin: 0 0 0.5em; color: var(--dark); }
+  .role-tab ul { list-style: none; padding: 0; margin: 0; text-align: left; }
+  .role-tab ul li { font-size: 0.7em; color: #555; padding: 0.2em 0; font-weight: 600; }
+  .role-tab ul li::before { content: "→ "; color: var(--teal); }
+
+  /* COST HIGHLIGHT */
+  .cost-highlight {
+    background: linear-gradient(135deg, #e8f5e9, #e3f2fd);
+    border-radius: 16px;
+    padding: 1.5em;
+    text-align: center;
+    margin-top: 0.8em;
+  }
+  .cost-highlight .cost-now { font-size: 2.8em; font-weight: 900; color: var(--teal); line-height: 1; }
+  .cost-highlight .cost-label { font-size: 0.8em; color: #666; font-weight: 600; }
+  .cost-highlight .cost-scale { font-size: 1em; font-weight: 700; color: var(--blue); margin-top: 0.5em; }
+
+  /* GDPR PILLS */
+  .gdpr-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7em;
+    margin-top: 0.8em;
+  }
+  .gdpr-pill {
+    background: var(--beige);
+    border: 2px solid var(--teal-light);
+    border-radius: 999px;
+    padding: 0.4em 1em;
+    font-size: 0.75em;
+    font-weight: 700;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+  }
+
+  /* Reveal overrides */
+  .reveal h1, .reveal h2, .reveal h3 { text-transform: none; letter-spacing: 0; }
+  .reveal .progress { background: rgba(0,0,0,0.1); }
+  .reveal .progress span { background: var(--teal); }
+  .reveal .controls { color: var(--teal); }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ══════════════════════════════════════════
+     SLIDE 1 — TITLE
+══════════════════════════════════════════ -->
+<section class="slide-title">
+  <div class="blob blob-tl"></div>
+  <div class="blob blob-br"></div>
+  <div class="blob blob-tr"></div>
+
+  <!-- Cartoon: happy Kita character -->
+  <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:0.3em">
+    <!-- Body -->
+    <ellipse cx="60" cy="85" rx="28" ry="22" fill="#2a9d8f" opacity="0.9"/>
+    <!-- Head -->
+    <circle cx="60" cy="48" r="26" fill="#f4a261"/>
+    <!-- Eyes -->
+    <ellipse cx="51" cy="46" rx="4" ry="5" fill="white"/>
+    <ellipse cx="69" cy="46" rx="4" ry="5" fill="white"/>
+    <circle cx="52" cy="47" r="2.5" fill="#264653"/>
+    <circle cx="70" cy="47" r="2.5" fill="#264653"/>
+    <circle cx="53" cy="46" r="1" fill="white"/>
+    <circle cx="71" cy="46" r="1" fill="white"/>
+    <!-- Smile -->
+    <path d="M50 56 Q60 65 70 56" stroke="#264653" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- Hair -->
+    <ellipse cx="60" cy="26" rx="26" ry="8" fill="#e76f51"/>
+    <circle cx="38" cy="30" r="7" fill="#e76f51"/>
+    <circle cx="82" cy="30" r="7" fill="#e76f51"/>
+    <!-- Cheeks -->
+    <circle cx="44" cy="54" r="5" fill="#f4a261" opacity="0.5"/>
+    <circle cx="76" cy="54" r="5" fill="#f4a261" opacity="0.5"/>
+    <!-- Arms -->
+    <path d="M32 78 Q18 68 22 55" stroke="#f4a261" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <path d="M88 78 Q102 68 98 55" stroke="#f4a261" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <!-- Star in hand -->
+    <text x="12" y="58" font-size="14" text-anchor="middle">⭐</text>
+    <text x="105" y="58" font-size="14" text-anchor="middle">🎨</text>
+    <!-- Legs -->
+    <rect x="48" y="104" width="10" height="14" rx="5" fill="#457b9d"/>
+    <rect x="62" y="104" width="10" height="14" rx="5" fill="#457b9d"/>
+  </svg>
+
+  <h1>Kita Connect</h1>
+  <div class="subtitle">The digital platform for German daycare centers</div>
+  <div class="url-badge">app.kita-connect.cloud</div>
+  <div class="built-by">Built by Eugen Mueller · 2026</div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 2 — THE PROBLEM
+══════════════════════════════════════════ -->
+<section class="slide-content">
+  <div class="accent-bar"></div>
+  <div class="two-col-wide">
+    <div>
+      <h2>The Problem</h2>
+      <div class="problem-grid">
+        <div class="problem-item">
+          <div class="p-icon">📱</div>
+          <div>
+            <h3>WhatsApp Groups</h3>
+            <p>No privacy, no GDPR compliance, kids' data in random group chats</p>
+          </div>
+        </div>
+        <div class="problem-item">
+          <div class="p-icon">📄</div>
+          <div>
+            <h3>Paper Observations</h3>
+            <p>Child development documented in folders — lost, not searchable, not shareable</p>
+          </div>
+        </div>
+        <div class="problem-item">
+          <div class="p-icon">📞</div>
+          <div>
+            <h3>Phone Tag</h3>
+            <p>Parents call, educators call back, nobody knows who said what</p>
+          </div>
+        </div>
+        <div class="problem-item">
+          <div class="p-icon">⚠️</div>
+          <div>
+            <h3>Zero Compliance</h3>
+            <p>GDPR violations happening daily without anyone noticing</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stressed educator cartoon -->
+    <div class="char-wrap">
+      <svg width="200" height="240" viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Paper stack -->
+        <rect x="60" y="170" width="80" height="8" rx="2" fill="#e9c46a" transform="rotate(-5 60 170)"/>
+        <rect x="60" y="162" width="80" height="8" rx="2" fill="#f4d03f" transform="rotate(3 60 162)"/>
+        <rect x="60" y="154" width="80" height="8" rx="2" fill="#e9c46a" transform="rotate(-2 60 154)"/>
+        <rect x="60" y="146" width="80" height="8" rx="2" fill="#fef9e7"/>
+        <!-- Body -->
+        <ellipse cx="100" cy="130" rx="35" ry="30" fill="#457b9d"/>
+        <!-- Head -->
+        <circle cx="100" cy="85" r="32" fill="#f4a261"/>
+        <!-- Sweat drops (stressed) -->
+        <ellipse cx="140" cy="70" rx="5" ry="8" fill="#85c1e9" opacity="0.7"/>
+        <ellipse cx="148" cy="82" rx="3" ry="5" fill="#85c1e9" opacity="0.5"/>
+        <!-- Eyes - worried -->
+        <ellipse cx="89" cy="83" rx="5" ry="5" fill="white"/>
+        <ellipse cx="111" cy="83" rx="5" ry="5" fill="white"/>
+        <circle cx="90" cy="84" r="3" fill="#264653"/>
+        <circle cx="112" cy="84" r="3" fill="#264653"/>
+        <!-- Worried eyebrows -->
+        <path d="M83 75 Q89 71 95 75" stroke="#264653" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M105 75 Q111 71 117 75" stroke="#264653" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <!-- Wavy stressed mouth -->
+        <path d="M88 96 Q94 93 100 96 Q106 99 112 96" stroke="#264653" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- Hair -->
+        <ellipse cx="100" cy="58" rx="32" ry="10" fill="#922b21"/>
+        <!-- Exclamation -->
+        <text x="150" y="55" font-size="28" fill="#e76f51" font-weight="900">!</text>
+        <!-- WhatsApp bubble -->
+        <rect x="10" y="90" width="55" height="35" rx="10" fill="#25D366"/>
+        <text x="37" y="108" text-anchor="middle" font-size="9" fill="white" font-weight="700">WhatsApp</text>
+        <text x="37" y="120" text-anchor="middle" font-size="7" fill="white">Group: 47 msgs</text>
+        <polygon points="30,125 45,125 30,135" fill="#25D366"/>
+        <!-- Arms holding papers -->
+        <path d="M65 118 Q45 140 55 155" stroke="#f4a261" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <path d="M135 118 Q155 140 145 155" stroke="#f4a261" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <!-- Legs -->
+        <rect x="82" y="158" width="14" height="30" rx="7" fill="#264653"/>
+        <rect x="104" y="158" width="14" height="30" rx="7" fill="#264653"/>
+        <rect x="78" y="183" width="18" height="10" rx="4" fill="#1a252f"/>
+        <rect x="104" y="183" width="18" height="10" rx="4" fill="#1a252f"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 3 — THE SOLUTION
+══════════════════════════════════════════ -->
+<section class="slide-content">
+  <div class="accent-bar"></div>
+  <h2>One Platform. Three Portals. Zero WhatsApp.</h2>
+  <div class="role-tabs">
+
+    <div class="role-tab parent">
+      <!-- Parent cartoon -->
+      <svg width="70" height="70" viewBox="0 0 70 70" fill="none">
+        <circle cx="35" cy="28" r="18" fill="#f4a261"/>
+        <ellipse cx="35" cy="58" rx="18" ry="14" fill="#a5d6a7"/>
+        <ellipse cx="25" cy="27" rx="3" ry="3.5" fill="white"/>
+        <ellipse cx="45" cy="27" rx="3" ry="3.5" fill="white"/>
+        <circle cx="26" cy="27.5" r="1.8" fill="#264653"/>
+        <circle cx="46" cy="27.5" r="1.8" fill="#264653"/>
+        <path d="M28 36 Q35 42 42 36" stroke="#264653" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="35" cy="14" rx="18" ry="6" fill="#e76f51"/>
+        <!-- Phone in hand -->
+        <rect x="50" y="42" width="12" height="18" rx="3" fill="#264653"/>
+        <rect x="52" y="44" width="8" height="12" rx="1" fill="#85c1e9"/>
+      </svg>
+      <h3>Parent</h3>
+      <ul>
+        <li>Child development</li>
+        <li>Secure messaging</li>
+        <li>Notifications</li>
+        <li>Meal plans</li>
+      </ul>
+    </div>
+
+    <div class="role-tab teacher">
+      <!-- Teacher cartoon -->
+      <svg width="70" height="70" viewBox="0 0 70 70" fill="none">
+        <circle cx="35" cy="28" r="18" fill="#ffb347"/>
+        <ellipse cx="35" cy="58" rx="18" ry="14" fill="#90caf9"/>
+        <ellipse cx="25" cy="27" rx="3" ry="3.5" fill="white"/>
+        <ellipse cx="45" cy="27" rx="3" ry="3.5" fill="white"/>
+        <circle cx="26" cy="27.5" r="1.8" fill="#264653"/>
+        <circle cx="46" cy="27.5" r="1.8" fill="#264653"/>
+        <path d="M28 36 Q35 42 42 36" stroke="#264653" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="35" cy="14" rx="18" ry="6" fill="#7d3c98"/>
+        <!-- Clipboard -->
+        <rect x="48" y="40" width="14" height="18" rx="2" fill="#fef9e7" stroke="#ccc" stroke-width="1"/>
+        <rect x="51" y="37" width="8" height="5" rx="2" fill="#aaa"/>
+        <line x1="51" y1="48" x2="59" y2="48" stroke="#999" stroke-width="1"/>
+        <line x1="51" y1="51" x2="59" y2="51" stroke="#999" stroke-width="1"/>
+        <line x1="51" y1="54" x2="56" y2="54" stroke="#999" stroke-width="1"/>
+      </svg>
+      <h3>Educator</h3>
+      <ul>
+        <li>Observations</li>
+        <li>AI learning stories</li>
+        <li>Child profiles</li>
+        <li>Broadcasts</li>
+      </ul>
+    </div>
+
+    <div class="role-tab admin">
+      <!-- Admin cartoon -->
+      <svg width="70" height="70" viewBox="0 0 70 70" fill="none">
+        <circle cx="35" cy="28" r="18" fill="#f4a261"/>
+        <ellipse cx="35" cy="58" rx="18" ry="14" fill="#ffcc80"/>
+        <ellipse cx="25" cy="27" rx="3" ry="3.5" fill="white"/>
+        <ellipse cx="45" cy="27" rx="3" ry="3.5" fill="white"/>
+        <circle cx="26" cy="27.5" r="1.8" fill="#264653"/>
+        <circle cx="46" cy="27.5" r="1.8" fill="#264653"/>
+        <path d="M28 36 Q35 42 42 36" stroke="#264653" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- Suit / tie -->
+        <path d="M29 52 L35 58 L41 52" fill="#e67e22"/>
+        <!-- Glasses -->
+        <circle cx="26" cy="27" r="5" stroke="#264653" stroke-width="1.5" fill="none"/>
+        <circle cx="44" cy="27" r="5" stroke="#264653" stroke-width="1.5" fill="none"/>
+        <line x1="31" y1="27" x2="39" y2="27" stroke="#264653" stroke-width="1.5"/>
+        <!-- Hair -->
+        <ellipse cx="35" cy="13" rx="18" ry="5" fill="#922b21"/>
+      </svg>
+      <h3>Admin</h3>
+      <ul>
+        <li>Invite users</li>
+        <li>User management</li>
+        <li>Broadcast messages</li>
+        <li>Multi-Kita support</li>
+      </ul>
+    </div>
+
+  </div>
+  <div style="margin-top:1em; font-size:0.75em; color:#888; font-weight:600; text-align:center;">
+    Invite-only registration · Role-based access · Everything scoped to your Kita
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 4 — LIVE DEMO (Parent)
+══════════════════════════════════════════ -->
+<section class="slide-content">
+  <div class="accent-bar"></div>
+  <div class="two-col">
+    <div>
+      <h2>Parent Portal</h2>
+      <ul class="kc-list">
+        <li class="ok"><span class="icon">👶</span> View child's development & learning stories</li>
+        <li class="ok"><span class="icon">💬</span> Secure messaging with educators</li>
+        <li class="ok"><span class="icon">🔔</span> Real-time push + email notifications</li>
+        <li class="ok"><span class="icon">🍽️</span> Weekly meal plans</li>
+        <li class="ok"><span class="icon">❓</span> AI-powered FAQ (Mistral AI, EU-only)</li>
+        <li class="ok"><span class="icon">🌍</span> 4 languages: DE, EN, TR, RU</li>
+      </ul>
+    </div>
+    <div class="screenshot-box" style="padding:0; border:none; background:transparent;">
+      <img src="../Screenshots/parent.png" alt="Parent Dashboard" style="border-radius:12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);"/>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 5 — LIVE DEMO (Teacher)
+══════════════════════════════════════════ -->
+<section class="slide-content">
+  <div class="accent-bar"></div>
+  <div class="two-col">
+    <div>
+      <h2>Educator Portal</h2>
+      <ul class="kc-list">
+        <li class="ok"><span class="icon">📋</span> Standardized observations (Sismik, Seldak, Perik)</li>
+        <li class="ok"><span class="icon">🤖</span> AI-assisted learning stories</li>
+        <li class="ok"><span class="icon">🔒</span> Child names pseudonymized before AI call</li>
+        <li class="ok"><span class="icon">👥</span> Group and child management</li>
+        <li class="ok"><span class="icon">📢</span> Broadcast to all parents instantly</li>
+      </ul>
+    </div>
+    <div class="screenshot-box" style="padding:0; border:none; background:transparent;">
+      <img src="../Screenshots/teacher.png" alt="Teacher Dashboard" style="border-radius:12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);"/>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 6 — LIVE DEMO (Admin)
+══════════════════════════════════════════ -->
+<section class="slide-content">
+  <div class="accent-bar"></div>
+  <div class="two-col">
+    <div>
+      <h2>Admin Portal</h2>
+      <ul class="kc-list">
+        <li class="ok"><span class="icon">✉️</span> Invite parents and teachers by email</li>
+        <li class="ok"><span class="icon">🔐</span> Invite-only — no self-signup ever</li>
+        <li class="ok"><span class="icon">👥</span> Full user management per Kita</li>
+        <li class="ok"><span class="icon">📣</span> Broadcast announcements</li>
+        <li class="ok"><span class="icon">🏢</span> Multi-Kita: one Träger, many centers</li>
+      </ul>
+    </div>
+    <div class="screenshot-box" style="padding:0; border:none; background:transparent;">
+      <img src="../Screenshots/Admin.png" alt="Admin Dashboard" style="border-radius:12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);"/>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 7 — GDPR
+══════════════════════════════════════════ -->
+<section class="slide-content">
+  <div class="accent-bar"></div>
+  <div class="two-col">
+    <div>
+      <h2>GDPR — Built In, Not Bolted On</h2>
+      <div class="gdpr-pills">
+        <div class="gdpr-pill">🇪🇺 All data in the EU</div>
+        <div class="gdpr-pill">🗑️ Right to deletion</div>
+        <div class="gdpr-pill">🔏 Pseudonymized AI</div>
+        <div class="gdpr-pill">📝 Audit log</div>
+        <div class="gdpr-pill">⏱️ 24h Kafka retention</div>
+        <div class="gdpr-pill">🔑 Invite-only auth</div>
+      </div>
+      <div style="margin-top:1em; background:#e8f5e9; border-radius:12px; padding:0.8em 1em;">
+        <div style="font-size:0.75em; font-weight:700; color:#2d6a4f;">
+          One click deletes <em>everything</em> — children, observations, photos, tickets, profile. Cascade. Verified.
+        </div>
+      </div>
+    </div>
+
+    <!-- GDPR cartoon: data shield -->
+    <div class="char-wrap">
+      <svg width="180" height="220" viewBox="0 0 180 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Shield -->
+        <path d="M90 20 L150 45 L150 100 Q150 160 90 195 Q30 160 30 100 L30 45 Z" fill="#2a9d8f" opacity="0.15"/>
+        <path d="M90 20 L150 45 L150 100 Q150 160 90 195 Q30 160 30 100 L30 45 Z" stroke="#2a9d8f" stroke-width="3" fill="none"/>
+        <!-- Lock icon in shield -->
+        <rect x="72" y="90" width="36" height="28" rx="5" fill="#2a9d8f"/>
+        <path d="M78 90 Q78 72 90 72 Q102 72 102 90" stroke="#2a9d8f" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="90" cy="104" r="4" fill="white"/>
+        <rect x="88" y="104" width="4" height="7" rx="2" fill="white"/>
+        <!-- Star sparks -->
+        <text x="150" y="40" font-size="16">✨</text>
+        <text x="10" y="80" font-size="16">✨</text>
+        <text x="145" y="155" font-size="12">⭐</text>
+        <!-- EU flag stars circle -->
+        <text x="70" y="52" font-size="10">🇪🇺</text>
+        <!-- Person below shield - happy -->
+        <circle cx="90" cy="175" r="18" fill="#f4a261"/>
+        <ellipse cx="82" cy="173" rx="3" ry="3" fill="white"/>
+        <ellipse cx="98" cy="173" rx="3" ry="3" fill="white"/>
+        <circle cx="83" cy="173.5" r="1.8" fill="#264653"/>
+        <circle cx="99" cy="173.5" r="1.8" fill="#264653"/>
+        <path d="M83 181 Q90 187 97 181" stroke="#264653" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="90" cy="160" rx="18" ry="6" fill="#922b21"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 8 — TECH & COST
+══════════════════════════════════════════ -->
+<section class="slide-content">
+  <div class="accent-bar"></div>
+  <div class="two-col">
+    <div>
+      <h2>Tech Stack</h2>
+      <table class="tech-table">
+        <thead><tr><th>Layer</th><th>Technology</th></tr></thead>
+        <tbody>
+          <tr><td>Frontend</td><td><span class="tag">Next.js 14</span> on Vercel Frankfurt</td></tr>
+          <tr><td>Database</td><td><span class="tag">Supabase</span> EU Ireland + RLS</td></tr>
+          <tr><td>Automation</td><td><span class="tag tag-blue">n8n</span> 8 workflows, self-hosted</td></tr>
+          <tr><td>Email</td><td><span class="tag">Resend</span> DKIM/SPF/DMARC ✓</td></tr>
+          <tr><td>AI</td><td><span class="tag tag-accent">Mistral AI</span> EU, no PII ever</td></tr>
+          <tr><td>Events</td><td><span class="tag tag-blue">Redpanda</span> Kafka, 24h retention</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="cost-highlight">
+        <div class="cost-now">€6–18</div>
+        <div class="cost-label">per month today</div>
+        <div style="margin:0.8em 0; border-top:1px solid #ddd;"></div>
+        <div class="cost-scale">€1.20 / Kita / month at 100 Kitas</div>
+        <div style="font-size:0.7em; color:#888; margin-top:0.3em; font-weight:600;">no VC needed to break even</div>
+      </div>
+      <div style="margin-top:0.8em;">
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-num">18</div>
+            <div class="stat-label">DB tables with RLS</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">8</div>
+            <div class="stat-label">n8n workflows live</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">5</div>
+            <div class="stat-label">user roles</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 9 — ROADMAP
+══════════════════════════════════════════ -->
+<section class="slide-content">
+  <div class="accent-bar"></div>
+  <div class="two-col">
+    <div>
+      <h2>What's Next</h2>
+      <div class="roadmap">
+        <div class="roadmap-item">
+          <span class="phase">Done</span>
+          <span class="rtext">Full platform live — auth, portals, GDPR, automation</span>
+          <span class="rwhen">✅</span>
+        </div>
+        <div class="roadmap-item">
+          <span class="phase">Now</span>
+          <span class="rtext">PWA — installable on tablets, offline support</span>
+          <span class="rwhen">Q2 2026</span>
+        </div>
+        <div class="roadmap-item">
+          <span class="phase phase-blue">Next</span>
+          <span class="rtext">First pilot Kita — real users, real feedback</span>
+          <span class="rwhen">Q3 2026</span>
+        </div>
+        <div class="roadmap-item">
+          <span class="phase phase-blue">Next</span>
+          <span class="rtext">DPAs signed with Resend + seven.io</span>
+          <span class="rwhen">Q3 2026</span>
+        </div>
+        <div class="roadmap-item">
+          <span class="phase phase-accent">Planned</span>
+          <span class="rtext">Stripe pricing, pilot program, marketing site</span>
+          <span class="rwhen">Q4 2026</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rocket cartoon -->
+    <div class="char-wrap">
+      <svg width="160" height="200" viewBox="0 0 160 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Rocket body -->
+        <path d="M80 20 Q100 20 115 60 L115 130 Q115 150 80 165 Q45 150 45 130 L45 60 Q60 20 80 20Z" fill="#457b9d"/>
+        <!-- Window -->
+        <circle cx="80" cy="90" r="18" fill="#a8dadc" opacity="0.8"/>
+        <circle cx="80" cy="90" r="14" fill="#e3f2fd"/>
+        <!-- Face in window -->
+        <circle cx="75" cy="88" r="3" fill="#264653"/>
+        <circle cx="85" cy="88" r="3" fill="#264653"/>
+        <path d="M73 95 Q80 100 87 95" stroke="#264653" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- Nose tip -->
+        <path d="M80 20 Q95 5 80 0 Q65 5 80 20Z" fill="#e76f51"/>
+        <!-- Wings -->
+        <path d="M45 110 Q20 120 25 145 L45 135Z" fill="#2a9d8f"/>
+        <path d="M115 110 Q140 120 135 145 L115 135Z" fill="#2a9d8f"/>
+        <!-- Flames -->
+        <ellipse cx="70" cy="170" rx="8" ry="15" fill="#e9c46a" opacity="0.9"/>
+        <ellipse cx="80" cy="175" rx="10" ry="20" fill="#e76f51" opacity="0.9"/>
+        <ellipse cx="90" cy="170" rx="8" ry="15" fill="#e9c46a" opacity="0.9"/>
+        <!-- Stars -->
+        <text x="20" y="50" font-size="14">⭐</text>
+        <text x="125" y="70" font-size="12">✨</text>
+        <text x="10" y="100" font-size="10">✨</text>
+        <text x="135" y="35" font-size="16">🌟</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 10 — FINAL
+══════════════════════════════════════════ -->
+<section class="slide-final">
+  <div class="blob blob-tl" style="opacity:0.2; background:white;"></div>
+  <div class="blob blob-br" style="opacity:0.2; background:white;"></div>
+
+  <!-- Happy family cartoon -->
+  <svg width="200" height="100" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:0.5em">
+    <!-- Parent 1 -->
+    <circle cx="40" cy="35" r="18" fill="#f4a261"/>
+    <ellipse cx="40" cy="70" rx="16" ry="12" fill="#2a9d8f"/>
+    <ellipse cx="33" cy="33" rx="2.5" ry="3" fill="white"/>
+    <ellipse cx="47" cy="33" rx="2.5" ry="3" fill="white"/>
+    <circle cx="34" cy="33.5" r="1.5" fill="#264653"/>
+    <circle cx="48" cy="33.5" r="1.5" fill="#264653"/>
+    <path d="M34 41 Q40 46 46 41" stroke="#264653" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="40" cy="21" rx="18" ry="6" fill="#922b21"/>
+    <!-- Child in middle -->
+    <circle cx="100" cy="48" r="14" fill="#ffb347"/>
+    <ellipse cx="100" cy="78" rx="12" ry="9" fill="#a5d6a7"/>
+    <ellipse cx="94" cy="46" rx="2" ry="2.5" fill="white"/>
+    <ellipse cx="106" cy="46" rx="2" ry="2.5" fill="white"/>
+    <circle cx="95" cy="46.5" r="1.2" fill="#264653"/>
+    <circle cx="107" cy="46.5" r="1.2" fill="#264653"/>
+    <path d="M94 54 Q100 59 106 54" stroke="#264653" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="100" cy="37" rx="14" ry="5" fill="#e76f51"/>
+    <!-- Parent 2 -->
+    <circle cx="160" cy="35" r="18" fill="#f0d9b5"/>
+    <ellipse cx="160" cy="70" rx="16" ry="12" fill="#457b9d"/>
+    <ellipse cx="153" cy="33" rx="2.5" ry="3" fill="white"/>
+    <ellipse cx="167" cy="33" rx="2.5" ry="3" fill="white"/>
+    <circle cx="154" cy="33.5" r="1.5" fill="#264653"/>
+    <circle cx="168" cy="33.5" r="1.5" fill="#264653"/>
+    <path d="M154 41 Q160 46 166 41" stroke="#264653" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="160" cy="21" rx="18" ry="6" fill="#7d3c98"/>
+    <!-- Hands connecting -->
+    <path d="M56 60 Q78 72 88 72" stroke="#f4a261" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M112 72 Q132 72 144 60" stroke="#f0d9b5" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <!-- Hearts -->
+    <text x="67" y="50" font-size="12">❤️</text>
+    <text x="120" y="50" font-size="12">❤️</text>
+  </svg>
+
+  <h2>Kita Connect is live.</h2>
+  <div class="final-sub">Built for German daycare centers. GDPR-native. Affordable.</div>
+  <a href="https://app.kita-connect.cloud" target="_blank" style="text-decoration:none; color:inherit;">
+    <div class="final-url">app.kita-connect.cloud ↗</div>
+  </a>
+  <div class="final-sub" style="margin-top:1.5em;">Questions?</div>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  slideNumber: true,
+  transition: 'slide',
+  transitionSpeed: 'fast',
+  controls: true,
+  progress: true,
+  center: false,
+  width: 1280,
+  height: 720,
+  margin: 0,
+  plugins: []
+});
+</script>
+</body>
+</html>
