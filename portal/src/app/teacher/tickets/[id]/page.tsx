@@ -19,7 +19,7 @@ export default async function TeacherTicketDetailPage({ params }: { params: Prom
   )
 
   const [{ data: ticket }, { data: replies }] = await Promise.all([
-    admin.from('tickets').select('id, subject, status, created_at, parent_id').eq('id', id).single(),
+    admin.from('tickets').select('id, subject, status, created_at, parent_id, body').eq('id', id).single(),
     admin.from('ticket_replies').select('id, body, author_id, created_at').eq('ticket_id', id).order('created_at'),
   ])
 
@@ -70,10 +70,16 @@ export default async function TeacherTicketDetailPage({ params }: { params: Prom
 
         {/* Messages */}
         <div className="space-y-3 mb-4">
-          {(!replies || replies.length === 0) && (
-            <div className="kc-card px-5 py-8 text-center">
-              <p className="text-3xl mb-2">💬</p>
-              <p className="text-gray-400 font-semibold text-sm">Noch keine Nachrichten</p>
+          {/* Initial message from parent */}
+          {ticket.body && (
+            <div className="flex justify-start">
+              <div className="max-w-[80%] px-4 py-3 rounded-2xl kc-card bg-white text-gray-800">
+                <p className="text-xs font-black text-teal-600 mb-1">{parent?.full_name ?? 'Elternteil'}</p>
+                <p className="text-sm leading-relaxed">{ticket.body}</p>
+                <p className="text-xs mt-1.5 font-semibold text-gray-400">
+                  {new Date(ticket.created_at).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
             </div>
           )}
           {(replies ?? []).map(r => {

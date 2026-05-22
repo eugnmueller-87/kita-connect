@@ -14,25 +14,37 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   )
 
   const [{ data: ticket }, { data: replies }] = await Promise.all([
-    admin.from('tickets').select('id, subject, status, created_at').eq('id', id).eq('parent_id', user.id).single(),
+    admin.from('tickets').select('id, subject, status, created_at, body, parent_id').eq('id', id).eq('parent_id', user.id).single(),
     admin.from('ticket_replies').select('id, body, author_id, created_at').eq('ticket_id', id).order('created_at'),
   ])
 
   if (!ticket) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const authorIds = [...new Set((replies ?? []).map(r => r.author_id).filter(Boolean))]
+  const authorIds = [...new Set([ticket.parent_id, ...(replies ?? []).map(r => r.author_id)].filter(Boolean))]
   const { data: profileData } = authorIds.length > 0
     ? await admin.from('profiles').select('id, full_name').in('id', authorIds)
     : { data: [] }
   const profileMap = Object.fromEntries((profileData ?? []).map(p => [p.id, p.full_name]))
 
-  const messages = (replies ?? []).map(r => ({
-    id: r.id,
-    body: r.body,
-    author_id: r.author_id,
-    created_at: r.created_at,
-    author_name: profileMap[r.author_id] ?? 'Kita-Team',
-  }))
+  // Initial ticket message first, then replies
+  const initialMsg = {
+    id: `ticket-${ticket.id}`,
+    body: ticket.body,
+    author_id: ticket.parent_id,
+    created_at: ticket.created_at,
+    author_name: profileMap[ticket.parent_id] ?? 'Elternteil',
+  }
+
+  const messages = [
+    ...(ticket.body ? [initialMsg] : []),
+    ...(replies ?? []).map(r => ({
+      id: r.id,
+      body: r.body,
+      author_id: r.author_id,
+      created_at: r.created_at,
+      author_name: profileMap[r.author_id] ?? 'Kita-Team',
+    })),
+  ]
 
   return NextResponse.json({ ticket, messages })
 }
