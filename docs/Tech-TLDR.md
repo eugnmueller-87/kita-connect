@@ -106,7 +106,7 @@ Flow:
 - No Google Analytics, no Facebook Pixel
 - Audit log: every sensitive action is recorded (who changed what and when)
 - Account deletion: parents can delete their own account, data is purged after 90 days
-- AI policy: Claude is explicitly forbidden from rating, ranking, or comparing children (enforced in system prompts)
+- AI policy: Mistral is explicitly forbidden from rating, ranking, or comparing children (enforced in system prompts)
 - Content moderation: parent messages are automatically checked, toxic content is blocked before saving
 
 ---
