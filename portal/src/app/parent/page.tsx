@@ -1,20 +1,24 @@
 import Navbar from '@/components/navbar'
 import { ChevronRight } from 'lucide-react'
-import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { requireRole } from '@/lib/auth'
 import { getLang } from '@/lib/getLang'
 import { t } from '@/lib/translations'
 
 export default async function ParentDashboard() {
   const { profile, userId } = await requireRole('parent')
-  const supabase = await createClient()
   const lang = await getLang()
   const tr = (node: { de: string; en: string; tr: string; ru: string }) => node[lang] ?? node.de
 
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+
   const [{ data: notifData }, { data: ticketData }, { data: childData }] = await Promise.all([
-    supabase.from('notifications').select('id, title, body, read, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(5),
-    supabase.from('tickets').select('id, subject, status, updated_at').eq('parent_id', userId).order('updated_at', { ascending: false }),
-    supabase.from('children').select('id, name').eq('parent_id', userId),
+    admin.from('notifications').select('id, title, body, read, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(5),
+    admin.from('tickets').select('id, subject, status, updated_at').eq('parent_id', userId).order('updated_at', { ascending: false }),
+    admin.from('children').select('id, name').eq('parent_id', userId),
   ])
 
   const notifications = notifData ?? []
