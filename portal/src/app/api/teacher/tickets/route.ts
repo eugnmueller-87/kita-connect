@@ -55,7 +55,5 @@ export async function POST(request: Request) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  await admin.from('tickets').update({ status: 'in_progress' }).eq('id', ticket_id).eq('status', 'open')
-
   return NextResponse.json({ ok: true })
 }
