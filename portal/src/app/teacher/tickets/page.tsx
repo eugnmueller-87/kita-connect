@@ -17,10 +17,17 @@ export default async function TeacherTicketsPage() {
 
   const { data } = await admin
     .from('tickets')
-    .select('id, subject, status, created_at, parent:profiles(full_name)')
+    .select('id, subject, status, created_at, parent_id')
     .order('created_at', { ascending: false })
 
   const tickets = data ?? []
+
+  const parentIds = [...new Set(tickets.map(tk => tk.parent_id).filter(Boolean))]
+  const { data: profileData } = parentIds.length > 0
+    ? await admin.from('profiles').select('id, full_name').in('id', parentIds)
+    : { data: [] }
+  const profileMap = Object.fromEntries((profileData ?? []).map(p => [p.id, p.full_name]))
+
   const open = tickets.filter(t => t.status === 'open')
   const inProgress = tickets.filter(t => t.status === 'in_progress')
   const closed = tickets.filter(t => t.status === 'closed')
@@ -70,15 +77,13 @@ export default async function TeacherTicketsPage() {
             <h2 className="font-black text-gray-600 text-sm mb-3 px-1">{group.label} ({group.items.length})</h2>
             <div className="kc-card overflow-hidden">
               <div className="divide-y-2 divide-[#F5F0E8]">
-                {group.items.map(ticket => {
-                  const parent = Array.isArray(ticket.parent) ? ticket.parent[0] : ticket.parent
-                  return (
+                {group.items.map(ticket => (
                     <a key={ticket.id} href={`/teacher/tickets/${ticket.id}`}
                       className="px-5 py-4 flex items-center justify-between hover:bg-[#F5F0E8] transition-colors">
                       <div>
                         <p className="font-black text-gray-800">{ticket.subject}</p>
                         <p className="text-xs text-gray-400 font-semibold mt-0.5">
-                          👨‍👩‍👧 {parent?.full_name ?? 'Unbekannt'} · {new Date(ticket.created_at).toLocaleDateString('de-DE')}
+                          👨‍👩‍👧 {profileMap[ticket.parent_id] ?? 'Unbekannt'} · {new Date(ticket.created_at).toLocaleDateString('de-DE')}
                         </p>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0 ml-3">
@@ -86,8 +91,7 @@ export default async function TeacherTicketsPage() {
                         <ChevronRight size={16} className="text-gray-400" />
                       </div>
                     </a>
-                  )
-                })}
+                ))}
               </div>
             </div>
           </div>
