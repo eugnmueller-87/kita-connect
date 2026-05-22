@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/lib/useTranslation'
 import { t } from '@/lib/translations'
 import type { Lang } from '@/lib/translations'
+import AddChildForm from './add-child-form'
 
 type Child = {
   id: string; name: string; birth_date: string; group_name: string; gender?: string | null
@@ -203,6 +204,7 @@ export default function ChildTabs({ children, details, lang, userId }: {
   const [askText, setAskText] = useState('')
   const [askSent, setAskSent] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
+  const [addOpen, setAddOpen] = useState(false)
   const { tr } = useTranslation(lang)
 
   const child = children.find(c => c.id === selected) ?? children[0]
@@ -226,9 +228,18 @@ export default function ChildTabs({ children, details, lang, userId }: {
         <EditProfileModal child={child} lang={lang} userId={userId} onClose={() => setEditOpen(false)} />
       )}
 
+      {addOpen && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative">
+            <button onClick={() => setAddOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold z-10">✕</button>
+            <AddChildForm lang={lang} userId={userId} />
+          </div>
+        </div>
+      )}
+
       {/* Child selector tabs */}
-      {children.length > 1 && (
-        <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
+      <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
           {children.map((c, i) => {
             const col = COLORS[i % COLORS.length]
             const em = EMOJIS[i % EMOJIS.length]
@@ -249,8 +260,11 @@ export default function ChildTabs({ children, details, lang, userId }: {
               </button>
             )
           })}
+          <button onClick={() => setAddOpen(true)}
+            className="kc-card flex items-center gap-2 px-4 py-2.5 font-black text-sm whitespace-nowrap flex-shrink-0 text-teal-600 hover:border-teal-400 hover:bg-teal-50 transition-all">
+            <span>＋</span><span>Kind hinzufügen</span>
+          </button>
         </div>
-      )}
 
       {/* Child header */}
       <div className="kc-card p-6 mb-5 flex items-center gap-5" style={{ background: `linear-gradient(135deg, ${colors.from}, ${colors.to})` }}>
