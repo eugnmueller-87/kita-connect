@@ -1,34 +1,28 @@
-import Navbar from '@/components/navbar'
-import { ArrowLeft } from 'lucide-react'
+import { notFound } from 'next/navigation'
+import { requireRole } from '@/lib/auth'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { getLang } from '@/lib/getLang'
 import { t } from '@/lib/translations'
-import type { Profile } from '@/types'
-
-const mockProfile: Profile = {
-  id: 'dev-parent', full_name: 'Anna Müller', email: 'anna@example.de',
-  role: 'parent', phone: null, notify_email: true, notify_sms: false,
-  onboarding_status: 'active', created_at: new Date().toISOString(),
-}
-
-const mockTickets: Record<string, { subject: string; status: string }> = {
-  '1': { subject: 'Frage zu Bring- und Abholzeiten', status: 'open' },
-  '2': { subject: 'Essensplan diese Woche', status: 'in_progress' },
-  '3': { subject: 'Termin Entwicklungsgespräch', status: 'closed' },
-}
-
-const mockMessages = [
-  { id: '1', ticket_id: '1', sender_id: 'dev-parent', body: 'Hallo, ich wollte fragen, ob wir Emma manchmal schon um 7:15 Uhr bringen können?', sender: { full_name: 'Anna Müller', role: 'parent' }, created_at: new Date(Date.now() - 7200000).toISOString() },
-  { id: '2', ticket_id: '1', sender_id: 'dev-teacher', body: 'Hallo Frau Müller! Ja, das ist kein Problem. Wir öffnen ab 7:00 Uhr. Bitte klingeln Sie einfach.', sender: { full_name: 'Maria Schmidt', role: 'teacher' }, created_at: new Date(Date.now() - 3600000).toISOString() },
-]
+import Navbar from '@/components/navbar'
+import { ArrowLeft } from 'lucide-react'
 
 export default async function TicketDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  const { profile, userId } = await requireRole('parent')
   const lang = await getLang()
   const tr = (node: { de: string; en: string; tr: string; ru: string }) => node[lang] ?? node.de
 
-  const profile = mockProfile
-  const ticket = mockTickets[id] ?? { subject: 'Unbekanntes Ticket', status: 'closed' }
-  const messages = mockMessages.filter(m => m.ticket_id === id)
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+
+  const [{ data: ticket }, { data: messages }] = await Promise.all([
+    admin.from('tickets').select('id, subject, status, created_at').eq('id', id).eq('parent_id', userId).single(),
+    admin.from('ticket_messages').select('id, body, sender_id, created_at, sender:profiles(full_name, role)').eq('ticket_id', id).order('created_at'),
+  ])
+
+  if (!ticket) notFound()
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E1F5EE 0%, #F5F0E8 100%)' }}>
@@ -52,23 +46,22 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
         </div>
 
         <div className="space-y-3 mb-4">
-          {messages.length === 0 && (
+          {(!messages || messages.length === 0) && (
             <div className="kc-card px-5 py-8 text-center">
               <p className="text-3xl mb-2">💬</p>
               <p className="text-gray-400 font-semibold text-sm">{tr(t.tickets.noMessages)}</p>
             </div>
           )}
-          {messages.map(m => {
-            const isMe = m.sender_id === profile.id
+          {(messages ?? []).map(m => {
+            const isMe = m.sender_id === userId
+            const sender = Array.isArray(m.sender) ? m.sender[0] : m.sender
             return (
               <div key={m.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] px-4 py-3 ${
-                  isMe
-                    ? 'kc-card bg-teal-600 text-white rounded-br-sm'
-                    : 'kc-card bg-white text-gray-800 rounded-bl-sm'
+                <div className={`max-w-[80%] px-4 py-3 rounded-2xl ${
+                  isMe ? 'bg-teal-600 text-white' : 'kc-card bg-white text-gray-800'
                 }`}>
-                  {!isMe && (
-                    <p className="text-xs font-black text-teal-600 mb-1">{m.sender.full_name}</p>
+                  {!isMe && sender && (
+                    <p className="text-xs font-black text-teal-600 mb-1">{sender.full_name}</p>
                   )}
                   <p className="text-sm leading-relaxed">{m.body}</p>
                   <p className={`text-xs mt-1.5 font-semibold ${isMe ? 'text-teal-200' : 'text-gray-400'}`}>
@@ -80,7 +73,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
           })}
         </div>
 
-        {ticket.status !== 'closed' && (
+        {ticket.status !== 'closed' ? (
           <form action={`/api/tickets/${id}/reply`} method="POST" className="kc-card p-4">
             <textarea
               name="body"
@@ -95,9 +88,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
               </button>
             </div>
           </form>
-        )}
-
-        {ticket.status === 'closed' && (
+        ) : (
           <div className="kc-card px-5 py-4 text-center" style={{ background: '#F5F0E8' }}>
             <p className="text-gray-500 font-semibold text-sm">{tr(t.status.ticketClosed)}</p>
           </div>
