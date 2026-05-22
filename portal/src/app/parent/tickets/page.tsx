@@ -17,9 +17,9 @@ export default async function TicketsPage() {
 
   const { data } = await admin
     .from('tickets')
-    .select('id, subject, status, updated_at')
+    .select('id, subject, status, created_at')
     .eq('parent_id', userId)
-    .order('updated_at', { ascending: false })
+    .order('created_at', { ascending: false })
 
   const tickets = data ?? []
 
@@ -53,7 +53,7 @@ export default async function TicketsPage() {
                 <a key={tk.id} href={`/parent/tickets/${tk.id}`} className="px-5 py-4 flex items-center justify-between hover:bg-[#F5F0E8] transition-colors">
                   <div>
                     <p className="font-black text-gray-800">{tk.subject}</p>
-                    <p className="text-xs text-gray-400 font-semibold mt-1">{new Date(tk.updated_at).toLocaleDateString('de-DE')}</p>
+                    <p className="text-xs text-gray-400 font-semibold mt-1">{new Date(tk.created_at).toLocaleDateString('de-DE')}</p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <span className={`kc-badge text-xs ${tk.status === 'open' ? 'bg-teal-100 text-teal-700' : tk.status === 'in_progress' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>

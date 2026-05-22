@@ -17,7 +17,7 @@ export default async function ParentDashboard() {
 
   const [{ data: notifData }, { data: ticketData }, { data: childData }] = await Promise.all([
     admin.from('notifications').select('id, title, body, read, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(5),
-    admin.from('tickets').select('id, subject, status, updated_at').eq('parent_id', userId).order('updated_at', { ascending: false }),
+    admin.from('tickets').select('id, subject, status, created_at').eq('parent_id', userId).order('created_at', { ascending: false }),
     admin.from('children').select('id, name').eq('parent_id', userId),
   ])
 
