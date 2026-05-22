@@ -33,13 +33,13 @@ Automation tool — similar to Zapier, but self-hosted. Concrete uses: when a pa
 ### Redpanda (Kafka-compatible)
 An event bus — the app writes "events" (e.g. "ticket created") into Redpanda, and n8n listens and reacts. This decouples the app from the automations: if n8n has an error, the save operation in the app still completes successfully. Standard architecture pattern at larger scale (Kafka), here in a minimal setup.
 
-### Claude API (Anthropic)
+### Mistral API
 The AI layer. Three concrete use cases:
 - **FAQ Bot**: answers parent questions based on daycare documents
 - **Learning Stories**: assists educators in writing developmental reports
 - **Content Moderation**: checks parent messages for toxic content before they are saved
 
-Claude Haiku (smallest model) is used by default — costs ~100x less than GPT-4 for the same tasks.
+Mistral's smallest model is used by default — very cost-efficient compared to larger alternatives.
 
 ### Hostinger VPS (Frankfurt)
 A private Linux server (~€5/month) running n8n and Redpanda. Important for GDPR: data stays in Germany. Traefik runs in front of it as a reverse proxy (HTTPS termination, routing).
