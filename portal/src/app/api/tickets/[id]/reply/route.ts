@@ -8,8 +8,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const formData = await request.formData()
-  const body = formData.get('body')?.toString().trim()
+  const json = await request.json()
+  const body = json.body?.toString().trim()
   if (!body) return NextResponse.json({ error: 'Nachricht ist leer' }, { status: 400 })
 
   const admin = createAdminClient(
@@ -25,5 +25,5 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  return Response.redirect(new URL(`/parent/tickets/${id}`, request.url))
+  return NextResponse.json({ ok: true })
 }
