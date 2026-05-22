@@ -85,7 +85,7 @@ export default async function ParentDashboard() {
                 <a key={tk.id} href={`/parent/tickets/${tk.id}`} className="px-5 py-3 flex items-center justify-between hover:bg-[#F5F0E8] transition-colors">
                   <div>
                     <p className="text-sm font-bold text-gray-800">{tk.subject}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{new Date(tk.updated_at).toLocaleDateString('de-DE')}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{new Date(tk.created_at).toLocaleDateString('de-DE')}</p>
                   </div>
                   <span className={`kc-badge text-xs flex-shrink-0 ml-2 ${tk.status === 'open' ? 'bg-teal-100 text-teal-700' : tk.status === 'in_progress' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
                     {tk.status === 'open' ? tr(t.status.open) : tk.status === 'in_progress' ? tr(t.status.active) : tr(t.status.closed)}
