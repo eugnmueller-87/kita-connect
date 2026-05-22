@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -12,7 +12,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const body = formData.get('body')?.toString().trim()
   if (!body) return NextResponse.json({ error: 'Nachricht ist leer' }, { status: 400 })
 
-  const { error } = await supabase.from('ticket_messages').insert({
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+
+  const { error } = await admin.from('ticket_messages').insert({
     ticket_id: id,
     sender_id: user.id,
     body,

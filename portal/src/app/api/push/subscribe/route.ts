@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -11,7 +12,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid subscription' }, { status: 400 })
   }
 
-  await supabase.from('push_subscriptions').upsert({
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+
+  await admin.from('push_subscriptions').upsert({
     user_id: user.id,
     endpoint: subscription.endpoint,
     keys: subscription.keys,
@@ -26,7 +32,13 @@ export async function DELETE(request: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { endpoint } = await request.json()
-  await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint).eq('user_id', user.id)
+
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+
+  await admin.from('push_subscriptions').delete().eq('endpoint', endpoint).eq('user_id', user.id)
 
   return NextResponse.json({ ok: true })
 }
