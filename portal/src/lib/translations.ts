@@ -68,6 +68,10 @@ export const t = {
     pending: { de: '⏳ Ausstehend', en: '⏳ Pending', tr: '⏳ Beklemede', ru: '⏳ Ожидает' },
     blocked: { de: '❌ Gesperrt', en: '❌ Blocked', tr: '❌ Engellendi', ru: '❌ Заблокирован' },
     ticketClosed: { de: '⚫ Dieses Ticket ist geschlossen.', en: '⚫ This ticket is closed.', tr: '⚫ Bu bilet kapalıdır.', ru: '⚫ Этот тикет закрыт.' },
+    inProgress: { de: '🟡 In Bearbeitung', en: '🟡 In Progress', tr: '🟡 İşlemde', ru: '🟡 В работе' },
+    markInProgress: { de: 'In Bearbeitung', en: 'Mark In Progress', tr: 'İşleme Al', ru: 'В работу' },
+    markClosed: { de: 'Schließen', en: 'Close Ticket', tr: 'Kapat', ru: 'Закрыть' },
+    markOpen: { de: 'Wieder öffnen', en: 'Reopen', tr: 'Yeniden Aç', ru: 'Открыть снова' },
   },
 
   // --- Notification types ---
