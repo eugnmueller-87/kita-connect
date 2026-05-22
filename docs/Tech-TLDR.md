@@ -1,161 +1,161 @@
-# Kita Connect — Teacher Q&A
+# Kita Connect — Tech TLDR
 
-*Für Präsentationen und technische Fragen. Kein Fachjargon, direkte Antworten.*
-
----
-
-## Was ist Kita Connect?
-
-Eine fertige Web-App für Kitas — drei verschiedene Portale in einer Anwendung: für Eltern, Erzieher und die Kita-Leitung. Live unter [app.kita-connect.cloud](https://app.kita-connect.cloud).
+*For presentations and technical questions. No jargon, straight answers.*
 
 ---
 
-## Warum dieses Projekt?
+## What is Kita Connect?
 
-Kitas kommunizieren heute per Zettel, WhatsApp-Gruppen und Telefonanrufen. Das ist nicht DSGVO-konform, nicht strukturiert, und kostet Zeit. Kita Connect löst das mit einem geschlossenen, sicheren System — ohne monatliche Lizenzkosten.
+A fully working web app for daycare centers — three separate portals in one application: for parents, educators, and management. Live at [app.kita-connect.cloud](https://app.kita-connect.cloud).
 
 ---
 
-## Tech Stack — Was wurde womit gebaut?
+## Why this project?
+
+Daycare centers today communicate via paper notes, WhatsApp groups, and phone calls. None of that is GDPR-compliant, structured, or efficient. Kita Connect replaces it with a closed, secure system — at almost zero operating cost.
+
+---
+
+## Tech Stack — What is each technology used for?
 
 ### Next.js 14 (React)
-Das ist die eigentliche Web-App — alles was der Nutzer im Browser sieht. Next.js rendert Seiten teils auf dem Server (schneller, sicherer), teils im Browser (interaktiv). Konkret in diesem Projekt: die drei Portale (Eltern, Erzieher, Admin), alle Formulare, die Navigation.
+The actual web app — everything the user sees in the browser. Next.js renders pages partly on the server (faster, more secure) and partly in the browser (interactive). In this project specifically: the three portals (parent, teacher, admin), all forms, navigation, and page routing.
 
 ### Supabase (PostgreSQL)
-Die Datenbank — speichert alles: Kindprofile, Beobachtungen, Lerngeschichten, Benachrichtigungen, Einladungen. Supabase gibt außerdem Auth (Login/Logout), Datei-Speicher (Kinderfotos) und Sicherheitsregeln (wer darf was lesen) out of the box. Kein eigener Auth-Server nötig.
+The database — stores everything: child profiles, observations, learning stories, notifications, invitations, meal plans. Supabase also provides authentication (login/logout), file storage (child photos), and row-level security rules (who is allowed to read what) out of the box. No separate auth server needed.
 
 ### Vercel
-Hosting für die Next.js-App. Jedes Mal wenn Code auf GitHub gepusht wird, baut Vercel automatisch eine neue Version und schaltet sie live — in ~60 Sekunden. Keine manuelle Serverkonfiguration.
+Hosting for the Next.js app. Every time code is pushed to GitHub, Vercel automatically builds a new version and deploys it live — in about 60 seconds. No manual server setup required.
 
-### n8n (eigener VPS)
-Automatisierungs-Tool — vergleichbar mit Zapier, aber selbst gehostet. Konkret: wenn ein Elternteil eingeladen wird, schickt n8n die E-Mail. Wenn ein Ticket erstellt wird, benachrichtigt n8n die Erzieher. Wenn eine Nachricht toxisch ist, blockiert n8n sie. Läuft auf einem eigenen Server in Frankfurt.
+### n8n (self-hosted on VPS)
+Automation tool — similar to Zapier, but self-hosted. Concrete uses: when a parent is invited, n8n sends the email. When a ticket is created, n8n notifies the educators. When a message is flagged as toxic, n8n blocks it. Runs on a private server in Frankfurt.
 
-### Redpanda (Kafka-kompatibel)
-Ein Event-Bus — die App schreibt "Events" (z.B. "Ticket wurde erstellt") in Redpanda, und n8n hört zu und reagiert. Das entkoppelt die App von den Automatisierungen: ein n8n-Fehler bricht nicht den Speicher-Vorgang ab. Standard-Architektur bei größeren Systemen (Kafka), hier in Mini-Version.
+### Redpanda (Kafka-compatible)
+An event bus — the app writes "events" (e.g. "ticket created") into Redpanda, and n8n listens and reacts. This decouples the app from the automations: if n8n has an error, the save operation in the app still completes successfully. Standard architecture pattern at larger scale (Kafka), here in a minimal setup.
 
 ### Claude API (Anthropic)
-Die KI-Schicht. Drei konkrete Einsätze:
-- **FAQ-Bot**: beantwortet Eltern-Fragen auf Basis von Kita-Dokumenten
-- **Lerngeschichten**: unterstützt Erzieher beim Schreiben von Entwicklungsberichten
-- **Content-Moderation**: prüft Eltern-Nachrichten auf toxische Inhalte bevor sie gespeichert werden
+The AI layer. Three concrete use cases:
+- **FAQ Bot**: answers parent questions based on daycare documents
+- **Learning Stories**: assists educators in writing developmental reports
+- **Content Moderation**: checks parent messages for toxic content before they are saved
 
-Claude Haiku (kleinstes Modell) wird bevorzugt — kostet ~100x weniger als GPT-4.
+Claude Haiku (smallest model) is used by default — costs ~100x less than GPT-4 for the same tasks.
 
 ### Hostinger VPS (Frankfurt)
-Ein eigener Linux-Server (5 €/Monat) auf dem n8n und Redpanda laufen. Wichtig für DSGVO: Daten bleiben in Deutschland. Traefik läuft als Reverse Proxy davor (HTTPS, Routing).
+A private Linux server (~€5/month) running n8n and Redpanda. Important for GDPR: data stays in Germany. Traefik runs in front of it as a reverse proxy (HTTPS termination, routing).
 
 ---
 
-## Wie funktioniert die Architektur? (einfach erklärt)
+## How does the architecture work?
 
 ```
-Browser (Eltern/Erzieher/Admin)
+Browser (Parent / Teacher / Admin)
         ↓
-    Next.js App (Vercel)
+    Next.js App  (Vercel — public cloud)
         ↓
-    Supabase (Datenbank + Auth)
+    Supabase     (Database + Auth + File Storage)
         ↓
-    Redpanda (Event-Bus)
+    Redpanda     (Event Bus — private VPS Frankfurt)
         ↓
-    n8n (Automatisierungen: E-Mails, SMS, Benachrichtigungen)
+    n8n          (Automations: email, SMS, notifications)
 ```
 
-Die App schreibt nicht direkt E-Mails oder SMS — sie schickt ein "Event" (z.B. "Ticket erstellt"), und n8n reagiert darauf. Das ist robuster weil ein Fehler in der Automatisierung die App nicht kaputt macht.
+The app never sends emails or SMS directly — it publishes an event (e.g. "ticket.created"), and n8n picks it up and handles the rest. This means an automation failure never breaks the core app.
 
 ---
 
-## Was kann die App? (Rolle für Rolle)
+## What can each role do?
 
-### Eltern-Portal
-- Kindprofil anlegen (Foto, Geburtsdatum, Lieblingsessen etc.)
-- Benachrichtigungen lesen (Ausflüge, Krankmeldungen, etc.)
-- Speiseplan der Woche einsehen (mit DGE-Ampel für Nährwerte)
-- Support-Tickets öffnen ("Kann mein Kind morgen früher abgeholt werden?")
-- FAQ-Bot (KI beantwortet häufige Fragen)
-- Sprache wechseln: Deutsch, Englisch, Türkisch, Russisch
+### Parent Portal
+- Create a child profile (photo, birthday, favorite food, etc.)
+- Read notifications (field trips, sick day policies, etc.)
+- View the weekly meal plan (with German DGE nutrition traffic light)
+- Open support tickets ("Can my child be picked up early tomorrow?")
+- Use the AI FAQ bot for common questions
+- Switch language: German, English, Turkish, Russian
 
-### Erzieher-Portal
-- Alle Kinder der Gruppe sehen
-- Beobachtungen dokumentieren (nach Kategorien: Sprache, Motorik, Sozial, Kreativität, Mathe, Selbständigkeit)
-- Lerngeschichten schreiben (KI-unterstützt via Claude)
-- Nachrichten an Elterngruppen senden (Broadcast)
-- Speiseplan verwalten
+### Teacher Portal
+- See all children in the group
+- Document observations by category (Language, Motor Skills, Social, Creativity, Math, Independence)
+- Write learning stories (AI-assisted via Claude)
+- Send broadcast messages to parent groups
+- Manage the meal plan
 
-### Admin-Portal
-- Einladungen verschicken (Eltern + Erzieher bekommen einen Link per E-Mail)
-- Eltern-Registrierungen genehmigen
-- Kitas und Träger verwalten
-- Nachrichten an alle senden
-
----
-
-## Wie kommen Nutzer rein?
-
-Kein offenes "Registrieren"-Formular. Nur wer eine Einladung bekommt, kann sich anmelden. Das verhindert dass Fremde sich einfach als "Elternteil" registrieren.
-
-Ablauf:
-1. Admin schickt Einladung (E-Mail-Adresse eingeben, Rolle wählen)
-2. n8n schickt automatisch eine E-Mail mit Registrierungslink
-3. Empfänger klickt Link, setzt Passwort, ist drin
+### Admin Portal
+- Send invitations (parents and educators receive a registration link by email)
+- Approve parent registrations
+- Manage Kitas and Träger (umbrella organizations)
+- Send messages to everyone
 
 ---
 
-## Was ist mit DSGVO?
+## How do users get access?
 
-- Alle Daten liegen in der EU (Supabase Frankfurt, eigener VPS Frankfurt)
-- Kein Google Analytics, kein Facebook-Pixel
-- Audit-Log: jede sensible Aktion wird protokolliert (wer hat wann was geändert)
-- Account-Löschung: Eltern können ihr Konto selbst löschen, Daten werden nach 90 Tagen bereinigt
-- KI-Richtlinie: Claude darf Kinder weder bewerten noch vergleichen (in den System-Prompts erzwungen)
-- Content-Moderation: Eltern-Nachrichten werden automatisch geprüft, toxische Inhalte werden blockiert
+There is no open registration form. Only people who receive an invitation can sign up — this prevents strangers from registering as a parent.
 
----
-
-## Was kostet das?
-
-| Dienst | Kosten |
-|--------|--------|
-| Vercel (Hosting) | ~0 € (Free Tier) |
-| Supabase (DB) | ~0 € (Free Tier) |
-| n8n + Redpanda (VPS) | ~5–7 €/Monat |
-| Claude API (KI) | ~0–2 €/Monat (Haiku ist sehr günstig) |
-| **Gesamt** | **~5–9 €/Monat** |
-
-Zum Vergleich: kommerzielle Kita-Software kostet 200–500 €/Monat.
+Flow:
+1. Admin enters an email address and selects a role
+2. n8n automatically sends an email with a registration link
+3. Recipient clicks the link, sets a password, and is in
 
 ---
 
-## Wo läuft der Code?
+## What about GDPR?
+
+- All data is stored in the EU (Supabase Frankfurt, private VPS Frankfurt)
+- No Google Analytics, no Facebook Pixel
+- Audit log: every sensitive action is recorded (who changed what and when)
+- Account deletion: parents can delete their own account, data is purged after 90 days
+- AI policy: Claude is explicitly forbidden from rating, ranking, or comparing children (enforced in system prompts)
+- Content moderation: parent messages are automatically checked, toxic content is blocked before saving
+
+---
+
+## What does it cost?
+
+| Service | Cost |
+|---------|------|
+| Vercel (hosting) | ~€0 (free tier) |
+| Supabase (database) | ~€0 (free tier) |
+| n8n + Redpanda (VPS) | ~€5–7/month |
+| Claude API (AI) | ~€0–2/month (Haiku is very cheap) |
+| **Total** | **~€5–9/month** |
+
+For comparison: commercial daycare software costs €200–500/month.
+
+---
+
+## Where is the code?
 
 - **GitHub:** [eugnmueller-87/kita-connect](https://github.com/eugnmueller-87/kita-connect)
 - **Live:** [app.kita-connect.cloud](https://app.kita-connect.cloud)
-- Jeder `git push` → Vercel baut automatisch neu und deployt
+- Every `git push` → Vercel rebuilds and deploys automatically
 
 ---
 
-## Was war technisch die größte Herausforderung?
+## What was the biggest technical challenge?
 
 **Row Level Security (RLS) in Supabase.**
 
-Die Datenbank hat eingebaute Sicherheitsregeln: jede Anfrage wird geprüft ob der eingeloggte User das überhaupt lesen/schreiben darf. Das schützt Daten, macht aber Debugging schwierig weil manche Operationen stillschweigend blockiert werden statt einen klaren Fehler zu zeigen.
+The database has built-in security rules: every request is checked to see whether the logged-in user is actually allowed to read or write that data. This protects the data well, but makes debugging difficult because some operations are silently blocked instead of returning a clear error.
 
-Lösung: API-Routen mit einem Admin-Key der RLS umgeht — aber nur serverseitig, nie im Browser.
-
----
-
-## Was würde ich bei einem echten Produkt anders machen?
-
-1. **Schemadesign früher festlegen** — Spalten nachträglich hinzufügen kostet Zeit
-2. **Testing** — momentan kein automatisiertes Testing, das wäre Pflicht in Production
-3. **Mobile App** — momentan nur Web (responsive), aber eine native App wäre für Eltern besser
-4. **Multi-Tenancy von Anfang an** — Träger-Modell kam später, das hätte früher rein gemusst
+Solution: server-side API routes using an admin key that bypasses RLS — but only on the server, never exposed to the browser.
 
 ---
 
-## Test-Accounts für die Demo
+## What would I do differently in a real product?
 
-| Rolle | E-Mail | Passwort |
-|-------|--------|----------|
-| Elternteil | parenttest@kita-connect.cloud | abc123 |
-| Erzieherin | teachertest@kita-connect.cloud | abc123 |
+1. **Fix the database schema upfront** — adding columns later wastes time and creates migration overhead
+2. **Automated testing** — currently no test suite; that would be mandatory in production
+3. **Mobile app** — currently web-only (responsive), but a native app would be better for parents
+4. **Multi-tenancy from day one** — the Träger/Kita model was added later; it should have been in the initial design
+
+---
+
+## Demo Accounts
+
+| Role | Email | Password |
+|------|-------|----------|
+| Parent | parenttest@kita-connect.cloud | abc123 |
+| Teacher | teachertest@kita-connect.cloud | abc123 |
 | Admin | admintest@kita-connect.cloud | abc123 |
