@@ -2,6 +2,20 @@
 
 ---
 
+## 2026-05-22 — Ticket-Chat vollständig implementiert
+
+- **Teacher-Ticket-Liste** gebaut: alle Tickets mit Elternname, gruppiert nach Status
+- **Teacher-Ticket-Detail** gebaut: vollständiger Chat-Thread, Reply-Formular, Status-Buttons
+- **Parent-Ticket-Detail** rebuilt: Client Component, Chat-Thread mit eigenem Nachrichten rechts / Teacher links
+- **Admin-Client-Pattern** durchgezogen: alle API-Routen nutzen service_role für DB-Operationen
+- **Offene Tickets** auf Teacher-Dashboard als 4. Stat-Karte eingebaut
+- **Bugs gefixt**: `ticket_messages` → `ticket_replies`, `updated_at` inexistent, FK-Join-Fehler, formData → JSON
+- **DB-Trigger** `ticket_reply_timestamp_trigger` gedroppt (versuchte `tickets.updated_at` zu setzen, Spalte existiert nicht)
+- **GRANTs** vergeben: profiles, ticket_replies, tickets an service_role
+- **Tech-TLDR.md** erstellt: English Q&A für Präsentation (Mistral API, kein RAG, kein Redis)
+
+---
+
 ## 2026-05-21 — Auth-System auf Email + Passwort umgebaut
 
 - **Login-Seite** neu: `signInWithPassword` statt OTP, rollenbasierte Weiterleitung
