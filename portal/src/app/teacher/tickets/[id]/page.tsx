@@ -19,13 +19,20 @@ export default async function TeacherTicketDetailPage({ params }: { params: Prom
   )
 
   const [{ data: ticket }, { data: replies }] = await Promise.all([
-    admin.from('tickets').select('id, subject, status, created_at, parent:profiles(full_name, email)').eq('id', id).single(),
-    admin.from('ticket_replies').select('id, body, author_id, created_at, author:profiles(full_name, role)').eq('ticket_id', id).order('created_at'),
+    admin.from('tickets').select('id, subject, status, created_at, parent_id').eq('id', id).single(),
+    admin.from('ticket_replies').select('id, body, author_id, created_at').eq('ticket_id', id).order('created_at'),
   ])
 
   if (!ticket) notFound()
 
-  const parent = Array.isArray(ticket.parent) ? ticket.parent[0] : ticket.parent
+  const replyAuthorIds = [...new Set((replies ?? []).map(r => r.author_id).filter(Boolean))]
+  const allProfileIds = [...new Set([ticket.parent_id, ...replyAuthorIds].filter(Boolean))]
+  const { data: profileData } = allProfileIds.length > 0
+    ? await admin.from('profiles').select('id, full_name, role').in('id', allProfileIds)
+    : { data: [] }
+  const profileMap = Object.fromEntries((profileData ?? []).map(p => [p.id, p]))
+
+  const parent = profileMap[ticket.parent_id]
 
   function statusBadge(status: string) {
     if (status === 'open') return 'bg-teal-100 text-teal-700'
@@ -71,7 +78,7 @@ export default async function TeacherTicketDetailPage({ params }: { params: Prom
           )}
           {(replies ?? []).map(r => {
             const isMe = r.author_id === userId
-            const author = Array.isArray(r.author) ? r.author[0] : r.author
+            const author = profileMap[r.author_id]
             return (
               <div key={r.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[80%] px-4 py-3 rounded-2xl ${
