@@ -164,7 +164,7 @@ export default function TeacherDashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mt-6">
+        <div className="grid grid-cols-4 gap-4 mt-6">
           <a href="/teacher/children" className="kc-card p-5 flex items-center gap-4 hover:scale-105 transition-transform" style={{ background: '#E1F5EE' }}>
             <span className="text-4xl">👶</span><div><p className="font-black text-gray-800">{tr(t.teacherDash.cardChildren)}</p><p className="text-xs text-gray-500 font-semibold">{tr(t.teacherDash.cardChildrenSub)}</p></div>
           </a>
@@ -173,6 +173,9 @@ export default function TeacherDashboard() {
           </a>
           <a href="/teacher/stories" className="kc-card p-5 flex items-center gap-4 hover:scale-105 transition-transform" style={{ background: '#FFF0F5' }}>
             <span className="text-4xl">📖</span><div><p className="font-black text-gray-800">{tr(t.teacherDash.cardStories)}</p><p className="text-xs text-gray-500 font-semibold">{tr(t.teacherDash.cardStoriesSub)}</p></div>
+          </a>
+          <a href="/teacher/tickets" className="kc-card p-5 flex items-center gap-4 hover:scale-105 transition-transform" style={{ background: '#EEF6FF' }}>
+            <span className="text-4xl">💬</span><div><p className="font-black text-gray-800">Anfragen</p><p className="text-xs text-gray-500 font-semibold">Eltern-Tickets</p></div>
           </a>
         </div>
 
