@@ -1,5 +1,12 @@
 # Kita Connect
 
+![Live](https://img.shields.io/badge/Live-app.kita-connect.cloud-teal)
+![Stack](https://img.shields.io/badge/Stack-Next.js_+_Supabase-black)
+![Auth](https://img.shields.io/badge/Auth-Invite--only-orange)
+![GDPR](https://img.shields.io/badge/GDPR-EU_Compliant-green)
+![Cost](https://img.shields.io/badge/Cost-6–18_EUR%2Fmonth-blue)
+![License](https://img.shields.io/badge/License-Private-lightgrey)
+
 **Full-stack Kita management platform** — built for German daycare centers, designed to run at near-zero monthly cost with enterprise-grade security and GDPR compliance.
 
 > Portfolio project by [Eugen Mueller](https://github.com/eugnmueller-87). Live at [app.kita-connect.cloud](https://app.kita-connect.cloud) · [Präsentation](https://eugnmueller-87.github.io/kita-connect/presentation/)
