@@ -47,11 +47,6 @@ export async function POST(request: Request) {
   const { ticket_id, body } = await request.json()
   if (!ticket_id || !body?.trim()) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
 
-  const admin = createAdminClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  )
-
   const { error } = await admin.from('ticket_replies').insert({
     ticket_id,
     author_id: user.id,
