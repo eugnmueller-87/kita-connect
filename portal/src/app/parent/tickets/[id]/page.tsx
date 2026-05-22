@@ -19,7 +19,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
 
   const [{ data: ticket }, { data: messages }] = await Promise.all([
     admin.from('tickets').select('id, subject, status, created_at').eq('id', id).eq('parent_id', userId).single(),
-    admin.from('ticket_messages').select('id, body, sender_id, created_at, sender:profiles(full_name, role)').eq('ticket_id', id).order('created_at'),
+    admin.from('ticket_replies').select('id, body, author_id, created_at, author:profiles(full_name, role)').eq('ticket_id', id).order('created_at'),
   ])
 
   if (!ticket) notFound()
@@ -53,15 +53,15 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
             </div>
           )}
           {(messages ?? []).map(m => {
-            const isMe = m.sender_id === userId
-            const sender = Array.isArray(m.sender) ? m.sender[0] : m.sender
+            const isMe = m.author_id === userId
+            const author = Array.isArray(m.author) ? m.author[0] : m.author
             return (
               <div key={m.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[80%] px-4 py-3 rounded-2xl ${
                   isMe ? 'bg-teal-600 text-white' : 'kc-card bg-white text-gray-800'
                 }`}>
-                  {!isMe && sender && (
-                    <p className="text-xs font-black text-teal-600 mb-1">{sender.full_name}</p>
+                  {!isMe && author && (
+                    <p className="text-xs font-black text-teal-600 mb-1">{author.full_name}</p>
                   )}
                   <p className="text-sm leading-relaxed">{m.body}</p>
                   <p className={`text-xs mt-1.5 font-semibold ${isMe ? 'text-teal-200' : 'text-gray-400'}`}>

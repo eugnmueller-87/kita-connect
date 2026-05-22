@@ -57,9 +57,9 @@ export async function POST(request: Request) {
 
   if (ticketError) return NextResponse.json({ error: ticketError.message }, { status: 500 })
 
-  await admin.from('ticket_messages').insert({
+  await admin.from('ticket_replies').insert({
     ticket_id: ticket.id,
-    sender_id: user.id,
+    author_id: user.id,
     body: message.trim(),
   })
 
